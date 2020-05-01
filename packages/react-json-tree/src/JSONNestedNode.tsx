@@ -4,12 +4,40 @@ import JSONArrow from './JSONArrow';
 import getCollectionEntries from './getCollectionEntries';
 import JSONNode from './JSONNode';
 import ItemRange from './ItemRange';
+import { Styling } from './index';
 
 /**
  * Renders nested values (eg. objects, arrays, lists, etc.)
  */
 
-function renderChildNodes(props, from, to) {
+interface RenderChildNodesProps {
+  nodeType: string;
+  data: any;
+  collectionLimit: number;
+  circularCache: any[];
+  keyPath: (string | number)[];
+  postprocessValue: (value: any) => any;
+  sortObjectKeys: boolean;
+
+  level: number;
+  styling: Styling;
+}
+
+interface Range {
+  from: number;
+  to: number;
+}
+
+interface Entry {
+  key: string | number;
+  value: any;
+}
+
+function isRange(rangeOrEntry: Range | Entry): rangeOrEntry is Range {
+  return (rangeOrEntry as Range).to !== undefined;
+}
+
+function renderChildNodes(props: RenderChildNodesProps, from?: number, to?: number) {
   const {
     nodeType,
     data,
@@ -19,7 +47,7 @@ function renderChildNodes(props, from, to) {
     postprocessValue,
     sortObjectKeys
   } = props;
-  const childNodes = [];
+  const childNodes: React.ReactNode[] = [];
 
   getCollectionEntries(
     nodeType,
@@ -29,7 +57,7 @@ function renderChildNodes(props, from, to) {
     from,
     to
   ).forEach(entry => {
-    if (entry.to) {
+    if (isRange(entry)) {
       childNodes.push(
         <ItemRange
           {...props}
@@ -56,16 +84,39 @@ function renderChildNodes(props, from, to) {
         />
       );
 
-      if (node !== false) {
-        childNodes.push(node);
-      }
+      childNodes.push(node);
     }
   });
 
   return childNodes;
 }
 
-function getStateFromProps(props) {
+interface Props {
+  getItemString: (nodeType: string, data: any, itemType: React.ReactNode, itemString: string) => string;
+  nodeTypeIndicator: string;
+  nodeType: string;
+  data: any;
+  hideRoot: boolean;
+  createItemString: (data: any, collectionLimit: number) => string;
+  styling: Styling;
+  collectionLimit: number;
+  keyPath: (string | number)[];
+  level: number;
+  isCircular: boolean;
+  labelRenderer: (keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean) => React.ReactNode;
+  expandable: boolean;
+  circularCache?: any[];
+  sortObjectKeys: boolean;
+
+  shouldExpandNode: (keyPath: (string | number)[], data: any, level: number) => boolean;
+  postprocessValue: (value: any) => any;
+}
+
+interface State {
+  expanded: boolean;
+}
+
+function getStateFromProps(props: Props): State {
   // calculate individual node expansion if necessary
   const expanded =
     props.shouldExpandNode && !props.isCircular
@@ -76,7 +127,7 @@ function getStateFromProps(props) {
   };
 }
 
-export default class JSONNestedNode extends React.Component {
+export default class JSONNestedNode extends React.Component<Props, State> {
   static propTypes = {
     getItemString: PropTypes.func.isRequired,
     nodeTypeIndicator: PropTypes.any,
@@ -104,19 +155,19 @@ export default class JSONNestedNode extends React.Component {
     expandable: true
   };
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
     this.state = getStateFromProps(props);
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps: Props) {
     const nextState = getStateFromProps(nextProps);
     if (getStateFromProps(this.props).expanded !== nextState.expanded) {
       this.setState(nextState);
     }
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps: Props, nextState: State) {
     return (
       !!Object.keys(nextProps).find(
         key =>
@@ -159,7 +210,7 @@ export default class JSONNestedNode extends React.Component {
       itemType,
       createItemString(data, collectionLimit)
     );
-    const stylingArgs = [keyPath, nodeType, expanded, expandable];
+    const stylingArgs = [keyPath, nodeType, expanded, expandable] as const;
 
     return hideRoot ? (
       <li {...styling('rootNode', ...stylingArgs)}>

@@ -1,8 +1,30 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import JSONArrow from './JSONArrow';
+import { Styling } from './index';
 
-export default class ItemRange extends React.Component {
+interface Props {
+  styling: Styling;
+  from: number;
+  to: number;
+  renderChildNodes: (props: Props, from: number, to: number) => React.ReactNode;
+  nodeType: string;
+
+  data: any;
+  collectionLimit: number;
+  circularCache: any[];
+  keyPath: (string | number)[];
+  postprocessValue: (value: any) => any;
+  sortObjectKeys: boolean;
+
+  level: number;
+}
+
+interface State {
+  expanded: boolean;
+}
+
+export default class ItemRange extends React.Component<Props, State> {
   static propTypes = {
     styling: PropTypes.func.isRequired,
     from: PropTypes.number.isRequired,
@@ -11,7 +33,7 @@ export default class ItemRange extends React.Component {
     nodeType: PropTypes.string.isRequired
   };
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
     this.state = { expanded: false };
 

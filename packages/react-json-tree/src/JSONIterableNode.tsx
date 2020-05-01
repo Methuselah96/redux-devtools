@@ -3,7 +3,7 @@ import JSONNestedNode from './JSONNestedNode';
 
 // Returns the "n Items" string for this node,
 // generating and caching it if it hasn't been created yet.
-function createItemString(data, limit) {
+function createItemString(data: any, limit: number) {
   let count = 0;
   let hasMore = false;
   if (Number.isSafeInteger(data.size)) {
@@ -21,8 +21,12 @@ function createItemString(data, limit) {
   return `${hasMore ? '>' : ''}${count} ${count !== 1 ? 'entries' : 'entry'}`;
 }
 
+interface Props {
+  data: any;
+}
+
 // Configures <JSONNestedNode> to render an iterable
-export default function JSONIterableNode({ ...props }) {
+const JSONIterableNode: React.FunctionComponent<Props> = ({ ...props }) => {
   return (
     <JSONNestedNode
       {...props}
@@ -32,3 +36,5 @@ export default function JSONIterableNode({ ...props }) {
     />
   );
 }
+
+export default JSONIterableNode;

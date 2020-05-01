@@ -5,8 +5,29 @@ import JSONObjectNode from './JSONObjectNode';
 import JSONArrayNode from './JSONArrayNode';
 import JSONIterableNode from './JSONIterableNode';
 import JSONValueNode from './JSONValueNode';
+import { Styling } from './index';
 
-const JSONNode = ({
+interface Props {
+  getItemString: (nodeType: string, data: any, itemType: React.ReactNode, itemString: string) => string;
+  keyPath: (string | number)[];
+  labelRenderer: (keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean) => React.ReactNode;
+  styling: Styling;
+  collectionLimit: number;
+  level: number;
+  expandable: boolean;
+  shouldExpandNode: (keyPath: (string | number)[], data: any, level: number) => boolean;
+  postprocessValue: (value: any) => any;
+  value: any;
+  valueRenderer: (valueString: string, value: any, ...keyPath: (string | number)[]) => React.ReactNode;
+  isCustomNode: (value: any) => boolean;
+  valueGetter: (value: any) => string;
+
+  circularCache?: [];
+  isCircular: boolean;
+  hideRoot: boolean;
+}
+
+const JSONNode: React.FunctionComponent<Props> = ({
   getItemString,
   keyPath,
   labelRenderer,
@@ -14,6 +35,7 @@ const JSONNode = ({
   value,
   valueRenderer,
   isCustomNode,
+  valueGetter,
   ...rest
 }) => {
   const nodeType = isCustomNode(value) ? 'Custom' : objType(value);
@@ -26,7 +48,8 @@ const JSONNode = ({
     nodeType,
     styling,
     value,
-    valueRenderer
+    valueRenderer,
+    valueGetter,
   };
 
   const nestedNodeProps = {
@@ -97,7 +120,7 @@ const JSONNode = ({
 JSONNode.propTypes = {
   getItemString: PropTypes.func.isRequired,
   keyPath: PropTypes.arrayOf(
-    PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+    PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired
   ).isRequired,
   labelRenderer: PropTypes.func.isRequired,
   styling: PropTypes.func.isRequired,

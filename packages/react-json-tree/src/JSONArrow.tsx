@@ -1,7 +1,16 @@
-import React from 'react';
+import React, { MouseEventHandler } from 'react';
 import PropTypes from 'prop-types';
+import { Styling } from './index';
 
-const JSONArrow = ({ styling, arrowStyle, expanded, nodeType, onClick }) => (
+interface Props {
+  styling: Styling;
+  arrowStyle?: 'single' | 'double';
+  expanded: boolean;
+  nodeType: string;
+  onClick: MouseEventHandler<HTMLDivElement>;
+}
+
+const JSONArrow: React.FunctionComponent<Props> = ({ styling, arrowStyle = 'single', expanded, nodeType, onClick }) => (
   <div {...styling('arrowContainer', arrowStyle)} onClick={onClick}>
     <div {...styling(['arrow', 'arrowSign'], nodeType, expanded, arrowStyle)}>
       {'\u25B6'}
@@ -18,10 +27,6 @@ JSONArrow.propTypes = {
   expanded: PropTypes.bool.isRequired,
   nodeType: PropTypes.string.isRequired,
   onClick: PropTypes.func.isRequired
-};
-
-JSONArrow.defaultProps = {
-  arrowStyle: 'single'
 };
 
 export default JSONArrow;

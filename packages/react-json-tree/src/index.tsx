@@ -9,17 +9,51 @@ import JSONNode from './JSONNode';
 import createStylingFromTheme from './createStylingFromTheme';
 import { invertTheme } from 'react-base16-styling';
 
-const identity = value => value;
-const expandRootNode = (keyName, data, level) => level === 0;
-const defaultItemString = (type, data, itemType, itemString) => (
+interface Props {
+  data: any;
+  hideRoot: boolean;
+  invertTheme: boolean;
+  keyPath: (string | number)[];
+  getItemString: (nodeType: string, data: any, itemType: React.ReactNode, itemString: string) => string;
+  labelRenderer: (keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean) => React.ReactNode;
+  valueRenderer: (valueString: string, value: any, ...keyPath: (string | number)[]) => React.ReactNode;
+  postprocessValue: (value: any) => any;
+  shouldExpandNode: (keyPath: (string | number)[], data: any, level: number) => boolean;
+}
+
+export interface Styling {
+  (key: 'tree'): { style: React.CSSProperties };
+  (key: 'value', nodeType: string, keyPath: (string | number)[]): { style: React.CSSProperties };
+  (keys: ['label', 'valueLabel'], nodeType: string, keyPath: (string | number)[]): { style: React.CSSProperties };
+  (keys: ['label', 'nestedNodeLabel'], keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean): { style: React.CSSProperties };
+  (key: 'valueText', nodeType: string, keyPath: (string | number)[]): { style: React.CSSProperties };
+  (key: 'itemRange', expanded: boolean): { style: React.CSSProperties };
+  (keys: ['arrow', 'arrowSign'], nodeType: string, expanded: boolean, arrowStyle: 'single' | 'double'): { style: React.CSSProperties };
+  (key: 'arrowContainer', arrowStyle: 'single' | 'double'): { style: React.CSSProperties };
+  (keys: ['arrowSign', 'arrowSignInner']): { style: React.CSSProperties };
+  (key: 'nestedNode', keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean): { style: React.CSSProperties };
+  (key: 'rootNode', keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean): { style: React.CSSProperties };
+  (key: 'nestedNodeItemString', keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean): { style: React.CSSProperties };
+  (key: 'nestedNodeItemType', expanded: boolean): { style: React.CSSProperties };
+  (key: 'nestedNodeChildren', keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean): { style: React.CSSProperties };
+  (key: 'rootNodeChildren', keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean): { style: React.CSSProperties };
+}
+
+interface State {
+  styling: Styling;
+}
+
+const identity = <T extends any>(value: T) => value;
+const expandRootNode = (keyName: (string | number)[], data: any, level: number) => level === 0;
+const defaultItemString = (type: string, data: any, itemType: React.ReactNode, itemString: string) => (
   <span>
     {itemType} {itemString}
   </span>
 );
-const defaultLabelRenderer = ([label]) => <span>{label}:</span>;
+const defaultLabelRenderer = ([label]: (string | number)[]) => <span>{label}:</span>;
 const noCustomNode = () => false;
 
-function checkLegacyTheming(theme, props) {
+function checkLegacyTheming(theme, props: Props) {
   const deprecatedStylingMethodsMap = {
     getArrowStyle: 'arrow',
     getListStyle: 'nestedNodeChildren',
@@ -59,7 +93,7 @@ function checkLegacyTheming(theme, props) {
   return theme;
 }
 
-function getStateFromProps(props) {
+function getStateFromProps(props: Props): State {
   let theme = checkLegacyTheming(props.theme, props);
   if (props.invertTheme) {
     if (typeof theme === 'string') {
@@ -79,7 +113,7 @@ function getStateFromProps(props) {
   };
 }
 
-export default class JSONTree extends React.Component {
+export default class JSONTree extends React.Component<Props, State> {
   static propTypes = {
     data: PropTypes.oneOfType([PropTypes.array, PropTypes.object]).isRequired,
     hideRoot: PropTypes.bool,
@@ -105,18 +139,18 @@ export default class JSONTree extends React.Component {
     invertTheme: true
   };
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
     this.state = getStateFromProps(props);
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps: Props) {
     if (['theme', 'invertTheme'].find(k => nextProps[k] !== this.props[k])) {
       this.setState(getStateFromProps(nextProps));
     }
   }
 
-  shouldComponentUpdate(nextProps) {
+  shouldComponentUpdate(nextProps: Props) {
     return !!Object.keys(nextProps).find(k =>
       k === 'keyPath'
         ? nextProps[k].join('/') !== this.props[k].join('/')
