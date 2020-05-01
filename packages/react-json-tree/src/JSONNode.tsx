@@ -6,9 +6,12 @@ import JSONArrayNode from './JSONArrayNode';
 import JSONIterableNode from './JSONIterableNode';
 import JSONValueNode from './JSONValueNode';
 import { Styling } from './index';
+import { JSONNestedNodeProps } from './JSONNestedNode';
 
-interface Props {
-  // Self
+type SimpleNodePropsKeys = 'getItemString' | 'keyPath' | 'labelRenderer' | 'nodeType' | 'styling' | 'value' | 'valueRenderer';
+type NestedNodePropsKeys = 'data' | 'isCustomNode';
+type SpreadProps = Omit<JSONNestedNodeProps, SimpleNodePropsKeys | NestedNodePropsKeys>;
+export interface JSONNodeProps extends SpreadProps {
   getItemString: (nodeType: string, data: any, itemType: React.ReactNode, itemString: string) => string;
   keyPath: (string | number)[];
   labelRenderer: (keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean) => React.ReactNode;
@@ -16,23 +19,34 @@ interface Props {
   value: any;
   valueRenderer: (gottenValue: any, value: any, ...keyPath: (string | number)[]) => React.ReactNode;
   isCustomNode: (value: any) => boolean;
-
-  // JSONNestedNode pass-through props
-  shouldExpandNode: (keyPath: (string | number)[], data: any, level: number) => boolean;
-  isCircular: boolean;
-  hideRoot: boolean;
-  collectionLimit: number;
-  postprocessValue: (value: any) => any;
-  sortObjectKeys: boolean;
-
-  // JSONNestedNode optional pass-through props
-  data?: any;
-  circularCache?: any[];
-  level?: number;
-  expandable: boolean;
 }
 
-const JSONNode: React.FunctionComponent<Props> = ({
+// interface Props {
+//   // Self
+//   getItemString: (nodeType: string, data: any, itemType: React.ReactNode, itemString: string) => string;
+//   keyPath: (string | number)[];
+//   labelRenderer: (keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean) => React.ReactNode;
+//   styling: Styling;
+//   value: any;
+//   valueRenderer: (gottenValue: any, value: any, ...keyPath: (string | number)[]) => React.ReactNode;
+//   isCustomNode: (value: any) => boolean;
+//
+//   // JSONNestedNode pass-through props
+//   shouldExpandNode: (keyPath: (string | number)[], data: any, level: number) => boolean;
+//   isCircular: boolean;
+//   hideRoot: boolean;
+//   collectionLimit: number;
+//   postprocessValue: (value: any) => any;
+//   sortObjectKeys: boolean;
+//
+//   // JSONNestedNode optional pass-through props
+//   data?: any;
+//   circularCache?: any[];
+//   level?: number;
+//   expandable: boolean;
+// }
+
+const JSONNode: React.FunctionComponent<JSONNodeProps> = ({
   getItemString,
   keyPath,
   labelRenderer,
