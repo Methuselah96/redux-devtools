@@ -4,22 +4,26 @@ import objType from './objType';
 import JSONObjectNode from './JSONObjectNode';
 import JSONArrayNode from './JSONArrayNode';
 import JSONIterableNode from './JSONIterableNode';
-import JSONValueNode from './JSONValueNode';
-import { Styling } from './index';
-import { JSONNestedNodeProps } from './JSONNestedNode';
+import JSONValueNode, { JSONValueNodeProps } from './JSONValueNode';
 
-type SimpleNodePropsKeys = 'getItemString' | 'keyPath' | 'labelRenderer' | 'nodeType' | 'styling' | 'value' | 'valueRenderer';
-type NestedNodePropsKeys = 'data' | 'isCustomNode';
-type SpreadProps = Omit<JSONNestedNodeProps, SimpleNodePropsKeys | NestedNodePropsKeys>;
-export interface JSONNodeProps extends SpreadProps {
+type JSONValueSpreadProps = Pick<JSONValueNodeProps, 'nodeType' | 'styling' | 'labelRenderer' | 'keyPath' | 'valueRenderer' | 'value'>;
+export interface JSONNodeProps extends JSONValueSpreadProps {
   getItemString: (nodeType: string, data: any, itemType: React.ReactNode, itemString: string) => string;
-  keyPath: (string | number)[];
-  labelRenderer: (keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean) => React.ReactNode;
-  styling: Styling;
-  value: any;
-  valueRenderer: (gottenValue: any, value: any, ...keyPath: (string | number)[]) => React.ReactNode;
   isCustomNode: (value: any) => boolean;
 }
+
+// type SimpleNodePropsKeys = 'getItemString' | 'keyPath' | 'labelRenderer' | 'nodeType' | 'styling' | 'value' | 'valueRenderer';
+// type NestedNodePropsKeys = 'data' | 'isCustomNode';
+// type SpreadProps = Omit<JSONNestedNodeProps, SimpleNodePropsKeys | NestedNodePropsKeys>;
+// export interface JSONNodeProps extends SpreadProps {
+//   getItemString: (nodeType: string, data: any, itemType: React.ReactNode, itemString: string) => string;
+//   keyPath: (string | number)[];
+//   labelRenderer: (keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean) => React.ReactNode;
+//   styling: Styling;
+//   value: any;
+//   valueRenderer: (gottenValue: any, value: any, ...keyPath: (string | number)[]) => React.ReactNode;
+//   isCustomNode: (value: any) => boolean;
+// }
 
 // interface Props {
 //   // Self

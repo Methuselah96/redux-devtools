@@ -3,25 +3,34 @@ import PropTypes from 'prop-types';
 import JSONArrow from './JSONArrow';
 import getCollectionEntries from './getCollectionEntries';
 import JSONNode, { JSONNodeProps } from './JSONNode';
-import ItemRange, { ItemRangeProps } from './ItemRange';
+import ItemRange from './ItemRange';
 import { Styling } from './index';
 
 /**
  * Renders nested values (eg. objects, arrays, lists, etc.)
  */
 
-type ItemRangeSpreadProps = Omit<ItemRangeProps, 'from' | 'to' | 'renderChildNodes'>;
-type JSONNodeSpreadProps = Omit<JSONNodeProps, 'postprocessValue' | 'collectionLimit' | 'keyPath' | 'value' | 'circularCache' | 'isCircular' | 'hideRoot'>;
-type SpreadProps = ItemRangeSpreadProps & JSONNodeSpreadProps;
-export interface RenderChildNodesProps extends SpreadProps {
-  nodeType: string;
+type JSONNodeSpreadProps = Pick<JSONNodeProps, 'nodeType' | 'keyPath' | 'value'>;
+export interface RenderChildNodesProps extends JSONNodeSpreadProps {
   data: any;
   collectionLimit: number;
   circularCache: any[];
-  keyPath: (string | number)[];
   postprocessValue: (value: any) => any;
   sortObjectKeys: boolean;
 }
+
+// type ItemRangeSpreadProps = Omit<ItemRangeProps, 'from' | 'to' | 'renderChildNodes'>;
+// type JSONNodeSpreadProps = Omit<JSONNodeProps, 'postprocessValue' | 'collectionLimit' | 'keyPath' | 'value' | 'circularCache' | 'isCircular' | 'hideRoot'>;
+// type SpreadProps = ItemRangeSpreadProps & JSONNodeSpreadProps;
+// export interface RenderChildNodesProps extends SpreadProps {
+//   nodeType: string;
+//   data: any;
+//   collectionLimit: number;
+//   circularCache: any[];
+//   keyPath: (string | number)[];
+//   postprocessValue: (value: any) => any;
+//   sortObjectKeys: boolean;
+// }
 
 // export type RenderChildNodesProps = RenderChildNodesOwnProps & ItemRangeSpreadProps;
 
