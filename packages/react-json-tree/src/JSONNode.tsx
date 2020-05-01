@@ -8,23 +8,28 @@ import JSONValueNode from './JSONValueNode';
 import { Styling } from './index';
 
 interface Props {
+  // Self
   getItemString: (nodeType: string, data: any, itemType: React.ReactNode, itemString: string) => string;
   keyPath: (string | number)[];
   labelRenderer: (keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean) => React.ReactNode;
   styling: Styling;
-  collectionLimit: number;
-  level: number;
-  expandable: boolean;
-  shouldExpandNode: (keyPath: (string | number)[], data: any, level: number) => boolean;
-  postprocessValue: (value: any) => any;
   value: any;
-  valueRenderer: (valueString: string, value: any, ...keyPath: (string | number)[]) => React.ReactNode;
+  valueRenderer: (gottenValue: any, value: any, ...keyPath: (string | number)[]) => React.ReactNode;
   isCustomNode: (value: any) => boolean;
-  valueGetter: (value: any) => string;
 
-  circularCache?: [];
+  // JSONNestedNode pass-through props
+  shouldExpandNode: (keyPath: (string | number)[], data: any, level: number) => boolean;
   isCircular: boolean;
   hideRoot: boolean;
+  collectionLimit: number;
+  postprocessValue: (value: any) => any;
+  sortObjectKeys: boolean;
+
+  // JSONNestedNode optional pass-through props
+  data?: any;
+  circularCache?: any[];
+  level?: number;
+  expandable: boolean;
 }
 
 const JSONNode: React.FunctionComponent<Props> = ({
@@ -35,7 +40,6 @@ const JSONNode: React.FunctionComponent<Props> = ({
   value,
   valueRenderer,
   isCustomNode,
-  valueGetter,
   ...rest
 }) => {
   const nodeType = isCustomNode(value) ? 'Custom' : objType(value);
@@ -49,7 +53,6 @@ const JSONNode: React.FunctionComponent<Props> = ({
     styling,
     value,
     valueRenderer,
-    valueGetter,
   };
 
   const nestedNodeProps = {

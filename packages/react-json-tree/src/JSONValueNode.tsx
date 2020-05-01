@@ -11,9 +11,9 @@ interface Props {
   styling: Styling;
   labelRenderer: (keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean) => React.ReactNode;
   keyPath: (string | number)[];
-  valueRenderer: (valueString: string, value: any, ...keyPath: (string | number)[]) => React.ReactNode;
+  valueRenderer: (gottenValue: any, value: any, ...keyPath: (string | number)[]) => React.ReactNode;
   value: any;
-  valueGetter: (value: any) => string;
+  valueGetter?: (value: any) => any;
 }
 
 const JSONValueNode: React.FunctionComponent<Props> = ({
@@ -23,7 +23,7 @@ const JSONValueNode: React.FunctionComponent<Props> = ({
   keyPath,
   valueRenderer,
   value,
-  valueGetter
+  valueGetter = value => value,
 }) => (
   <li {...styling('value', nodeType, keyPath)}>
     <label {...styling(['label', 'valueLabel'], nodeType, keyPath)}>
@@ -45,10 +45,6 @@ JSONValueNode.propTypes = {
   valueRenderer: PropTypes.func.isRequired,
   value: PropTypes.any,
   valueGetter: PropTypes.func.isRequired
-};
-
-JSONValueNode.defaultProps = {
-  valueGetter: value => value
 };
 
 export default JSONValueNode;

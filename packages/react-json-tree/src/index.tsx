@@ -10,15 +10,26 @@ import createStylingFromTheme from './createStylingFromTheme';
 import { invertTheme } from 'react-base16-styling';
 
 interface Props {
-  data: any;
-  hideRoot: boolean;
+  // Self
+  theme: unknown;
   invertTheme: boolean;
-  keyPath: (string | number)[];
+
+  // JSONNode pass-through props
   getItemString: (nodeType: string, data: any, itemType: React.ReactNode, itemString: string) => string;
+  keyPath: (string | number)[];
   labelRenderer: (keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean) => React.ReactNode;
-  valueRenderer: (valueString: string, value: any, ...keyPath: (string | number)[]) => React.ReactNode;
-  postprocessValue: (value: any) => any;
+  valueRenderer: (gottenValue: any, value: any, ...keyPath: (string | number)[]) => React.ReactNode;
+  isCustomNode: (value: any) => boolean;
   shouldExpandNode: (keyPath: (string | number)[], data: any, level: number) => boolean;
+  isCircular: boolean;
+  hideRoot: boolean;
+  collectionLimit: number;
+  postprocessValue: (value: any) => any;
+  sortObjectKeys: boolean;
+  data?: any;
+  circularCache?: any[];
+  level?: number;
+  expandable: boolean;
 }
 
 export interface Styling {
@@ -53,7 +64,7 @@ const defaultItemString = (type: string, data: any, itemType: React.ReactNode, i
 const defaultLabelRenderer = ([label]: (string | number)[]) => <span>{label}:</span>;
 const noCustomNode = () => false;
 
-function checkLegacyTheming(theme, props: Props) {
+function checkLegacyTheming(theme: unknown, props: Props) {
   const deprecatedStylingMethodsMap = {
     getArrowStyle: 'arrow',
     getListStyle: 'nestedNodeChildren',

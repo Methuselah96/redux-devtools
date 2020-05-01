@@ -11,6 +11,7 @@ import { Styling } from './index';
  */
 
 interface RenderChildNodesProps {
+  // Self
   nodeType: string;
   data: any;
   collectionLimit: number;
@@ -19,8 +20,20 @@ interface RenderChildNodesProps {
   postprocessValue: (value: any) => any;
   sortObjectKeys: boolean;
 
-  level: number;
+  // ItemRange pass-through props
   styling: Styling;
+
+  // JSONNode pass-through props
+  getItemString: (nodeType: string, data: any, itemType: React.ReactNode, itemString: string) => string;
+  labelRenderer: (keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean) => React.ReactNode;
+  value: any;
+  valueRenderer: (gottenValue: any, value: any, ...keyPath: (string | number)[]) => React.ReactNode;
+  isCustomNode: (value: any) => boolean;
+  shouldExpandNode: (keyPath: (string | number)[], data: any, level: number) => boolean;
+  isCircular: boolean;
+  hideRoot: boolean;
+  level?: number;
+  expandable: boolean;
 }
 
 interface Range {
@@ -92,24 +105,31 @@ function renderChildNodes(props: RenderChildNodesProps, from?: number, to?: numb
 }
 
 interface Props {
+  // Self
+  shouldExpandNode: (keyPath: (string | number)[], data: any, level: number) => boolean;
+  isCircular: boolean;
+  keyPath: (string | number)[];
   getItemString: (nodeType: string, data: any, itemType: React.ReactNode, itemString: string) => string;
   nodeTypeIndicator: string;
   nodeType: string;
-  data: any;
   hideRoot: boolean;
   createItemString: (data: any, collectionLimit: number) => string;
   styling: Styling;
   collectionLimit: number;
-  keyPath: (string | number)[];
-  level: number;
-  isCircular: boolean;
   labelRenderer: (keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean) => React.ReactNode;
-  expandable: boolean;
-  circularCache?: any[];
-  sortObjectKeys: boolean;
 
-  shouldExpandNode: (keyPath: (string | number)[], data: any, level: number) => boolean;
+  // Self optional
+  data: any;
+  circularCache: any[];
+  level: number;
+  expandable: boolean;
+
+  // renderChildNode pass-through props
   postprocessValue: (value: any) => any;
+  sortObjectKeys: boolean;
+  value: any;
+  valueRenderer: (gottenValue: any, value: any, ...keyPath: (string | number)[]) => React.ReactNode;
+  isCustomNode: (value: any) => boolean;
 }
 
 interface State {
