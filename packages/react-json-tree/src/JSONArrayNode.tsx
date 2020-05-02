@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import JSONNestedNode, { JSONNestedNodeProps } from './JSONNestedNode';
+import JSONNestedNode, { JSONNestedNodeOwnProps, RenderChildNodeSpreadProps } from './JSONNestedNode';
 
 // Returns the "n Items" string for this node,
 // generating and caching it if it hasn't been created yet.
@@ -8,10 +8,11 @@ function createItemString(data: any) {
   return `${data.length} ${data.length !== 1 ? 'items' : 'item'}`;
 }
 
-type JSONNestedNodeSpreadProps = Omit<JSONNestedNodeProps, 'data' | 'nodeType' | 'nodeTypeIndicator' | 'createItemString' | 'expandable'>;
-export interface JSONArrayNodeProps extends JSONNestedNodeSpreadProps {
+export interface JSONArrayNodeOwnProps {
   data: any;
 }
+type JSONNestedNodeSpreadProps = Omit<JSONNestedNodeOwnProps & RenderChildNodeSpreadProps, 'data' | 'nodeType' | 'nodeTypeIndicator' | 'createItemString' | 'expandable'>;
+type JSONArrayNodeProps = JSONArrayNodeOwnProps & JSONNestedNodeSpreadProps;
 
 // interface Props {
 //   // Self

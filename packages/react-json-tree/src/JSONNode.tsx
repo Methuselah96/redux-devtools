@@ -1,29 +1,39 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import objType from './objType';
-import JSONObjectNode from './JSONObjectNode';
+import JSONObjectNode, {
+  JSONNestedNodeSpreadProps, JSONObjectNodeItemRangeProps,
+  JSONObjectNodeJSONNestedNodeProps,
+  JSONObjectNodeOwnProps, JSONObjectNodeRenderChildNodesProps
+} from './JSONObjectNode';
 import JSONArrayNode from './JSONArrayNode';
 import JSONIterableNode from './JSONIterableNode';
 import JSONValueNode, { JSONValueNodeProps } from './JSONValueNode';
+import { Styling } from './index';
 
-type JSONValueSpreadProps = Pick<JSONValueNodeProps, 'nodeType' | 'styling' | 'labelRenderer' | 'keyPath' | 'valueRenderer' | 'value'>;
-export interface JSONNodeProps extends JSONValueSpreadProps {
-  getItemString: (nodeType: string, data: any, itemType: React.ReactNode, itemString: string) => string;
-  isCustomNode: (value: any) => boolean;
-}
-
-// type SimpleNodePropsKeys = 'getItemString' | 'keyPath' | 'labelRenderer' | 'nodeType' | 'styling' | 'value' | 'valueRenderer';
-// type NestedNodePropsKeys = 'data' | 'isCustomNode';
-// type SpreadProps = Omit<JSONNestedNodeProps, SimpleNodePropsKeys | NestedNodePropsKeys>;
-// export interface JSONNodeProps extends SpreadProps {
+// type JSONValueSpreadProps = Pick<JSONValueNodeProps, 'nodeType' | 'styling' | 'labelRenderer' | 'keyPath' | 'valueRenderer' | 'value'>;
+// export interface JSONNodeProps extends JSONValueSpreadProps {
 //   getItemString: (nodeType: string, data: any, itemType: React.ReactNode, itemString: string) => string;
-//   keyPath: (string | number)[];
-//   labelRenderer: (keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean) => React.ReactNode;
-//   styling: Styling;
-//   value: any;
-//   valueRenderer: (gottenValue: any, value: any, ...keyPath: (string | number)[]) => React.ReactNode;
 //   isCustomNode: (value: any) => boolean;
 // }
+
+export interface JSONNodeOwnProps {
+  getItemString: (nodeType: string, data: any, itemType: React.ReactNode, itemString: string) => string;
+  keyPath: (string | number)[];
+  labelRenderer: (keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean) => React.ReactNode;
+  styling: Styling;
+  value: any;
+  valueRenderer: (gottenValue: any, value: any, ...keyPath: (string | number)[]) => React.ReactNode;
+  isCustomNode: (value: any) => boolean;
+}
+type SimpleNodePropsKeys = 'getItemString' | 'keyPath' | 'labelRenderer' | 'nodeType' | 'styling' | 'value' | 'valueRenderer';
+type NestedNodePropsKeys = 'data' | 'isCustomNode';
+export type JSONNodeJSONValueNodeProps = Omit<JSONValueNodeProps, SimpleNodePropsKeys>;
+export type JSONNodeJSONObjectNodeProps = Omit<JSONObjectNodeOwnProps, SimpleNodePropsKeys | NestedNodePropsKeys>;
+export type JSONNodeJSONNestedNodeProps = Omit<JSONObjectNodeJSONNestedNodeProps, SimpleNodePropsKeys | NestedNodePropsKeys>;
+export type JSONNodeRenderChildNodesProps = Omit<JSONObjectNodeRenderChildNodesProps, SimpleNodePropsKeys | NestedNodePropsKeys>;
+export type JSONNodeItemRangeProps = Omit<JSONObjectNodeItemRangeProps, SimpleNodePropsKeys | NestedNodePropsKeys>;
+type JSONNodeProps = JSONNodeOwnProps & JSONNodeJSONValueNodeProps & JSONNodeJSONObjectNodeProps & JSONNodeJSONNestedNodeProps & JSONNodeRenderChildNodesProps & JSONNodeItemRangeProps;
 
 // interface Props {
 //   // Self

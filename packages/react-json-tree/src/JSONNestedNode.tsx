@@ -2,22 +2,27 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import JSONArrow from './JSONArrow';
 import getCollectionEntries from './getCollectionEntries';
-import JSONNode, { JSONNodeProps } from './JSONNode';
-import ItemRange from './ItemRange';
+import JSONNode, { JSONNodeOwnProps } from './JSONNode';
+import ItemRange, { ItemRangeOwnProps } from './ItemRange';
 import { Styling } from './index';
 
 /**
  * Renders nested values (eg. objects, arrays, lists, etc.)
  */
 
-type JSONNodeSpreadProps = Pick<JSONNodeProps, 'nodeType' | 'keyPath' | 'value'>;
-export interface RenderChildNodesProps extends JSONNodeSpreadProps {
+export interface RenderChildNodesOwnProps {
+  nodeType: string;
   data: any;
   collectionLimit: number;
   circularCache: any[];
+  keyPath: (string | number)[];
   postprocessValue: (value: any) => any;
   sortObjectKeys: boolean;
 }
+type RenderChildNodeItemRangeProps = Omit<ItemRangeOwnProps, 'from' | 'to' | 'renderChildNodes'>;
+type JSONNodeSpreadPropsKeys = 'postprocessValue' | 'collectionLimit' | 'keyPath' | 'value' | 'circularCache' | 'isCircular' | 'hideRoot';
+type JSONNodeSpreadProps = Omit<JSONNodeOwnProps & JSONValueNodeSpreadProps, JSONNodeSpreadPropsKeys>;
+type RenderChildNodesProps = RenderChildNodesOwnProps & RenderChildNodeItemRangeProps & JSONNodeSpreadProps;
 
 // type ItemRangeSpreadProps = Omit<ItemRangeProps, 'from' | 'to' | 'renderChildNodes'>;
 // type JSONNodeSpreadProps = Omit<JSONNodeProps, 'postprocessValue' | 'collectionLimit' | 'keyPath' | 'value' | 'circularCache' | 'isCircular' | 'hideRoot'>;
@@ -128,14 +133,12 @@ function renderChildNodes(props: RenderChildNodesProps, from?: number, to?: numb
   return childNodes;
 }
 
-type RenderChildNodesSpreadProps = Omit<RenderChildNodesProps, 'level'>;
-interface Props extends RenderChildNodesSpreadProps {
+interface OwnProps {
   shouldExpandNode: (keyPath: (string | number)[], data: any, level: number) => boolean;
   isCircular: boolean;
   keyPath: (string | number)[];
   data: any;
   level: number;
-  circularCache: any[];
   getItemString: (nodeType: string, data: any, itemType: React.ReactNode, itemString: string) => string;
   nodeTypeIndicator: string;
   nodeType: string;
@@ -146,8 +149,14 @@ interface Props extends RenderChildNodesSpreadProps {
   labelRenderer: (keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean) => React.ReactNode;
   expandable: boolean;
 }
+type RenderChildNodesSpreadPropsKeys = 'level';
+type RenderChildNodesSpreadProps = Omit<RenderChildNodesOwnProps, RenderChildNodesSpreadPropsKeys>;
+type ItemRangeSpreadProps = Omit<RenderChildNodeItemRangeProps, RenderChildNodesSpreadPropsKeys>;
+type Props = OwnProps & RenderChildNodesSpreadProps & ItemRangeSpreadProps;
 
-export type JSONNestedNodeProps = JSX.LibraryManagedAttributes<typeof JSONNestedNode, Props>;
+export type JSONNestedNodeOwnProps = JSX.LibraryManagedAttributes<typeof JSONNestedNode, OwnProps>;
+export type JSONNestedNodeRenderChildNodesProps = JSX.LibraryManagedAttributes<typeof JSONNestedNode, RenderChildNodeSpreadProps>;
+export type JSONNestedNodeItemRangeProps = JSX.LibraryManagedAttributes<typeof JSONNestedNode, ItemRangeSpreadProps>;
 
 // interface Props {
 //   // Self

@@ -2,16 +2,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import JSONArrow from './JSONArrow';
 import { Styling } from './index';
-import { RenderChildNodesProps } from './JSONNestedNode';
+import { RenderChildNodesOwnProps, RenderChildNodesProps } from './JSONNestedNode';
 
-type RenderChildNodesSpreadProps = Omit<RenderChildNodesProps, 'from' | 'to' | 'renderChildNodes'>;
-export interface ItemRangeProps extends RenderChildNodesSpreadProps {
+export interface ItemRangeOwnProps {
   styling: Styling;
   from: number;
   to: number;
   renderChildNodes: (props: RenderChildNodesProps, from: number, to: number) => React.ReactNode;
   nodeType: string;
 }
+type ItemRangeProps = ItemRangeOwnProps & RenderChildNodesOwnProps;
 
 // interface Props {
 //   // Self

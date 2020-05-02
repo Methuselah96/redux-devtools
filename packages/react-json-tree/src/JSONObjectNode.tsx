@@ -1,6 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import JSONNestedNode, { JSONNestedNodeProps } from './JSONNestedNode';
+import JSONNestedNode, {
+  JSONNestedNodeItemRangeProps,
+  JSONNestedNodeOwnProps,
+  JSONNestedNodeRenderChildNodesProps,
+  RenderChildNodeSpreadProps
+} from './JSONNestedNode';
 
 // Returns the "n Items" string for this node,
 // generating and caching it if it hasn't been created yet.
@@ -9,11 +14,15 @@ function createItemString(data: any) {
   return `${len} ${len !== 1 ? 'keys' : 'key'}`;
 }
 
-type JSONNestedNodeSpreadProps = Omit<JSONNestedNodeProps, 'data' | 'nodeType' | 'nodeTypeIndicator' | 'createItemString' | 'expandable'>;
-export interface JSONObjectNodeProps extends JSONNestedNodeSpreadProps {
+export interface JSONObjectNodeOwnProps {
   data: any;
   nodeType: string;
 }
+type JSONNestedNodeSpreadPropsKeys = 'data' | 'nodeType' | 'nodeTypeIndicator' | 'createItemString' | 'expandable';
+export type JSONObjectNodeJSONNestedNodeProps = Omit<JSONNestedNodeOwnProps, JSONNestedNodeSpreadPropsKeys>;
+export type JSONObjectNodeRenderChildNodesProps = Omit<JSONNestedNodeRenderChildNodesProps, JSONNestedNodeSpreadPropsKeys>;
+export type JSONObjectNodeItemRangeProps = Omit<JSONNestedNodeItemRangeProps, JSONNestedNodeSpreadPropsKeys>;
+type Props = JSONObjectNodeOwnProps & JSONObjectNodeJSONNestedNodeProps & JSONObjectNodeRenderChildNodesProps & JSONObjectNodeItemRangeProps;
 
 // interface Props {
 //   // Self
@@ -42,7 +51,7 @@ export interface JSONObjectNodeProps extends JSONNestedNodeSpreadProps {
 // }
 
 // Configures <JSONNestedNode> to render an Object
-const JSONObjectNode: React.FunctionComponent<JSONObjectNodeProps> = ({ data, ...props }) => (
+const JSONObjectNode: React.FunctionComponent<Props> = ({ data, ...props }) => (
   <JSONNestedNode
     {...props}
     data={data}
