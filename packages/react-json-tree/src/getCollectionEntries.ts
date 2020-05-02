@@ -63,7 +63,7 @@ function getEntries(type, collection, sortObjectKeys, from = 0, to = Infinity) {
           entries.push({ key: idx, value: item });
         }
       }
-      idx++;
+      idx += 1;
     }
 
     res = {
@@ -75,13 +75,14 @@ function getEntries(type, collection, sortObjectKeys, from = 0, to = Infinity) {
   return res;
 }
 
-function getRanges(from, to, limit) {
+function getRanges(from: number, to: number, limit: number) {
   const ranges = [];
-  while (to - from > limit * limit) {
-    limit *= limit;
+  let rangeLength = limit;
+  while (to - from > rangeLength * rangeLength) {
+    rangeLength *= rangeLength;
   }
-  for (let i = from; i <= to; i += limit) {
-    ranges.push({ from: i, to: Math.min(to, i + limit - 1) });
+  for (let i = from; i <= to; i += rangeLength) {
+    ranges.push({ from: i, to: Math.min(to, i + rangeLength - 1) });
   }
 
   return ranges;

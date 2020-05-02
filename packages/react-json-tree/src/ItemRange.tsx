@@ -18,16 +18,21 @@ export default class ItemRange extends React.Component {
     this.handleClick = this.handleClick.bind(this);
   }
 
+  handleClick() {
+    this.setState((prevState) => ({ expanded: !prevState.expanded }));
+  }
+
   render() {
     const { styling, from, to, renderChildNodes, nodeType } = this.props;
+    const { expanded } = this.state;
 
-    return this.state.expanded ? (
-      <div {...styling('itemRange', this.state.expanded)}>
+    return expanded ? (
+      <div {...styling('itemRange', expanded)}>
         {renderChildNodes(this.props, from, to)}
       </div>
     ) : (
       <div
-        {...styling('itemRange', this.state.expanded)}
+        {...styling('itemRange', expanded)}
         onClick={this.handleClick}
       >
         <JSONArrow
@@ -40,9 +45,5 @@ export default class ItemRange extends React.Component {
         {`${from} ... ${to}`}
       </div>
     );
-  }
-
-  handleClick() {
-    this.setState({ expanded: !this.state.expanded });
   }
 }

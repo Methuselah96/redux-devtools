@@ -15,5 +15,8 @@ module.exports = {
   rules: {
     // To be disabled in typescript-eslint 3.0.0 (see https://github.com/typescript-eslint/typescript-eslint/issues/1423)
     '@typescript-eslint/explicit-function-return-type': 'off',
+
+    // See https://github.com/airbnb/javascript/blob/master/packages/eslint-config-airbnb/rules/react.js#L487-L490
+    'react/static-property-placement': ['error', 'static public field']
   }
 };
