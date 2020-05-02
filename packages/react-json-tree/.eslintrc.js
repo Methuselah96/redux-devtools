@@ -11,5 +11,9 @@ module.exports = {
   parserOptions: {
     project: './tsconfig.json',
     tsconfigRootDir: __dirname,
+  },
+  rules: {
+    // To be disabled in typescript-eslint 3.0.0 (see https://github.com/typescript-eslint/typescript-eslint/issues/1423)
+    '@typescript-eslint/explicit-function-return-type': 'off',
   }
 };
