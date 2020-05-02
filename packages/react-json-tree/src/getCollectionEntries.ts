@@ -1,7 +1,8 @@
 function getLength(type, collection) {
   if (type === 'Object') {
     return Object.keys(collection).length;
-  } else if (type === 'Array') {
+  }
+  if (type === 'Array') {
     return collection.length;
   }
 
@@ -25,13 +26,13 @@ function getEntries(type, collection, sortObjectKeys, from = 0, to = Infinity) {
     keys = keys.slice(from, to + 1);
 
     res = {
-      entries: keys.map(key => ({ key, value: collection[key] }))
+      entries: keys.map((key) => ({ key, value: collection[key] })),
     };
   } else if (type === 'Array') {
     res = {
       entries: collection
         .slice(from, to + 1)
-        .map((val, idx) => ({ key: idx + from, value: val }))
+        .map((val, idx) => ({ key: idx + from, value: val })),
     };
   } else {
     let idx = 0;
@@ -54,8 +55,8 @@ function getEntries(type, collection, sortObjectKeys, from = 0, to = Infinity) {
               key: `[entry ${idx}]`,
               value: {
                 '[key]': item[0],
-                '[value]': item[1]
-              }
+                '[value]': item[1],
+              },
             });
           }
         } else {
@@ -67,7 +68,7 @@ function getEntries(type, collection, sortObjectKeys, from = 0, to = Infinity) {
 
     res = {
       hasMore: !done,
-      entries
+      entries,
     };
   }
 
@@ -77,7 +78,7 @@ function getEntries(type, collection, sortObjectKeys, from = 0, to = Infinity) {
 function getRanges(from, to, limit) {
   const ranges = [];
   while (to - from > limit * limit) {
-    limit = limit * limit;
+    limit *= limit;
   }
   for (let i = from; i <= to; i += limit) {
     ranges.push({ from: i, to: Math.min(to, i + limit - 1) });
@@ -112,10 +113,8 @@ export default function getCollectionEntries(
     if (length <= limit || limit < 7) {
       return getEntriesBound(from, to).entries;
     }
-  } else {
-    if (length <= limit && !isSubset) {
-      return getEntriesBound(from, to).entries;
-    }
+  } else if (length <= limit && !isSubset) {
+    return getEntriesBound(from, to).entries;
   }
 
   let limitedEntries;
@@ -131,7 +130,7 @@ export default function getCollectionEntries(
       : [
           ...getEntriesBound(0, limit - 5).entries,
           ...getRanges(limit - 4, length - 5, limit),
-          ...getEntriesBound(length - 4, length - 1).entries
+          ...getEntriesBound(length - 4, length - 1).entries,
         ];
   }
 
