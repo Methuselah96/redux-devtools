@@ -10,26 +10,8 @@ import createStylingFromTheme from './createStylingFromTheme';
 import { invertTheme } from 'react-base16-styling';
 
 interface Props {
-  // Self
   theme: unknown;
   invertTheme: boolean;
-
-  // JSONNode pass-through props
-  getItemString: (nodeType: string, data: any, itemType: React.ReactNode, itemString: string) => string;
-  keyPath: (string | number)[];
-  labelRenderer: (keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean) => React.ReactNode;
-  valueRenderer: (gottenValue: any, value: any, ...keyPath: (string | number)[]) => React.ReactNode;
-  isCustomNode: (value: any) => boolean;
-  shouldExpandNode: (keyPath: (string | number)[], data: any, level: number) => boolean;
-  isCircular: boolean;
-  hideRoot: boolean;
-  collectionLimit: number;
-  postprocessValue: (value: any) => any;
-  sortObjectKeys: boolean;
-  data?: any;
-  circularCache?: any[];
-  level?: number;
-  expandable: boolean;
 }
 
 export interface Styling {

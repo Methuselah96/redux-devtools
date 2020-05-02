@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import JSONNestedNode, { JSONNestedNodeOwnProps, RenderChildNodeSpreadProps } from './JSONNestedNode';
+import JSONNestedNode from './JSONNestedNode';
 
 // Returns the "n Items" string for this node,
 // generating and caching it if it hasn't been created yet.
@@ -8,11 +8,9 @@ function createItemString(data: any) {
   return `${data.length} ${data.length !== 1 ? 'items' : 'item'}`;
 }
 
-export interface JSONArrayNodeOwnProps {
+interface Props {
   data: any;
 }
-type JSONNestedNodeSpreadProps = Omit<JSONNestedNodeOwnProps & RenderChildNodeSpreadProps, 'data' | 'nodeType' | 'nodeTypeIndicator' | 'createItemString' | 'expandable'>;
-type JSONArrayNodeProps = JSONArrayNodeOwnProps & JSONNestedNodeSpreadProps;
 
 // interface Props {
 //   // Self
@@ -39,7 +37,7 @@ type JSONArrayNodeProps = JSONArrayNodeOwnProps & JSONNestedNodeSpreadProps;
 // }
 
 // Configures <JSONNestedNode> to render an Array
-const JSONArrayNode: React.FunctionComponent<JSONArrayNodeProps> = ({ data, ...props }) => (
+const JSONArrayNode: React.FunctionComponent<Props> = ({ data, ...props }) => (
   <JSONNestedNode
     {...props}
     data={data}

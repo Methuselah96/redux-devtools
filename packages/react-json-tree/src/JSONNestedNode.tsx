@@ -2,15 +2,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import JSONArrow from './JSONArrow';
 import getCollectionEntries from './getCollectionEntries';
-import JSONNode, { JSONNodeOwnProps } from './JSONNode';
-import ItemRange, { ItemRangeOwnProps } from './ItemRange';
+import JSONNode from './JSONNode';
+import ItemRange from './ItemRange';
 import { Styling } from './index';
 
 /**
  * Renders nested values (eg. objects, arrays, lists, etc.)
  */
 
-export interface RenderChildNodesOwnProps {
+export interface RenderChildNodesProps {
   nodeType: string;
   data: any;
   collectionLimit: number;
@@ -19,10 +19,6 @@ export interface RenderChildNodesOwnProps {
   postprocessValue: (value: any) => any;
   sortObjectKeys: boolean;
 }
-type RenderChildNodeItemRangeProps = Omit<ItemRangeOwnProps, 'from' | 'to' | 'renderChildNodes'>;
-type JSONNodeSpreadPropsKeys = 'postprocessValue' | 'collectionLimit' | 'keyPath' | 'value' | 'circularCache' | 'isCircular' | 'hideRoot';
-type JSONNodeSpreadProps = Omit<JSONNodeOwnProps & JSONValueNodeSpreadProps, JSONNodeSpreadPropsKeys>;
-type RenderChildNodesProps = RenderChildNodesOwnProps & RenderChildNodeItemRangeProps & JSONNodeSpreadProps;
 
 // type ItemRangeSpreadProps = Omit<ItemRangeProps, 'from' | 'to' | 'renderChildNodes'>;
 // type JSONNodeSpreadProps = Omit<JSONNodeProps, 'postprocessValue' | 'collectionLimit' | 'keyPath' | 'value' | 'circularCache' | 'isCircular' | 'hideRoot'>;
@@ -133,7 +129,7 @@ function renderChildNodes(props: RenderChildNodesProps, from?: number, to?: numb
   return childNodes;
 }
 
-interface OwnProps {
+interface Props {
   shouldExpandNode: (keyPath: (string | number)[], data: any, level: number) => boolean;
   isCircular: boolean;
   keyPath: (string | number)[];
@@ -149,14 +145,6 @@ interface OwnProps {
   labelRenderer: (keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean) => React.ReactNode;
   expandable: boolean;
 }
-type RenderChildNodesSpreadPropsKeys = 'level';
-type RenderChildNodesSpreadProps = Omit<RenderChildNodesOwnProps, RenderChildNodesSpreadPropsKeys>;
-type ItemRangeSpreadProps = Omit<RenderChildNodeItemRangeProps, RenderChildNodesSpreadPropsKeys>;
-type Props = OwnProps & RenderChildNodesSpreadProps & ItemRangeSpreadProps;
-
-export type JSONNestedNodeOwnProps = JSX.LibraryManagedAttributes<typeof JSONNestedNode, OwnProps>;
-export type JSONNestedNodeRenderChildNodesProps = JSX.LibraryManagedAttributes<typeof JSONNestedNode, RenderChildNodeSpreadProps>;
-export type JSONNestedNodeItemRangeProps = JSX.LibraryManagedAttributes<typeof JSONNestedNode, ItemRangeSpreadProps>;
 
 // interface Props {
 //   // Self

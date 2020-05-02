@@ -1,5 +1,5 @@
 import React from 'react';
-import JSONNestedNode, { JSONNestedNodeOwnProps, RenderChildNodeSpreadProps } from './JSONNestedNode';
+import JSONNestedNode from './JSONNestedNode';
 
 // Returns the "n Items" string for this node,
 // generating and caching it if it hasn't been created yet.
@@ -21,7 +21,9 @@ function createItemString(data: any, limit: number) {
   return `${hasMore ? '>' : ''}${count} ${count !== 1 ? 'entries' : 'entry'}`;
 }
 
-type JSONIterableNodeProps = Omit<JSONNestedNodeOwnProps & RenderChildNodeSpreadProps, 'nodeType' | 'nodeTypeIndicator' | 'createItemString'>;
+interface Props {
+
+}
 
 // interface Props {
 //   // JSONNestedNode pass-through props
@@ -47,7 +49,7 @@ type JSONIterableNodeProps = Omit<JSONNestedNodeOwnProps & RenderChildNodeSpread
 // }
 
 // Configures <JSONNestedNode> to render an iterable
-const JSONIterableNode: React.FunctionComponent<JSONIterableNodeProps> = ({ ...props }) => {
+const JSONIterableNode: React.FunctionComponent<Props> = ({ ...props }) => {
   return (
     <JSONNestedNode
       {...props}

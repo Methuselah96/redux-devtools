@@ -2,16 +2,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import JSONArrow from './JSONArrow';
 import { Styling } from './index';
-import { RenderChildNodesOwnProps, RenderChildNodesProps } from './JSONNestedNode';
+import { RenderChildNodesProps } from './JSONNestedNode';
 
-export interface ItemRangeOwnProps {
+interface Props {
   styling: Styling;
   from: number;
   to: number;
   renderChildNodes: (props: RenderChildNodesProps, from: number, to: number) => React.ReactNode;
   nodeType: string;
 }
-type ItemRangeProps = ItemRangeOwnProps & RenderChildNodesOwnProps;
 
 // interface Props {
 //   // Self
@@ -44,7 +43,7 @@ interface State {
   expanded: boolean;
 }
 
-export default class ItemRange extends React.Component<ItemRangeProps, State> {
+export default class ItemRange extends React.Component<Props, State> {
   static propTypes = {
     styling: PropTypes.func.isRequired,
     from: PropTypes.number.isRequired,
@@ -53,7 +52,7 @@ export default class ItemRange extends React.Component<ItemRangeProps, State> {
     nodeType: PropTypes.string.isRequired
   };
 
-  constructor(props: ItemRangeProps) {
+  constructor(props: Props) {
     super(props);
     this.state = { expanded: false };
 

@@ -6,7 +6,7 @@ import { Styling } from './index';
  * Renders simple values (eg. strings, numbers, booleans, etc)
  */
 
-export interface JSONValueNodeProps {
+interface Props {
   nodeType: string;
   styling: Styling;
   labelRenderer: (keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean) => React.ReactNode;
@@ -16,7 +16,7 @@ export interface JSONValueNodeProps {
   valueGetter?: (value: any) => any;
 }
 
-const JSONValueNode: React.FunctionComponent<JSONValueNodeProps> = ({
+const JSONValueNode: React.FunctionComponent<Props> = ({
   nodeType,
   styling,
   labelRenderer,
