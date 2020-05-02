@@ -12,6 +12,10 @@ import { invertTheme } from 'react-base16-styling';
 interface Props {
   theme: unknown;
   invertTheme: boolean;
+  data: any;
+  keyPath: (string | number)[];
+  postprocessValue: (value: any) => any;
+  hideRoot: boolean;
 }
 
 export interface Styling {
