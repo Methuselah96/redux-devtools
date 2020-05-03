@@ -1,17 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Styling } from './index';
+import { JSONNodeJSONValueNodeProps } from './types';
 
 /**
  * Renders simple values (eg. strings, numbers, booleans, etc)
  */
 
-interface Props {
+interface Props extends JSONNodeJSONValueNodeProps {
   nodeType: string;
-  styling: Styling;
-  labelRenderer: (keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean) => React.ReactNode;
-  keyPath: (string | number)[];
-  valueRenderer: (gottenValue: any, value: any, ...keyPath: (string | number)[]) => React.ReactNode;
   value: any;
   valueGetter?: (value: any) => any;
 }

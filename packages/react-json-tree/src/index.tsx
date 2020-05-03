@@ -8,14 +8,12 @@ import PropTypes from 'prop-types';
 import JSONNode from './JSONNode';
 import createStylingFromTheme from './createStylingFromTheme';
 import { invertTheme } from 'react-base16-styling';
+import { JSONTreeJSONNodeProps } from './types';
 
-interface Props {
-  theme: unknown;
-  invertTheme: boolean;
+interface Props extends JSONTreeJSONNodeProps {
   data: any;
-  keyPath: (string | number)[];
-  postprocessValue: (value: any) => any;
-  hideRoot: boolean;
+  theme: any;
+  invertTheme: boolean;
 }
 
 export interface Styling {
