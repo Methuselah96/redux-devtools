@@ -12,33 +12,6 @@ interface Props extends CircularPropsPassedThroughItemRange {
   renderChildNodes: (props: RenderChildNodesProps, from: number, to: number) => React.ReactNode;
 }
 
-// interface Props {
-//   // Self
-//   styling: Styling;
-//   from: number;
-//   to: number;
-//   renderChildNodes: (props: Props, from: number, to: number) => React.ReactNode;
-//   nodeType: string;
-//
-//   // renderChildNode pass-through props
-//   data: any;
-//   collectionLimit: number;
-//   circularCache: any[];
-//   keyPath: (string | number)[];
-//   postprocessValue: (value: any) => any;
-//   sortObjectKeys: boolean;
-//   getItemString: (nodeType: string, data: any, itemType: React.ReactNode, itemString: string) => string;
-//   labelRenderer: (keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean) => React.ReactNode;
-//   value: any;
-//   valueRenderer: (gottenValue: any, value: any, ...keyPath: (string | number)[]) => React.ReactNode;
-//   isCustomNode: (value: any) => boolean;
-//   shouldExpandNode: (keyPath: (string | number)[], data: any, level: number) => boolean;
-//   isCircular: boolean;
-//   hideRoot: boolean;
-//   level?: number;
-//   expandable: boolean;
-// }
-
 interface State {
   expanded: boolean;
 }

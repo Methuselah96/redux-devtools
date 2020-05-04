@@ -27,29 +27,6 @@ interface Props extends CircularPropsPassedThroughJSONNode {
   nodeType: string;
 }
 
-// interface Props {
-//   // JSONNestedNode pass-through props
-//   shouldExpandNode: (keyPath: (string | number)[], data: any, level: number) => boolean;
-//   isCircular: boolean;
-//   keyPath: (string | number)[];
-//   getItemString: (nodeType: string, data: any, itemType: React.ReactNode, itemString: string) => string;
-//   hideRoot: boolean;
-//   styling: Styling;
-//   collectionLimit: number;
-//   labelRenderer: (keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean) => React.ReactNode;
-//   postprocessValue: (value: any) => any;
-//   sortObjectKeys: boolean;
-//
-//   // JSONNestedNode optional pass-through props
-//   data?: any;
-//   circularCache?: any[];
-//   level?: number;
-//   expandable?: boolean;
-//   value: any;
-//   valueRenderer: (gottenValue: any, value: any, ...keyPath: (string | number)[]) => React.ReactNode;
-//   isCustomNode: (value: any) => boolean;
-// }
-
 // Configures <JSONNestedNode> to render an iterable
 const JSONIterableNode: React.FunctionComponent<Props> = ({ ...props }) => {
   return (

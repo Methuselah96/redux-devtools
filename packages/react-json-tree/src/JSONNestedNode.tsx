@@ -15,47 +15,6 @@ export interface RenderChildNodesProps extends CircularPropsPassedThroughRenderC
   nodeType: string;
 }
 
-// type ItemRangeSpreadProps = Omit<ItemRangeProps, 'from' | 'to' | 'renderChildNodes'>;
-// type JSONNodeSpreadProps = Omit<JSONNodeProps, 'postprocessValue' | 'collectionLimit' | 'keyPath' | 'value' | 'circularCache' | 'isCircular' | 'hideRoot'>;
-// type SpreadProps = ItemRangeSpreadProps & JSONNodeSpreadProps;
-// export interface RenderChildNodesProps extends SpreadProps {
-//   nodeType: string;
-//   data: any;
-//   collectionLimit: number;
-//   circularCache: any[];
-//   keyPath: (string | number)[];
-//   postprocessValue: (value: any) => any;
-//   sortObjectKeys: boolean;
-// }
-
-// export type RenderChildNodesProps = RenderChildNodesOwnProps & ItemRangeSpreadProps;
-
-// export interface RenderChildNodesProps {
-//   // Self
-//   nodeType: string;
-//   data: any;
-//   collectionLimit: number;
-//   circularCache: any[];
-//   keyPath: (string | number)[];
-//   postprocessValue: (value: any) => any;
-//   sortObjectKeys: boolean;
-//
-//   // ItemRange pass-through props
-//   styling: Styling;
-//
-//   // JSONNode pass-through props
-//   getItemString: (nodeType: string, data: any, itemType: React.ReactNode, itemString: string) => string;
-//   labelRenderer: (keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean) => React.ReactNode;
-//   value: any;
-//   valueRenderer: (gottenValue: any, value: any, ...keyPath: (string | number)[]) => React.ReactNode;
-//   isCustomNode: (value: any) => boolean;
-//   shouldExpandNode: (keyPath: (string | number)[], data: any, level: number) => boolean;
-//   isCircular: boolean;
-//   hideRoot: boolean;
-//   level?: number;
-//   expandable: boolean;
-// }
-
 interface Range {
   from: number;
   to: number;
@@ -131,34 +90,6 @@ interface Props extends CircularPropsPassedThroughJSONNestedNode {
   createItemString: (data: any, collectionLimit: number) => string;
   expandable: boolean;
 }
-
-// interface Props {
-//   // Self
-//   shouldExpandNode: (keyPath: (string | number)[], data: any, level: number) => boolean;
-//   isCircular: boolean;
-//   keyPath: (string | number)[];
-//   getItemString: (nodeType: string, data: any, itemType: React.ReactNode, itemString: string) => string;
-//   nodeTypeIndicator: string;
-//   nodeType: string;
-//   hideRoot: boolean;
-//   createItemString: (data: any, collectionLimit: number) => string;
-//   styling: Styling;
-//   collectionLimit: number;
-//   labelRenderer: (keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean) => React.ReactNode;
-//
-//   // Self optional
-//   data: any;
-//   circularCache: any[];
-//   level: number;
-//   expandable: boolean;
-//
-//   // renderChildNode pass-through props
-//   postprocessValue: (value: any) => any;
-//   sortObjectKeys: boolean;
-//   value: any;
-//   valueRenderer: (gottenValue: any, value: any, ...keyPath: (string | number)[]) => React.ReactNode;
-//   isCustomNode: (value: any) => boolean;
-// }
 
 interface State {
   expanded: boolean;
