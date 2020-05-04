@@ -153,7 +153,8 @@ export default class JSONNestedNode extends React.Component<Props, State> {
           key !== 'circularCache' &&
           (key === 'keyPath'
             ? nextProps[key].join('/') !== this.props[key].join('/')
-            : nextProps[key] !== this.props[key])
+            // TODO Don't cast
+            : nextProps[key as keyof Props] !== this.props[key as keyof Props])
       ) || nextState.expanded !== this.state.expanded
     );
   }

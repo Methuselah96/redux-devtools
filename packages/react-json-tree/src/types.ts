@@ -1,12 +1,12 @@
 import React from 'react';
-import { Styling } from './index';
+import { StylingFunction } from 'react-base16-styling';
 
 interface SharedCircularPropsPassedThroughJSONTree {
   keyPath: (string | number)[];
   labelRenderer: (keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean) => React.ReactNode;
 }
 interface SharedCircularPropsProvidedByJSONTree extends SharedCircularPropsPassedThroughJSONTree {
-  styling: Styling;
+  styling: StylingFunction;
 }
 interface JSONValueNodeCircularPropsPassedThroughJSONTree {
   valueRenderer: (gottenValue: any, value: any, ...keyPath: (string | number)[]) => React.ReactNode;

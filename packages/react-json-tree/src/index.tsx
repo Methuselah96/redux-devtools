@@ -7,35 +7,37 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import JSONNode from './JSONNode';
 import createStylingFromTheme from './createStylingFromTheme';
-import { invertTheme } from 'react-base16-styling';
+/// <reference path="react-base16-styling.d.ts"/>
+import { Base16Theme, invertTheme, StylingConfig, StylingFunction, Theme } from 'react-base16-styling';
 import { CircularPropsPassedThroughJSONTree } from './types';
 
 interface Props extends CircularPropsPassedThroughJSONTree {
-  theme: unknown;
+  theme: Theme;
   invertTheme: boolean;
   data: any;
 }
 
-export interface Styling {
-  (key: 'tree'): { style: React.CSSProperties };
-  (key: 'value', nodeType: string, keyPath: (string | number)[]): { style: React.CSSProperties };
-  (keys: ['label', 'valueLabel'], nodeType: string, keyPath: (string | number)[]): { style: React.CSSProperties };
-  (keys: ['label', 'nestedNodeLabel'], keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean): { style: React.CSSProperties };
-  (key: 'valueText', nodeType: string, keyPath: (string | number)[]): { style: React.CSSProperties };
-  (key: 'itemRange', expanded: boolean): { style: React.CSSProperties };
-  (keys: ['arrow', 'arrowSign'], nodeType: string, expanded: boolean, arrowStyle: 'single' | 'double'): { style: React.CSSProperties };
-  (key: 'arrowContainer', arrowStyle: 'single' | 'double'): { style: React.CSSProperties };
-  (keys: ['arrowSign', 'arrowSignInner']): { style: React.CSSProperties };
-  (key: 'nestedNode', keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean): { style: React.CSSProperties };
-  (key: 'rootNode', keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean): { style: React.CSSProperties };
-  (key: 'nestedNodeItemString', keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean): { style: React.CSSProperties };
-  (key: 'nestedNodeItemType', expanded: boolean): { style: React.CSSProperties };
-  (key: 'nestedNodeChildren', keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean): { style: React.CSSProperties };
-  (key: 'rootNodeChildren', keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean): { style: React.CSSProperties };
-}
+// export interface Styling {
+//   [name: string]: StylingValue;
+//   (key: 'tree'): { style: React.CSSProperties };
+//   (key: 'value', nodeType: string, keyPath: (string | number)[]): { style: React.CSSProperties };
+//   (keys: ['label', 'valueLabel'], nodeType: string, keyPath: (string | number)[]): { style: React.CSSProperties };
+//   (keys: ['label', 'nestedNodeLabel'], keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean): { style: React.CSSProperties };
+//   (key: 'valueText', nodeType: string, keyPath: (string | number)[]): { style: React.CSSProperties };
+//   (key: 'itemRange', expanded: boolean): { style: React.CSSProperties };
+//   (keys: ['arrow', 'arrowSign'], nodeType: string, expanded: boolean, arrowStyle: 'single' | 'double'): { style: React.CSSProperties };
+//   (key: 'arrowContainer', arrowStyle: 'single' | 'double'): { style: React.CSSProperties };
+//   (keys: ['arrowSign', 'arrowSignInner']): { style: React.CSSProperties };
+//   (key: 'nestedNode', keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean): { style: React.CSSProperties };
+//   (key: 'rootNode', keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean): { style: React.CSSProperties };
+//   (key: 'nestedNodeItemString', keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean): { style: React.CSSProperties };
+//   (key: 'nestedNodeItemType', expanded: boolean): { style: React.CSSProperties };
+//   (key: 'nestedNodeChildren', keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean): { style: React.CSSProperties };
+//   (key: 'rootNodeChildren', keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean): { style: React.CSSProperties };
+// }
 
 interface State {
-  styling: Styling;
+  styling: StylingFunction;
 }
 
 const identity = <T extends any>(value: T) => value;
@@ -48,7 +50,7 @@ const defaultItemString = (type: string, data: any, itemType: React.ReactNode, i
 const defaultLabelRenderer = ([label]: (string | number)[]) => <span>{label}:</span>;
 const noCustomNode = () => false;
 
-function checkLegacyTheming(theme: unknown, props: Props) {
+function checkLegacyTheming(theme: Theme, props: Props) {
   const deprecatedStylingMethodsMap = {
     getArrowStyle: 'arrow',
     getListStyle: 'nestedNodeChildren',
@@ -59,7 +61,7 @@ function checkLegacyTheming(theme: unknown, props: Props) {
 
   const deprecatedStylingMethods = Object.keys(
     deprecatedStylingMethodsMap
-  ).filter(name => props[name]);
+  ).filter(name => props[name as keyof Props]);
 
   if (deprecatedStylingMethods.length > 0) {
     if (typeof theme === 'string') {
@@ -76,10 +78,10 @@ function checkLegacyTheming(theme: unknown, props: Props) {
         `Styling method "${name}" is deprecated, use "theme" property instead`
       );
 
-      theme[deprecatedStylingMethodsMap[name]] = ({ style }, ...args) => ({
+      (theme as StylingConfig)[deprecatedStylingMethodsMap[name as keyof typeof deprecatedStylingMethodsMap]] = ({ style }, ...args) => ({
         style: {
           ...style,
-          ...props[name](...args)
+          ...props[name as keyof Props](...args)
         }
       });
     });
@@ -88,19 +90,24 @@ function checkLegacyTheming(theme: unknown, props: Props) {
   return theme;
 }
 
+function isStylingConfig(themeOrStyling: Base16Theme | StylingConfig): themeOrStyling is StylingConfig {
+  return (themeOrStyling as StylingConfig).extend !== undefined;
+}
+
 function getStateFromProps(props: Props): State {
   let theme = checkLegacyTheming(props.theme, props);
   if (props.invertTheme) {
     if (typeof theme === 'string') {
       theme = `${theme}:inverted`;
-    } else if (theme && theme.extend) {
-      if (typeof theme === 'string') {
+    } else if (theme && isStylingConfig(theme) && theme.extend) {
+      if (typeof theme.extend === 'string') {
         theme = { ...theme, extend: `${theme.extend}:inverted` };
       } else {
-        theme = { ...theme, extend: invertTheme(theme.extend) };
+        theme = { ...theme, extend: invertTheme(theme.extend) } as StylingConfig;
       }
     } else if (theme) {
-      theme = invertTheme(theme);
+      // TODO This seems like a faulty cast.
+      theme = invertTheme(theme as Base16Theme);
     }
   }
   return {
@@ -140,7 +147,7 @@ export default class JSONTree extends React.Component<Props, State> {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    if (['theme', 'invertTheme'].find(k => nextProps[k] !== this.props[k])) {
+    if (['theme', 'invertTheme'].find(k => nextProps[(k as keyof Props)] !== this.props[(k as keyof Props)])) {
       this.setState(getStateFromProps(nextProps));
     }
   }
@@ -149,7 +156,7 @@ export default class JSONTree extends React.Component<Props, State> {
     return !!Object.keys(nextProps).find(k =>
       k === 'keyPath'
         ? nextProps[k].join('/') !== this.props[k].join('/')
-        : nextProps[k] !== this.props[k]
+        : nextProps[(k as keyof Props)] !== this.props[(k as keyof Props)]
     );
   }
 

@@ -1,27 +1,7 @@
 import React from 'react';
-import { createStyling } from 'react-base16-styling';
+/// <reference path="react-base16-styling.d.ts"/>
+import { createStyling, Base16Theme, StylingValue, Styling } from 'react-base16-styling';
 import solarized from './themes/solarized';
-
-export interface Theme {
-  scheme: string;
-  author: string;
-  base00: string;
-  base01: string;
-  base02: string;
-  base03: string;
-  base04: string;
-  base05: string;
-  base06: string;
-  base07: string;
-  base08: string;
-  base09: string;
-  base0A: string;
-  base0B: string;
-  base0C: string;
-  base0D: string;
-  base0E: string;
-  base0F: string;
-}
 
 interface Colors {
   BACKGROUND_COLOR: string;
@@ -40,7 +20,7 @@ interface Colors {
   ITEM_STRING_EXPANDED_COLOR: string;
 }
 
-const colorMap = (theme: Theme) => ({
+const colorMap = (theme: Base16Theme) => ({
   BACKGROUND_COLOR: theme.base00,
   TEXT_COLOR: theme.base07,
   STRING_COLOR: theme.base0B,
@@ -68,27 +48,28 @@ const valueColorMap = (colors: Colors) => ({
   Symbol: colors.SYMBOL_COLOR
 });
 
-interface Styling {
+interface StylingSpecific {
+  [name: string]: StylingValue;
   tree: React.CSSProperties;
-  value: (styling: { style: React.CSSProperties }, nodeType: string, keyPath: (string | number)[]) => { style: React.CSSProperties };
+  value: (styling: Styling, nodeType: string, keyPath: (string | number)[]) => Styling;
   label: React.CSSProperties;
   valueLabel: React.CSSProperties;
-  valueText: (styling: { style: React.CSSProperties }, nodeType: string, keyPath: (string | number)[]) => { style: React.CSSProperties };
-  itemRange: (styling: { style: React.CSSProperties }, expanded: boolean) => { style: React.CSSProperties };
-  arrow: (styling: { style: React.CSSProperties }, nodeType: string, expanded: boolean, arrowStyle: 'single' | 'double') => { style: React.CSSProperties };
-  arrowContainer: (styling: { style: React.CSSProperties }, arrowStyle: 'single' | 'double') => { style: React.CSSProperties };
+  valueText: (styling: Styling, nodeType: string, keyPath: (string | number)[]) => Styling;
+  itemRange: (styling: Styling, expanded: boolean) => Styling;
+  arrow: (styling: Styling, nodeType: string, expanded: boolean, arrowStyle: 'single' | 'double') => Styling;
+  arrowContainer: (styling: Styling, arrowStyle: 'single' | 'double') => Styling;
   arrowSign: React.CSSProperties;
   arrowSignInner: React.CSSProperties;
-  nestedNode: (styling: { style: React.CSSProperties }, keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean) => { style: React.CSSProperties };
+  nestedNode: (styling: Styling, keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean) => Styling;
   rootNode: React.CSSProperties;
-  nestedNodeLabel: (styling: { style: React.CSSProperties }, keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean) => { style: React.CSSProperties };
-  nestedNodeItemString: (styling: { style: React.CSSProperties }, keyPath: (string | number)[], nodeType: string, expanded: boolean) => { style: React.CSSProperties };
+  nestedNodeLabel: (styling: Styling, keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean) => Styling;
+  nestedNodeItemString: (styling: Styling, keyPath: (string | number)[], nodeType: string, expanded: boolean) => Styling;
   nestedNodeItemType: React.CSSProperties;
-  nestedNodeChildren: (styling: { style: React.CSSProperties }, keyPath: (string | number)[], nodeType: string, expanded: boolean) => { style: React.CSSProperties };
+  nestedNodeChildren: (styling: Styling, keyPath: (string | number)[], nodeType: string, expanded: boolean) => Styling;
   rootNodeChildren: React.CSSProperties;
 }
 
-const getDefaultThemeStyling = (theme: Theme): Styling => {
+const getDefaultThemeStyling = (theme: Base16Theme): StylingSpecific => {
   const colors = colorMap(theme);
 
   return {
@@ -132,7 +113,7 @@ const getDefaultThemeStyling = (theme: Theme): Styling => {
     valueText: ({ style }, nodeType) => ({
       style: {
         ...style,
-        color: valueColorMap(colors)[nodeType]
+        color: valueColorMap(colors)[nodeType as keyof ReturnType<typeof valueColorMap>]
       }
     }),
 

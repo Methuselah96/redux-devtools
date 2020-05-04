@@ -1,9 +1,9 @@
 import React, { MouseEventHandler } from 'react';
 import PropTypes from 'prop-types';
-import { Styling } from './index';
+import { StylingFunction } from 'react-base16-styling';
 
 interface Props {
-  styling: Styling;
+  styling: StylingFunction;
   arrowStyle?: 'single' | 'double';
   expanded: boolean;
   nodeType: string;
