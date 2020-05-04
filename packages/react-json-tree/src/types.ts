@@ -1,30 +1,45 @@
 import React from 'react';
 import { Styling } from './index';
 
-export interface JSONValueNodePropsBase {
-  styling: Styling;
-  labelRenderer: (keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean) => React.ReactNode;
+interface SharedCircularPropsPassedThroughJSONTree {
   keyPath: (string | number)[];
-  valueRenderer: (gottenValue: any, value: any, ...keyPath: (string | number)[]) => React.ReactNode;
-  value: any;
-}
-
-export interface JSONNodePropsBase extends JSONValueNodePropsBase {
-  getItemString: (nodeType: string, data: any, itemType: React.ReactNode, itemString: string) => string;
-  isCustomNode: (value: any) => boolean;
-  shouldExpandNode: (keyPath: (string | number)[], data: any, level: number) => boolean;
-  isCircular: boolean;
-  level?: number;
-  hideRoot: boolean;
-  styling: Styling;
-  collectionLimit: number;
   labelRenderer: (keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean) => React.ReactNode;
-  expandable?: boolean;
-  circularCache?: any[];
-  postprocessValue: (value: any) => any;
-  sortObjectKeys: boolean;
 }
+interface SharedCircularPropsProvidedByJSONTree extends SharedCircularPropsPassedThroughJSONTree {
+  styling: Styling;
+}
+interface JSONValueNodeCircularPropsPassedThroughJSONTree {
+  valueRenderer: (gottenValue: any, value: any, ...keyPath: (string | number)[]) => React.ReactNode;
+}
+export type JSONValueNodeCircularPropsProvidedByJSONNode = SharedCircularPropsProvidedByJSONTree & JSONValueNodeCircularPropsPassedThroughJSONTree;
 
-export interface JSONNestedNodePropsBase extends JSONNodePropsBase {
-  data: any;
+interface JSONNestedNodeCircularPropsPassedThroughJSONTree {
+  shouldExpandNode: (keyPath: (string | number)[], data: any, level: number) => boolean;
+  hideRoot: boolean;
+  getItemString: (nodeType: string, data: any, itemType: React.ReactNode, itemString: string) => string;
+  postprocessValue: (value: any) => any;
+  isCustomNode: (value: any) => boolean;
+  collectionLimit: number;
+  sortObjectKeys?: boolean;
 }
+export type CircularPropsPassedThroughJSONTree = SharedCircularPropsPassedThroughJSONTree & JSONValueNodeCircularPropsPassedThroughJSONTree & JSONNestedNodeCircularPropsPassedThroughJSONTree;
+
+interface JSONNestedNodeCircularPropsPassedThroughJSONNode extends JSONNestedNodeCircularPropsPassedThroughJSONTree {
+  circularCache?: any[];
+  isCircular?: boolean;
+  level?: number;
+}
+export type CircularPropsPassedThroughJSONNode = SharedCircularPropsProvidedByJSONTree & JSONValueNodeCircularPropsPassedThroughJSONTree & JSONNestedNodeCircularPropsPassedThroughJSONNode;
+
+export interface JSONNestedNodeCircularPropsPassedThroughJSONNestedNode extends JSONNestedNodeCircularPropsPassedThroughJSONNode {
+  circularCache: any[];
+  level: number;
+}
+export type CircularPropsPassedThroughJSONNestedNode = SharedCircularPropsProvidedByJSONTree & JSONValueNodeCircularPropsPassedThroughJSONTree & JSONNestedNodeCircularPropsPassedThroughJSONNestedNode;
+
+export type CircularPropsPassedThroughRenderChildNodes = SharedCircularPropsProvidedByJSONTree & JSONValueNodeCircularPropsPassedThroughJSONTree & JSONNestedNodeCircularPropsPassedThroughJSONNestedNode;
+
+export interface JSONNestedNodeCircularPropsProvidedByRenderChildNodes extends JSONNestedNodeCircularPropsPassedThroughJSONNestedNode {
+  isCircular: boolean;
+}
+export type CircularPropsPassedThroughItemRange = SharedCircularPropsProvidedByJSONTree & JSONValueNodeCircularPropsPassedThroughJSONTree & JSONNestedNodeCircularPropsProvidedByRenderChildNodes;

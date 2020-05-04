@@ -8,14 +8,12 @@ import PropTypes from 'prop-types';
 import JSONNode from './JSONNode';
 import createStylingFromTheme from './createStylingFromTheme';
 import { invertTheme } from 'react-base16-styling';
+import { CircularPropsPassedThroughJSONTree } from './types';
 
-interface Props {
+interface Props extends CircularPropsPassedThroughJSONTree {
   theme: unknown;
   invertTheme: boolean;
   data: any;
-  keyPath: (string | number)[];
-  postprocessValue: (value: any) => any;
-  hideRoot: boolean;
 }
 
 export interface Styling {

@@ -89,7 +89,7 @@ function getRanges(from: number, to: number, limit: number) {
 export default function getCollectionEntries(
   type: string,
   collection: any,
-  sortObjectKeys: boolean,
+  sortObjectKeys: boolean | undefined,
   limit: number,
   from = 0,
   to = Infinity

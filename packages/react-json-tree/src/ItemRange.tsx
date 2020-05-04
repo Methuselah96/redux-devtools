@@ -1,15 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import JSONArrow from './JSONArrow';
-import { Styling } from './index';
 import { RenderChildNodesProps } from './JSONNestedNode';
+import { CircularPropsPassedThroughItemRange } from './types';
 
-interface Props {
-  styling: Styling;
+interface Props extends CircularPropsPassedThroughItemRange {
+  data: any;
+  nodeType: string;
   from: number;
   to: number;
   renderChildNodes: (props: RenderChildNodesProps, from: number, to: number) => React.ReactNode;
-  nodeType: string;
 }
 
 // interface Props {

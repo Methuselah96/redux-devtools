@@ -5,7 +5,7 @@ import JSONObjectNode from './JSONObjectNode';
 import JSONArrayNode from './JSONArrayNode';
 import JSONIterableNode from './JSONIterableNode';
 import JSONValueNode from './JSONValueNode';
-import { Styling } from './index';
+import { CircularPropsPassedThroughJSONNode } from './types';
 
 // type JSONValueSpreadProps = Pick<JSONValueNodeProps, 'nodeType' | 'styling' | 'labelRenderer' | 'keyPath' | 'valueRenderer' | 'value'>;
 // export interface JSONNodeProps extends JSONValueSpreadProps {
@@ -13,13 +13,9 @@ import { Styling } from './index';
 //   isCustomNode: (value: any) => boolean;
 // }
 
-interface Props {
-  getItemString: (nodeType: string, data: any, itemType: React.ReactNode, itemString: string) => string;
+interface Props extends CircularPropsPassedThroughJSONNode {
   keyPath: (string | number)[];
-  labelRenderer: (keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean) => React.ReactNode;
-  styling: Styling;
   value: any;
-  valueRenderer: (gottenValue: any, value: any, ...keyPath: (string | number)[]) => React.ReactNode;
   isCustomNode: (value: any) => boolean;
 }
 

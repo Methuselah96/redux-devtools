@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import JSONNestedNode from './JSONNestedNode';
+import { CircularPropsPassedThroughJSONNode } from './types';
 
 // Returns the "n Items" string for this node,
 // generating and caching it if it hasn't been created yet.
@@ -8,8 +9,9 @@ function createItemString(data: any) {
   return `${data.length} ${data.length !== 1 ? 'items' : 'item'}`;
 }
 
-interface Props {
+interface Props extends CircularPropsPassedThroughJSONNode {
   data: any;
+  nodeType: string;
 }
 
 // interface Props {

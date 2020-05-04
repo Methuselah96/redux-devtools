@@ -4,20 +4,15 @@ import JSONArrow from './JSONArrow';
 import getCollectionEntries from './getCollectionEntries';
 import JSONNode from './JSONNode';
 import ItemRange from './ItemRange';
-import { Styling } from './index';
+import { CircularPropsPassedThroughJSONNestedNode, CircularPropsPassedThroughRenderChildNodes } from './types';
 
 /**
  * Renders nested values (eg. objects, arrays, lists, etc.)
  */
 
-export interface RenderChildNodesProps {
-  nodeType: string;
+export interface RenderChildNodesProps extends CircularPropsPassedThroughRenderChildNodes {
   data: any;
-  collectionLimit: number;
-  circularCache: any[];
-  keyPath: (string | number)[];
-  postprocessValue: (value: any) => any;
-  sortObjectKeys: boolean;
+  nodeType: string;
 }
 
 // type ItemRangeSpreadProps = Omit<ItemRangeProps, 'from' | 'to' | 'renderChildNodes'>;
@@ -129,20 +124,11 @@ function renderChildNodes(props: RenderChildNodesProps, from?: number, to?: numb
   return childNodes;
 }
 
-interface Props {
-  shouldExpandNode: (keyPath: (string | number)[], data: any, level: number) => boolean;
-  isCircular: boolean;
-  keyPath: (string | number)[];
+interface Props extends CircularPropsPassedThroughJSONNestedNode {
   data: any;
-  level: number;
-  getItemString: (nodeType: string, data: any, itemType: React.ReactNode, itemString: string) => string;
-  nodeTypeIndicator: string;
   nodeType: string;
-  hideRoot: boolean;
+  nodeTypeIndicator: string;
   createItemString: (data: any, collectionLimit: number) => string;
-  styling: Styling;
-  collectionLimit: number;
-  labelRenderer: (keyPath: (string | number)[], nodeType: string, expanded: boolean, expandable: boolean) => React.ReactNode;
   expandable: boolean;
 }
 
