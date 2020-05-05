@@ -2,6 +2,15 @@ import difference from 'lodash/difference';
 import union from 'lodash/union';
 import isPlainObject from 'lodash/isPlainObject';
 import $$observable from 'symbol-observable';
+import {
+  Action,
+  AnyAction,
+  PreloadedState,
+  Reducer,
+  Store,
+  StoreEnhancer,
+  StoreEnhancerStoreCreator
+} from 'redux';
 
 export const ActionTypes = {
   PERFORM_ACTION: 'PERFORM_ACTION',
@@ -734,7 +743,10 @@ export function unliftStore(liftedStore, liftReducer, options) {
 /**
  * Redux instrumentation store enhancer.
  */
-export default function instrument(monitorReducer = () => null, options = {}) {
+export default function instrument<Ext, StateExt>(
+  monitorReducer = () => null,
+  options = {}
+): StoreEnhancer {
   if (typeof options.maxAge === 'number' && options.maxAge < 2) {
     throw new Error(
       'DevTools.instrument({ maxAge }) option, if specified, ' +
@@ -742,7 +754,13 @@ export default function instrument(monitorReducer = () => null, options = {}) {
     );
   }
 
-  return createStore => (reducer, initialState, enhancer) => {
+  return (
+    createStore: StoreEnhancerStoreCreator
+  ): StoreEnhancerStoreCreator<Ext, StateExt> => <S, A extends Action>(
+    reducer: Reducer<S, A>,
+    initialState?: PreloadedState<S>,
+    enhancer
+  ): Store<S & StateExt, A> & Ext => {
     function liftReducer(r) {
       if (typeof r !== 'function') {
         if (r && typeof r.default === 'function') {
