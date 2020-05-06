@@ -27,7 +27,11 @@ export const ActionTypes = {
   PAUSE_RECORDING: 'PAUSE_RECORDING'
 } as const;
 
-type LiftedAction = {
+type InstrumentActionType = {
+  [K in keyof typeof ActionTypes]: typeof ActionTypes[K];
+}[keyof typeof ActionTypes];
+
+type InstrumentAction = {
   [K in keyof typeof ActionTypes]: Action<typeof ActionTypes[K]>;
 }[keyof typeof ActionTypes];
 
@@ -55,7 +59,7 @@ interface PerformAction<A extends Action> {
  */
 export const ActionCreators = {
   performAction<A extends Action>(
-    action: A,
+    action: LiftedActionType,
     trace,
     traceLimit,
     toExcludeFromTrace
@@ -268,10 +272,10 @@ function recomputeStates<S, A extends Action>(
  * Lifts an app's action into an action on the lifted store.
  */
 export function liftAction(
-  action: LiftedAction,
-  trace,
-  traceLimit,
-  toExcludeFromTrace
+  action: LiftedActionType,
+  trace?,
+  traceLimit?,
+  toExcludeFromTrace?
 ) {
   return ActionCreators.performAction(
     action,
@@ -301,9 +305,9 @@ export function liftReducerWith<S, A extends Action>(
   reducer: Reducer<S, A>,
   initialCommittedState: PreloadedState<S> | undefined,
   monitorReducer,
-  options: Options
+  options: Options<S, A>
 ) {
-  const initialLiftedState: LiftedState<S> = {
+  const initialLiftedState: LiftedState<S, A> = {
     monitorState: monitorReducer(undefined, {}),
     nextActionId: 1,
     actionsById: { 0: liftAction(INIT_ACTION) },
@@ -710,7 +714,9 @@ export function liftReducerWith<S, A extends Action>(
 /**
  * Provides an app's view into the state of the lifted store.
  */
-export function unliftState(liftedState) {
+export function unliftState<S, A extends Action>(
+  liftedState: LiftedState<S, A>
+) {
   const { computedStates, currentStateIndex } = liftedState;
   const { state } = computedStates[currentStateIndex];
   return state;
@@ -719,13 +725,17 @@ export function unliftState(liftedState) {
 /**
  * Provides an app's view into the lifted store.
  */
-export function unliftStore(liftedStore, liftReducer, options) {
-  let lastDefinedState;
+export function unliftStore<S, A extends Action>(
+  liftedStore,
+  liftReducer,
+  options
+) {
+  let lastDefinedState: S;
   const trace = options.trace || options.shouldIncludeCallstack;
   const traceLimit = options.traceLimit || 10;
 
   function getState() {
-    const state = unliftState(liftedStore.getState());
+    const state = unliftState<S, A>(liftedStore.getState());
     if (state !== undefined) {
       lastDefinedState = state;
     }
@@ -773,13 +783,10 @@ export function unliftStore(liftedStore, liftReducer, options) {
   };
 }
 
-interface Options {
+interface Options<S, A extends Action> {
   maxAge?:
     | number
-    | ((
-        liftedAction: LiftedAction,
-        liftedState: LiftedState<unknown>
-      ) => number);
+    | ((liftedAction: LiftedAction, liftedState: LiftedState<S, A>) => number);
   shouldStartLocked?: boolean;
   shouldRecordChanges?: boolean;
   shouldHotReload?: boolean;
@@ -789,9 +796,9 @@ interface Options {
 /**
  * Redux instrumentation store enhancer.
  */
-export default function instrument<Ext, StateExt>(
+export default function instrument<Ext, StateExt, S, A extends Action>(
   monitorReducer = () => null,
-  options: Options = {}
+  options: Options<S, A> = {}
 ): StoreEnhancer<Ext, StateExt> {
   if (typeof options.maxAge === 'number' && options.maxAge < 2) {
     throw new Error(
