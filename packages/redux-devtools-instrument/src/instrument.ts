@@ -2,6 +2,14 @@ import difference from 'lodash/difference';
 import union from 'lodash/union';
 import isPlainObject from 'lodash/isPlainObject';
 import $$observable from 'symbol-observable';
+import {
+  Action,
+  PreloadedState,
+  Reducer,
+  Store,
+  StoreEnhancer,
+  StoreEnhancerStoreCreator
+} from 'redux';
 
 export const ActionTypes = {
   PERFORM_ACTION: 'PERFORM_ACTION',
@@ -17,7 +25,11 @@ export const ActionTypes = {
   IMPORT_STATE: 'IMPORT_STATE',
   LOCK_CHANGES: 'LOCK_CHANGES',
   PAUSE_RECORDING: 'PAUSE_RECORDING'
-};
+} as const;
+
+type LiftedAction = {
+  [K in keyof typeof ActionTypes]: Action<typeof ActionTypes[K]>;
+}[keyof typeof ActionTypes];
 
 const isChrome =
   typeof window === 'object' &&
@@ -31,11 +43,23 @@ const isChromeOrNode =
     process.release &&
     process.release.name === 'node');
 
+interface PerformAction<A extends Action> {
+  type: typeof ActionTypes.PERFORM_ACTION;
+  action: A;
+  timestamp: number;
+  stack: string;
+}
+
 /**
  * Action creators to change the History state.
  */
 export const ActionCreators = {
-  performAction(action, trace, traceLimit, toExcludeFromTrace) {
+  performAction<A extends Action>(
+    action: A,
+    trace,
+    traceLimit,
+    toExcludeFromTrace
+  ): PerformAction<A> {
     if (!isPlainObject(action)) {
       throw new Error(
         'Actions must be plain objects. ' +
@@ -186,15 +210,15 @@ function computeNextEntry(reducer, action, state, shouldCatchErrors) {
 /**
  * Runs the reducer on invalidated actions to get a fresh computation log.
  */
-function recomputeStates(
-  computedStates,
-  minInvalidatedStateIndex,
-  reducer,
-  committedState,
-  actionsById,
-  stagedActionIds,
-  skippedActionIds,
-  shouldCatchErrors
+function recomputeStates<S, A extends Action>(
+  computedStates: { state: S }[],
+  minInvalidatedStateIndex: number,
+  reducer: Reducer<S, A>,
+  committedState: PreloadedState<S> | S | undefined,
+  actionsById: { [actionId: number]: PerformAction<A> },
+  stagedActionIds: number[],
+  skippedActionIds: number[],
+  shouldCatchErrors: boolean | undefined
 ) {
   // Optimization: exit early and return the same reference
   // if we know nothing could have changed.
@@ -215,7 +239,7 @@ function recomputeStates(
     const previousEntry = nextComputedStates[i - 1];
     const previousState = previousEntry ? previousEntry.state : committedState;
 
-    const shouldSkip = skippedActionIds.indexOf(actionId) > -1;
+    const shouldSkip = skippedActionIds.includes(actionId);
     let entry;
     if (shouldSkip) {
       entry = previousEntry;
@@ -243,7 +267,12 @@ function recomputeStates(
 /**
  * Lifts an app's action into an action on the lifted store.
  */
-export function liftAction(action, trace, traceLimit, toExcludeFromTrace) {
+export function liftAction(
+  action: LiftedAction,
+  trace,
+  traceLimit,
+  toExcludeFromTrace
+) {
   return ActionCreators.performAction(
     action,
     trace,
@@ -252,16 +281,29 @@ export function liftAction(action, trace, traceLimit, toExcludeFromTrace) {
   );
 }
 
+interface LiftedState<S, A extends Action> {
+  monitorState: unknown;
+  nextActionId: number;
+  actionsById: { [actionId: number]: PerformAction<A> };
+  stagedActionIds: number[];
+  skippedActionIds: number[];
+  committedState: PreloadedState<S> | S | undefined;
+  currentStateIndex: number;
+  computedStates: { state: S }[];
+  isLocked: boolean;
+  isPaused: boolean;
+}
+
 /**
  * Creates a history state reducer from an app's reducer.
  */
-export function liftReducerWith(
-  reducer,
-  initialCommittedState,
+export function liftReducerWith<S, A extends Action>(
+  reducer: Reducer<S, A>,
+  initialCommittedState: PreloadedState<S> | undefined,
   monitorReducer,
-  options
+  options: Options
 ) {
-  const initialLiftedState = {
+  const initialLiftedState: LiftedState<S> = {
     monitorState: monitorReducer(undefined, {}),
     nextActionId: 1,
     actionsById: { 0: liftAction(INIT_ACTION) },
@@ -277,7 +319,7 @@ export function liftReducerWith(
   /**
    * Manages how the history actions modify the history state.
    */
-  return (liftedState, liftedAction) => {
+  return (liftedState: LiftedState<S, A>, liftedAction: LiftedAction) => {
     let {
       monitorState,
       actionsById,
@@ -376,7 +418,7 @@ export function liftReducerWith(
       };
     }
 
-    // By default, agressively recompute every state whatever happens.
+    // By default, aggressively recompute every state whatever happens.
     // This has O(n) performance, so we'll override this to a sensible
     // value whenever we feel like we don't have to recompute the states.
     let minInvalidatedStateIndex = 0;
@@ -731,10 +773,26 @@ export function unliftStore(liftedStore, liftReducer, options) {
   };
 }
 
+interface Options {
+  maxAge?:
+    | number
+    | ((
+        liftedAction: LiftedAction,
+        liftedState: LiftedState<unknown>
+      ) => number);
+  shouldStartLocked?: boolean;
+  shouldRecordChanges?: boolean;
+  shouldHotReload?: boolean;
+  shouldCatchErrors?: boolean;
+}
+
 /**
  * Redux instrumentation store enhancer.
  */
-export default function instrument(monitorReducer = () => null, options = {}) {
+export default function instrument<Ext, StateExt>(
+  monitorReducer = () => null,
+  options: Options = {}
+): StoreEnhancer<Ext, StateExt> {
   if (typeof options.maxAge === 'number' && options.maxAge < 2) {
     throw new Error(
       'DevTools.instrument({ maxAge }) option, if specified, ' +
@@ -742,10 +800,13 @@ export default function instrument(monitorReducer = () => null, options = {}) {
     );
   }
 
-  return createStore => (reducer, initialState, enhancer) => {
-    function liftReducer(r) {
+  return (createStore: StoreEnhancerStoreCreator) => <S, A extends Action>(
+    reducer: Reducer<S, A>,
+    initialState?: PreloadedState<S>
+  ): Store<S & StateExt, A> & Ext => {
+    function liftReducer(r: Reducer<S, A>): Reducer<S, A> {
       if (typeof r !== 'function') {
-        if (r && typeof r.default === 'function') {
+        if (r && typeof (r as { default: unknown }).default === 'function') {
           throw new Error(
             'Expected the reducer to be a function. ' +
               'Instead got an object with a "default" field. ' +
@@ -758,7 +819,7 @@ export default function instrument(monitorReducer = () => null, options = {}) {
       return liftReducerWith(r, initialState, monitorReducer, options);
     }
 
-    const liftedStore = createStore(liftReducer(reducer), enhancer);
+    const liftedStore = createStore(liftReducer(reducer));
     if (liftedStore.liftedStore) {
       throw new Error(
         'DevTools instrumentation should not be applied more than once. ' +
