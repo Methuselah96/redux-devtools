@@ -15,17 +15,21 @@ export const Container = styled.div`
 
 storiesOf('Slider', module)
   .addDecorator(withKnobs)
-  .add('default', () => (
-    <Container>
-      <Slider
-        value={number('value', 0)}
-        min={number('min', 0)}
-        max={number('max', 100)}
-        label={text('label', 'Slider label')}
-        sublabel={text('sublabel', '(sublabel)')}
-        withValue={boolean('withValue', false)}
-        disabled={boolean('disabled', false)}
-        onChange={action('slider changed')}
-      />
-    </Container>
-  ));
+  .addWithInfo(
+    'default',
+    '',
+    () => (
+      <Container>
+        <Slider
+          value={number('value', 0)}
+          min={number('min', 0)}
+          max={number('max', 100)}
+          label={text('label', 'Slider label')}
+          sublabel={text('sublabel', '(sublabel)')}
+          withValue={boolean('withValue', false)}
+          disabled={boolean('disabled', false)}
+          onChange={action('slider changed')}
+        />
+      </Container>
+    )
+  );

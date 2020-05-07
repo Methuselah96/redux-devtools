@@ -12,10 +12,8 @@ export default class ContextMenu extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (
-      nextProps.items !== this.props.items ||
-      nextProps.visible !== this.props.visible
-    ) {
+    if (nextProps.items !== this.props.items ||
+      nextProps.visible !== this.props.visible) {
       this.updateItems(nextProps.items);
     }
   }
@@ -34,7 +32,7 @@ export default class ContextMenu extends Component {
     e.target.blur();
   };
 
-  onClick = e => {
+  onClick = (e) => {
     this.props.onClick(e.target.value);
   };
 
@@ -80,7 +78,7 @@ export default class ContextMenu extends Component {
     });
   }
 
-  menuRef = c => {
+  menuRef = (c) => {
     this.menu = c;
   };
 

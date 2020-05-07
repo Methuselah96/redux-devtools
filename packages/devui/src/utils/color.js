@@ -7,10 +7,6 @@ import Color from 'color';
     effect('#000000', 'alpha', 0.5);
 */
 
-export default (color, effect, val) =>
-  new Color(color)
-    [effect](val)
-    .hsl()
-    .string();
+export default (color, effect, val) => new Color(color)[effect](val).hsl().string();
 
 // TODO: memoize it

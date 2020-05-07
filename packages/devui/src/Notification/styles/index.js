@@ -49,8 +49,7 @@ export default ({ theme, type }) => css`
     opacity: 0.8;
   }
 
-  & > button:hover,
-  & > button:active {
+  & > button:hover, & > button:active {
     opacity: 1;
   }
 

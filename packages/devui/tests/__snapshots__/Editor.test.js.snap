@@ -12,9 +12,10 @@ exports[`Editor renders correctly 1`] = `
 >
   <styled.div
     innerRef={[Function]}
+    theme={undefined}
   >
     <div
-      className="sc-gZMcBi bFOJgt"
+      className="sc-gZMcBi eROHUl"
     />
   </styled.div>
 </Editor>

@@ -59,9 +59,10 @@ export default ({ theme, openOuterUp, menuMaxHeight }) => css`
   }
 
   &.is-open > .Select-control {
-    border-radius: ${openOuterUp
-      ? `0 0 ${theme.inputBorderRadius}px ${theme.inputBorderRadius}px`
-      : `${theme.inputBorderRadius}px ${theme.inputBorderRadius}px 0 0`};
+    border-radius: ${openOuterUp ?
+      `0 0 ${theme.inputBorderRadius}px ${theme.inputBorderRadius}px` :
+      `${theme.inputBorderRadius}px ${theme.inputBorderRadius}px 0 0`
+    };
   }
 
   &.is-searchable {
@@ -211,7 +212,9 @@ export default ({ theme, openOuterUp, menuMaxHeight }) => css`
   .Select-arrow {
     border-color: ${theme.base03} transparent transparent;
     border-style: solid;
-    border-width: ${theme.selectArrowWidth}px ${theme.selectArrowWidth}px
+    border-width:
+      ${theme.selectArrowWidth}px
+      ${theme.selectArrowWidth}px
       ${theme.selectArrowWidth / 2}px;
     display: inline-block;
     height: 0;
@@ -314,8 +317,7 @@ export default ({ theme, openOuterUp, menuMaxHeight }) => css`
       border-bottom-right-radius: ${theme.inputBorderRadius}px;
       border-top-right-radius: ${theme.inputBorderRadius}px;
       cursor: default;
-      padding: ${Math.floor(theme.inputPadding / 4)}px
-        ${Math.floor(theme.inputPadding / 2)}px;
+      padding: ${Math.floor(theme.inputPadding / 4)}px ${Math.floor(theme.inputPadding / 2)}px;
     }
 
     a.Select-value-label {

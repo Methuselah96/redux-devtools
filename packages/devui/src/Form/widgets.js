@@ -8,9 +8,7 @@ const SelectWidget = ({ options, multi, ...rest }) => (
 );
 
 const RangeWidget = ({
-  schema,
-  readonly,
-  autofocus,
+  schema, readonly, autofocus,
   label, // eslint-disable-line
   options, // eslint-disable-line
   formContext, // eslint-disable-line

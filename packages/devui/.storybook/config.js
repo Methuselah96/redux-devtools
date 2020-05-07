@@ -1,25 +1,23 @@
 import { configure, setAddon, addDecorator } from '@storybook/react';
-import { withOptions } from '@storybook/addon-options';
-import { withInfo } from '@storybook/addon-info';
+import { setOptions } from '@storybook/addon-options';
+import infoAddon from '@storybook/addon-info';
 import { withKnobs } from '@storybook/addon-knobs';
 import { withTheme } from './themeAddon/theme';
 import '../src/presets.js';
 
-addDecorator(
-  withOptions({
-    name: 'DevUI',
-    url: 'https://github.com/reduxjs/redux-devtools/tree/master/packages/devui',
-    goFullScreen: false,
-    showStoriesPanel: true,
-    showAddonPanel: true,
-    showSearchBox: false,
-    addonPanelInRight: true
-  })
-);
+setAddon(infoAddon);
+setOptions({
+  name: 'DevUI',
+  url: 'https://github.com/zalmoxisus/devui',
+  goFullScreen: false,
+  showLeftPanel: true,
+  showDownPanel: true,
+  showSearchBox: false,
+  downPanelInRight: true
+});
 
 addDecorator(withTheme);
 addDecorator(withKnobs);
-addDecorator(withInfo);
 
 const req = require.context('../src/', true, /stories\/index\.js$/);
 

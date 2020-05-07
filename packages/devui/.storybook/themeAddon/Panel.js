@@ -25,8 +25,6 @@ export default class Panel extends React.Component {
     this.setState(state);
   };
 
-  onClick = () => {};
-
   render() {
     const { theme, scheme, light } = this.state;
     return (
@@ -52,7 +50,6 @@ export default class Panel extends React.Component {
             }
           ]}
           onFieldChange={this.onChange}
-          onFieldClick={this.onClick}
         />
       </FormWrapper>
     );

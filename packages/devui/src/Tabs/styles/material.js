@@ -8,8 +8,7 @@ export const style = ({ theme, main }) => css`
   background-color: ${theme.base01};
   width: 100%;
   overflow: hidden;
-  ${!main &&
-    `
+  ${!main && `
   border-top: 1px solid ${theme.base01};
   border-bottom: 1px solid ${theme.base02};
   `}
@@ -38,7 +37,7 @@ export const style = ({ theme, main }) => css`
         border-bottom: 2px solid ${theme.base03};
         color: ${theme.base04};
       }
-      &.collapsed {
+      &.collapsed{
         display: none;
       }
 
