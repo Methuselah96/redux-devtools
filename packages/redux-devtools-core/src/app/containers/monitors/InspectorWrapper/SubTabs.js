@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Tabs } from 'devui';
-import StateTree from 'redux-devtools-inspector/lib/tabs/StateTab';
-import ActionTree from 'redux-devtools-inspector/lib/tabs/ActionTab';
-import DiffTree from 'redux-devtools-inspector/lib/tabs/DiffTab';
+import StateTree from 'remotedev-inspector-monitor/lib/tabs/StateTab';
+import ActionTree from 'remotedev-inspector-monitor/lib/tabs/ActionTab';
+import DiffTree from 'remotedev-inspector-monitor/lib/tabs/DiffTab';
 import { selectMonitorTab } from '../../../actions';
 import RawTab from './RawTab';
 import ChartTab from './ChartTab';
@@ -74,8 +74,7 @@ class SubTabs extends Component {
 
   render() {
     let selected = this.props.selected;
-    if (selected === 'Chart' && this.props.parentTab === 'Diff')
-      selected = 'Tree';
+    if (selected === 'Chart' && this.props.parentTab === 'Diff') selected = 'Tree';
 
     return (
       <Tabs
@@ -109,7 +108,4 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(SubTabs);
+export default connect(mapStateToProps, mapDispatchToProps)(SubTabs);

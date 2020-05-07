@@ -7,7 +7,7 @@ import rootReducer from '../reducers';
 
 export default function configureStore(callback, key) {
   const persistConfig = {
-    keyPrefix: `redux-devtools${key || ''}:`,
+    keyPrefix: `remotedev${key || ''}:`,
     blacklist: ['instances', 'socket'],
     storage: localForage,
     serialize: data => data,
@@ -29,11 +29,9 @@ export default function configureStore(callback, key) {
       }
     }
 
-    const store = createStore(
-      rootReducer,
-      restoredState,
-      composeEnhancers(applyMiddleware(exportState, api))
-    );
+    const store = createStore(rootReducer, restoredState, composeEnhancers(
+      applyMiddleware(exportState, api)
+    ));
     const persistor = createPersistor(store, persistConfig);
     callback(store, restoredState);
     if (err) persistor.purge();

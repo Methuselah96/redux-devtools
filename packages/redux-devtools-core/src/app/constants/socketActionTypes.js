@@ -1,13 +1,8 @@
 import socketCluster from 'socketcluster-client';
 
 export const {
-  CLOSED,
-  CONNECTING,
-  OPEN,
-  AUTHENTICATED,
-  PENDING,
-  UNAUTHENTICATED
-} = socketCluster.SCSocket;
+  CLOSED, CONNECTING, OPEN, AUTHENTICATED, PENDING, UNAUTHENTICATED
+  } = socketCluster.SCSocket;
 export const CONNECT_REQUEST = 'socket/CONNECT_REQUEST';
 export const CONNECT_SUCCESS = 'socket/CONNECT_SUCCESS';
 export const CONNECT_ERROR = 'socket/CONNECT_ERROR';

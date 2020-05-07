@@ -42,12 +42,13 @@ class ImportButton extends Component {
 
   render() {
     return (
-      <Button title="Import from a file" onClick={this.handleImport}>
+      <Button
+        title="Import from a file"
+        onClick={this.handleImport}
+      >
         <UploadIcon />
         <input
-          type="file"
-          ref={this.mapRef}
-          style={{ display: 'none' }}
+          type="file" ref={this.mapRef} style={{ display: 'none' }}
           onChange={this.handleImportFile}
         />
       </Button>
@@ -61,7 +62,4 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default connect(
-  null,
-  mapDispatchToProps
-)(ImportButton);
+export default connect(null, mapDispatchToProps)(ImportButton);

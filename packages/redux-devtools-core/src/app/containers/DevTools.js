@@ -1,5 +1,4 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React, { Component, PropTypes, createElement } from 'react';
 import { withTheme } from 'styled-components';
 import getMonitor from '../utils/getMonitor';
 
@@ -18,10 +17,7 @@ class DevTools extends Component {
     if (update) {
       let newMonitorState;
       const monitorState = props.monitorState;
-      if (
-        skipUpdate ||
-        (monitorState && monitorState.__overwritten__ === props.monitor)
-      ) {
+      if (skipUpdate || monitorState && monitorState.__overwritten__ === props.monitor) {
         newMonitorState = monitorState;
       } else {
         newMonitorState = update(this.monitorProps, undefined, {});

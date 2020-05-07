@@ -1,9 +1,6 @@
 import {
-  MONITOR_ACTION,
-  SELECT_MONITOR,
-  UPDATE_MONITOR_STATE,
-  TOGGLE_SLIDER,
-  TOGGLE_DISPATCHER
+  MONITOR_ACTION, SELECT_MONITOR, SELECT_MONITOR_TAB, UPDATE_MONITOR_STATE,
+  TOGGLE_SLIDER, TOGGLE_DISPATCHER
 } from '../constants/actionTypes';
 
 const initialState = {
@@ -16,13 +13,8 @@ const initialState = {
 export function dispatchMonitorAction(state, action) {
   return {
     ...state,
-    monitorState:
-      action.action.newMonitorState ||
-      action.monitorReducer(
-        action.monitorProps,
-        state.monitorState,
-        action.action
-      )
+    monitorState: action.action.newMonitorState ||
+      action.monitorReducer(action.monitorProps, state.monitorState, action.action)
   };
 }
 

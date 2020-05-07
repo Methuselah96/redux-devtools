@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Editor } from 'devui';
 import stringify from 'javascript-stringify';
 
@@ -21,6 +22,8 @@ export default class RawTab extends Component {
   }
 
   render() {
-    return <Editor value={this.value} />;
+    return (
+      <Editor value={this.value} />
+    );
   }
 }
