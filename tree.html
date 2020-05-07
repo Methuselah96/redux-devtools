@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- Load the JS file -->
+  <script src="https://cdn.jsdelivr.net/npm/@gitgraph/js"></script>
+</head>
+<body>
+  <!-- DOM element in which we'll mount our graph -->
+  <div id="graph-container"></div>
+
+  <!-- Use the `GitgraphJS` global variable to create your graph -->
+  <script>
+    // Get the graph container HTML element.
+    const graphContainer = document.getElementById("graph-container");
+
+    // Instantiate the graph.
+    const gitgraph = GitgraphJS.createGitgraph(graphContainer, { author: "zalmoxisus <zalmoxisus@gmail.com>", branchLabelOnEveryCommit: true });
+
+    // Simulate git commands with Gitgraph API.
+    const reduxDevtools = gitgraph.branch("reduxjs/redux-devtools");
+    reduxDevtools.commit("Init");
+    const d3tooltip = gitgraph.branch("romseguy/d3tooltip");
+    d3tooltip.commit("Init");
+    const reduxDevtoolsInspector = gitgraph.branch("alexkuz/redux-devtools-inspector");
+    reduxDevtoolsInspector.commit("Init");
+    const reduxDevtoolsTestGenerator = gitgraph.branch("zalmoxisus/redux-devtools-test-generator");
+    reduxDevtoolsTestGenerator.commit("Init");
+    const devui = gitgraph.branch("zalmoxisus/devui");
+    devui.commit("Init");
+    const reduxDevtoolsLogMonitor = gitgraph.branch("gaearon/redux-devtools-log-monitor");
+    reduxDevtoolsLogMonitor.commit("Init");
+    const map2tree = gitgraph.branch("romseguy/map2tree");
+    map2tree.commit("Init");
+    const reduxSliderMonitor = gitgraph.branch("calesce/redux-slider-monitor");
+    reduxSliderMonitor.commit("Init");
+
+    d3tooltip.commit("1.2.2").tag("d3tooltip.v1.2.2");
+    d3tooltip.commit("Remove example");
+
+    reduxDevtoolsInspector.commit("0.9.4");
+    reduxDevtoolsInspector.commit("Improve actions list styling (#61)");
+    reduxDevtoolsInspector.commit("Support for time travelling (#60)");
+
+    const remotedevInspectorMonitor = gitgraph.branch("zalmoxisus/remotedev-inspector-monitor");
+    remotedevInspectorMonitor.commit("Reorder actions");
+
+    reduxDevtoolsInspector.commit("use git-directory-deploy for demo");
+    reduxDevtoolsInspector.commit("Fix tab component find for ActionPreview (#56)");
+
+    remotedevInspectorMonitor.commit("Support for Symbols in action types");
+    remotedevInspectorMonitor.commit("Support for custom data types for the preview");
+    remotedevInspectorMonitor.commit("v0.10.0");
+
+    reduxDevtoolsInspector.commit("Update JSS dependency to ^6.0.0 (#59)");
+    reduxDevtoolsInspector.commit("0.10.0");
+    reduxDevtoolsInspector.commit("remove yarn-error.log");
+
+    remotedevInspectorMonitor.commit("Fix dropping an action to the end");
+    remotedevInspectorMonitor.commit("Fix tab component find for ActionPreview");
+    remotedevInspectorMonitor.commit("Update JSS dependency to ^6.0.0");
+    remotedevInspectorMonitor.commit("Upgrade the jss-nested and jss-vendor-prefixed packages as well");
+    remotedevInspectorMonitor.commit("v0.10.1");
+
+    reduxDevtoolsInspector.commit("fix nulls in array diffs, add diffObjectHash and diffPropertyFilter callbacks");
+    reduxDevtoolsInspector.commit("0.11.0");
+    reduxDevtoolsInspector.commit("Create LICENSE");
+    reduxDevtoolsInspector.commit("Support for Symbols in action types (#63)");
+
+    remotedevInspectorMonitor.commit("Create LICENSE");
+    remotedevInspectorMonitor.commit("fix nulls in array diffs, add diffObjectHash and diffPropertyFilter callbacks");
+    remotedevInspectorMonitor.commit("Support for `undefined` action type");
+    remotedevInspectorMonitor.commit("Fix linting and stick react-json-tree");
+    remotedevInspectorMonitor.commit("v0.10.2");
+
+    reduxDevtoolsInspector.commit("update react-json-tree");
+    reduxDevtoolsInspector.commit("0.11.1");
+    reduxDevtoolsInspector.commit("another react-json-tree update; performance improvements");
+    reduxDevtoolsInspector.commit("0.11.2");
+    reduxDevtoolsInspector.commit("add Flow");
+    reduxDevtoolsInspector.commit("add travis, upgrade packages");
+    reduxDevtoolsInspector.commit("fix previews for Maps/Sets");
+    reduxDevtoolsInspector.commit("0.11.3").tag("redux-devtools-inspector-v0.11.3");
+    reduxDevtoolsInspector.commit("Show `undefined` for unserializable by `javascript-stringify` data (#65)");
+
+    reduxDevtoolsTestGenerator.commit("v0.5.1").tag("redux-devtools-test-generator-v0.5.1");
+
+    remotedevInspectorMonitor.commit("Fix scroll to bottom for multiple updates");
+    remotedevInspectorMonitor.commit("Show `undefined` for unserializable by `javascript-stringify` data");
+    remotedevInspectorMonitor.commit("Pass `monitorState` and `updateMonitorState` to custom tabs");
+    remotedevInspectorMonitor.commit("Fallback to default tab when the corresponding isn't find");
+    remotedevInspectorMonitor.commit("Update `react-json-tree`");
+    remotedevInspectorMonitor.commit("Hide buttons");
+
+    devui.commit("v1.0.0-3").tag("devui-v1.0.0-3");
+
+    reduxDevtoolsLogMonitor.commit("v1.4.0").tag("redux-devtools-log-monitor-v1.4.0");
+
+    map2tree.commit("unpin lodash version #1").tag("map2tree-v1.4.1");
+
+    devui.commit("Upgrade to React 16 for storybook (#21)");
+
+    remotedevInspectorMonitor.commit("v0.11.0");
+
+    reduxDevtools.merge(d3tooltip, "Merge d3tooltip package (#423)");
+    reduxDevtools.merge(map2tree, "Merge map2tree package (#426)");
+    reduxDevtools.commit("Add mention of redux-usage-report to readme (#396)");
+    reduxDevtools.commit("Merge react-json-tree package (#428)");
+    reduxDevtools.commit("Compatibility with react-redux@6 (#427)");
+    reduxDevtools.commit("Bump redux-devtools package").tag("redux-devtools-v3.5.0");
+
+    remotedevInspectorMonitor.commit("upgrade to react 16.4.2 (#5)");
+
+    reduxDevtools.merge(remotedevInspectorMonitor, "Move redux-devtools-inspector package (#429)");
+
+    reduxDevtoolsInspector.commit("Add a notice that it's moved and maintained in redux-devtools monorepo");
+
+    reduxDevtools.merge(reduxDevtoolsLogMonitor, "Merge redux-devtools-log-monitor (#432)");
+
+    reduxSliderMonitor.commit("v2.0.0-2").tag("redux-slider-monitor-v2.0.0-2");
+
+    reduxDevtools.merge(reduxSliderMonitor, "Add redux-slider-monitor (#434)");
+    reduxDevtools.commit("Change Firefox extension link");
+
+    reduxSliderMonitor.commit("Add a notice that it's moved and maintained in redux-devtools monorepo");
+
+    reduxDevtools.merge(reduxDevtoolsTestGenerator, "Move redux-devtools-test-generator package (#438)");
+    reduxDevtools.commit("Fix readme link to original package (#439)");
+    reduxDevtools.commit("Add website folder created with docusaurus (#440)");
+    reduxDevtools.commit("Create redux-devtools-core package (#441)");
+    reduxDevtools.commit("[redux-devtools-core] Use `nanoid/non-secure`").tag("redux-devtools-core-v0.2.1");
+    reduxDevtools.commit("Upgrade to react 16.4 for trace-monitor and test-generator (#443)");
+    reduxDevtools.merge(devui, "Add devui package (#444)");
+    reduxDevtools.commit("Move remotedev-app and remotedev-server (#445)").tag("redux-devtools-cli-v0.0.1-1");
+    reduxDevtools.commit("Create umd build for react-json-tree (#447)").tag("react-json-tree-v0.11.2");
+    reduxDevtools.commit("Avoid error-polyfill issues");
+    reduxDevtools.commit("Bump redux-devtools-instrument").tag("redux-devtools-instrument-v1.9.6");
+    reduxDevtools.commit("[redux-devtools-trace-monitor] StackTraceTab: Allow custom `openFile` function (#458)");
+    reduxDevtools.commit("Fix and update packages (#449)");
+    reduxDevtools.commit("Prettify");
+    reduxDevtools.commit("Bump redux-devtools-trace-monitor").tag("redux-devtools-trace-monitor-v0.1.1");
+  </script>
+</body>
+</html>
