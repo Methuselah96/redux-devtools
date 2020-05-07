@@ -12,7 +12,6 @@ exports[`Editor renders correctly 1`] = `
 >
   <styled.div
     innerRef={[Function]}
-    theme={undefined}
   >
     <div
       className="sc-gZMcBi eROHUl"

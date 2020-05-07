@@ -2,12 +2,12 @@
 
 exports[`Select renders correctly 1`] = `
 <div
-  class="Select sc-bZQynM lpCNM Select--single is-searchable"
+  class="Select sc-bZQynM lpCNM is-searchable Select--single"
 >
   <div
     class="Select-control"
   >
-    <span
+    <div
       class="Select-multi-value-wrapper"
       id="react-select-2--value"
     >
@@ -26,14 +26,14 @@ exports[`Select renders correctly 1`] = `
           aria-haspopup="false"
           aria-owns=""
           role="combobox"
-          style="width:5px;box-sizing:content-box"
+          style="box-sizing:content-box;width:5px"
           value=""
         />
         <div
           style="position:absolute;top:0;left:0;visibility:hidden;height:0;overflow:scroll;white-space:pre"
         />
       </div>
-    </span>
+    </div>
     <span
       class="Select-arrow-zone"
     >
@@ -47,12 +47,12 @@ exports[`Select renders correctly 1`] = `
 
 exports[`Select renders with props 1`] = `
 <div
-  class="Select sc-bZQynM dVPEwd Select--multi is-clearable is-disabled is-loading has-value"
+  class="Select sc-bZQynM dVPEwd has-value is-clearable is-disabled is-loading Select--multi"
 >
   <div
     class="Select-control"
   >
-    <span
+    <div
       class="Select-multi-value-wrapper"
       id="react-select-3--value"
     >
@@ -75,15 +75,15 @@ exports[`Select renders with props 1`] = `
       </div>
       <div
         aria-activedescendant="react-select-3--value"
+        aria-disabled="true"
         aria-expanded="false"
         aria-owns=""
-        aria-readonly="true"
         class="Select-input"
         role="combobox"
         style="border:0;width:1px;display:inline-block"
         tabindex="0"
       />
-    </span>
+    </div>
     <span
       aria-hidden="true"
       class="Select-loading-zone"
@@ -151,7 +151,6 @@ exports[`Select should select another option 1`] = `
     simpleValue={true}
   >
     <Select
-      addLabelText="Add \\"{label}\\"?"
       arrowRenderer={[Function]}
       autosize={true}
       backspaceRemoves={true}
@@ -204,17 +203,19 @@ exports[`Select should select another option 1`] = `
       }
       pageSize={5}
       placeholder="Select..."
+      removeSelected={true}
       required={false}
+      rtl={false}
       scrollMenuIntoView={true}
       searchable={true}
       simpleValue={true}
       tabSelectsValue={true}
+      trimFilter={true}
       valueComponent={[Function]}
       valueKey="value"
     >
       <div
-        className="Select sc-bZQynM lpCNM Select--single is-open is-searchable"
-        style={undefined}
+        className="Select sc-bZQynM lpCNM is-open is-searchable Select--single"
       >
         <div
           className="Select-control"
@@ -223,28 +224,24 @@ exports[`Select should select another option 1`] = `
           onTouchEnd={[Function]}
           onTouchMove={[Function]}
           onTouchStart={[Function]}
-          style={undefined}
         >
-          <span
+          <div
             className="Select-multi-value-wrapper"
             id="react-select-4--value"
           >
             <AutosizeInput
               aria-activedescendant="react-select-4--option-0"
-              aria-describedby={undefined}
               aria-expanded="true"
               aria-haspopup="true"
-              aria-label={undefined}
-              aria-labelledby={undefined}
               aria-owns="react-select-4--list"
               className="Select-input"
+              injectStyles={true}
               minWidth="5"
               onBlur={[Function]}
               onChange={[Function]}
               onFocus={[Function]}
               required={false}
               role="combobox"
-              tabIndex={undefined}
               value="two"
             >
               <div
@@ -255,23 +252,11 @@ exports[`Select should select another option 1`] = `
                   }
                 }
               >
-                <style
-                  dangerouslySetInnerHTML={
-                    Object {
-                      "__html": "input#undefined::-ms-clear {display: none;}",
-                    }
-                  }
-                />
                 <input
                   aria-activedescendant="react-select-4--option-0"
-                  aria-describedby={undefined}
                   aria-expanded="true"
                   aria-haspopup="true"
-                  aria-label={undefined}
-                  aria-labelledby={undefined}
                   aria-owns="react-select-4--list"
-                  className={undefined}
-                  id={undefined}
                   onBlur={[Function]}
                   onChange={[Function]}
                   onFocus={[Function]}
@@ -283,7 +268,6 @@ exports[`Select should select another option 1`] = `
                       "width": "5px",
                     }
                   }
-                  tabIndex={undefined}
                   value="two"
                 />
                 <div
@@ -303,7 +287,7 @@ exports[`Select should select another option 1`] = `
                 </div>
               </div>
             </AutosizeInput>
-          </span>
+          </div>
           <span
             className="Select-arrow-zone"
             onMouseDown={[Function]}
@@ -316,7 +300,6 @@ exports[`Select should select another option 1`] = `
         </div>
         <div
           className="Select-menu-outer"
-          style={undefined}
         >
           <div
             className="Select-menu"
@@ -324,13 +307,13 @@ exports[`Select should select another option 1`] = `
             onMouseDown={[Function]}
             onScroll={[Function]}
             role="listbox"
-            style={undefined}
             tabIndex={-1}
           >
             <Option
               className="Select-option is-focused"
+              focusOption={[Function]}
+              inputValue="two"
               instancePrefix="react-select-4-"
-              isDisabled={undefined}
               isFocused={true}
               isSelected={false}
               key="option-0-two"
@@ -343,8 +326,11 @@ exports[`Select should select another option 1`] = `
                 }
               }
               optionIndex={0}
+              removeValue={[Function]}
+              selectValue={[Function]}
             >
               <div
+                aria-label="Two"
                 className="Select-option is-focused"
                 id="react-select-4--option-0"
                 onMouseDown={[Function]}
@@ -354,8 +340,6 @@ exports[`Select should select another option 1`] = `
                 onTouchMove={[Function]}
                 onTouchStart={[Function]}
                 role="option"
-                style={undefined}
-                title={undefined}
               >
                 Two
               </div>
@@ -416,7 +400,6 @@ exports[`Select shouldn't find any results 1`] = `
     simpleValue={true}
   >
     <Select
-      addLabelText="Add \\"{label}\\"?"
       arrowRenderer={[Function]}
       autosize={true}
       backspaceRemoves={true}
@@ -469,17 +452,19 @@ exports[`Select shouldn't find any results 1`] = `
       }
       pageSize={5}
       placeholder="Select..."
+      removeSelected={true}
       required={false}
+      rtl={false}
       scrollMenuIntoView={true}
       searchable={true}
       simpleValue={true}
       tabSelectsValue={true}
+      trimFilter={true}
       valueComponent={[Function]}
       valueKey="value"
     >
       <div
-        className="Select sc-bZQynM lpCNM Select--single is-open is-searchable"
-        style={undefined}
+        className="Select sc-bZQynM lpCNM is-open is-searchable Select--single"
       >
         <div
           className="Select-control"
@@ -488,28 +473,24 @@ exports[`Select shouldn't find any results 1`] = `
           onTouchEnd={[Function]}
           onTouchMove={[Function]}
           onTouchStart={[Function]}
-          style={undefined}
         >
-          <span
+          <div
             className="Select-multi-value-wrapper"
             id="react-select-5--value"
           >
             <AutosizeInput
               aria-activedescendant="react-select-5--option-null"
-              aria-describedby={undefined}
               aria-expanded="true"
               aria-haspopup="true"
-              aria-label={undefined}
-              aria-labelledby={undefined}
               aria-owns="react-select-5--list"
               className="Select-input"
+              injectStyles={true}
               minWidth="5"
               onBlur={[Function]}
               onChange={[Function]}
               onFocus={[Function]}
               required={false}
               role="combobox"
-              tabIndex={undefined}
               value="text"
             >
               <div
@@ -520,23 +501,11 @@ exports[`Select shouldn't find any results 1`] = `
                   }
                 }
               >
-                <style
-                  dangerouslySetInnerHTML={
-                    Object {
-                      "__html": "input#undefined::-ms-clear {display: none;}",
-                    }
-                  }
-                />
                 <input
                   aria-activedescendant="react-select-5--option-null"
-                  aria-describedby={undefined}
                   aria-expanded="true"
                   aria-haspopup="true"
-                  aria-label={undefined}
-                  aria-labelledby={undefined}
                   aria-owns="react-select-5--list"
-                  className={undefined}
-                  id={undefined}
                   onBlur={[Function]}
                   onChange={[Function]}
                   onFocus={[Function]}
@@ -548,7 +517,6 @@ exports[`Select shouldn't find any results 1`] = `
                       "width": "5px",
                     }
                   }
-                  tabIndex={undefined}
                   value="text"
                 />
                 <div
@@ -568,7 +536,7 @@ exports[`Select shouldn't find any results 1`] = `
                 </div>
               </div>
             </AutosizeInput>
-          </span>
+          </div>
           <span
             className="Select-arrow-zone"
             onMouseDown={[Function]}
@@ -581,7 +549,6 @@ exports[`Select shouldn't find any results 1`] = `
         </div>
         <div
           className="Select-menu-outer"
-          style={undefined}
         >
           <div
             className="Select-menu"
@@ -589,7 +556,6 @@ exports[`Select shouldn't find any results 1`] = `
             onMouseDown={[Function]}
             onScroll={[Function]}
             role="listbox"
-            style={undefined}
             tabIndex={-1}
           >
             <div
