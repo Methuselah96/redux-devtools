@@ -14,7 +14,10 @@ export default class LogMonitorEntryList extends Component {
 
     select: PropTypes.func.isRequired,
     onActionClick: PropTypes.func.isRequired,
-    theme: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+    theme: PropTypes.oneOfType([
+      PropTypes.object,
+      PropTypes.string
+    ]),
     expandActionRoot: PropTypes.bool,
     expandStateRoot: PropTypes.bool
   };
@@ -48,8 +51,7 @@ export default class LogMonitorEntryList extends Component {
         previousState = computedStates[i - 1].state;
       }
       elements.push(
-        <LogMonitorEntry
-          key={actionId}
+        <LogMonitorEntry key={actionId}
           theme={theme}
           select={select}
           action={action}
@@ -64,11 +66,14 @@ export default class LogMonitorEntryList extends Component {
           expandStateRoot={expandStateRoot}
           markStateDiff={markStateDiff}
           onActionClick={onActionClick}
-          onActionShiftClick={onActionShiftClick}
-        />
+          onActionShiftClick={onActionShiftClick} />
       );
     }
 
-    return <div>{elements}</div>;
+    return (
+      <div>
+        {elements}
+      </div>
+    );
   }
 }
