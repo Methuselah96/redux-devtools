@@ -4,7 +4,8 @@ export const dispatcher = 'state = reducers(${prevState}, ${action});';
 
 export const assertion = 't.deepEqual(state, ${curState});';
 
-export const wrap = `import test from 'tape';
+export const wrap = (
+  `import test from 'tape';
 import reducers from '../../reducers';
 
 test('reducers', (t) => {
@@ -12,6 +13,6 @@ test('reducers', (t) => {
   \${assertions}
   t.end();
 });
-`;
+`);
 
 export default { name, assertion, dispatcher, wrap };
