@@ -19,24 +19,16 @@ function visit(parent, visitFn, childrenFn) {
 function getNode(tree, key) {
   let node = null;
 
-  visit(
-    tree,
-    d => {
-      if (d.name === key) {
-        node = d;
-      }
-    },
-    d => d.children
-  );
+  visit(tree, d => {
+    if (d.name === key) {
+      node = d;
+    }
+  }, d => d.children);
 
   return node;
 }
 
-export default function map2tree(
-  root,
-  options = {},
-  tree = { name: options.key || 'state', children: [] }
-) {
+export default function map2tree(root, options = {}, tree = {name: options.key || 'state', children: []}) {
   if (!isPlainObject(root) && root && !root.toJS) {
     return {};
   }
@@ -49,11 +41,8 @@ export default function map2tree(
   }
 
   mapValues(root && root.toJS ? root.toJS() : root, (maybeImmutable, key) => {
-    const value =
-      maybeImmutable && maybeImmutable.toJS
-        ? maybeImmutable.toJS()
-        : maybeImmutable;
-    let newNode = { name: key };
+    const value = maybeImmutable && maybeImmutable.toJS ? maybeImmutable.toJS() : maybeImmutable;
+    let newNode = {name: key};
 
     if (isArray(value)) {
       newNode.children = [];
@@ -72,7 +61,7 @@ export default function map2tree(
 
     currentNode.children[pushMethod](newNode);
 
-    map2tree(value, { key, pushMethod }, tree);
+    map2tree(value, {key, pushMethod}, tree);
   });
 
   return tree;
