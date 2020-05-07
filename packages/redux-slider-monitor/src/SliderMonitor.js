@@ -28,7 +28,10 @@ export default class SliderMonitor extends (PureComponent || Component) {
     stagedActions: PropTypes.array,
     select: PropTypes.func.isRequired,
     hideResetButton: PropTypes.bool,
-    theme: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+    theme: PropTypes.oneOfType([
+      PropTypes.object,
+      PropTypes.string
+    ]),
     keyboardEnabled: PropTypes.bool
   };
 
@@ -69,19 +72,18 @@ export default class SliderMonitor extends (PureComponent || Component) {
     }
 
     return theme;
-  };
+  }
 
   handleReset = () => {
     this.pauseReplay();
     this.props.dispatch(reset());
-  };
+  }
 
-  handleKeyPress = event => {
+  handleKeyPress = (event) => {
     if (!this.props.keyboardEnabled) {
       return null;
     }
-    if (event.ctrlKey && event.keyCode === 74) {
-      // ctrl+j
+    if (event.ctrlKey && event.keyCode === 74) { // ctrl+j
       event.preventDefault();
 
       if (this.state.timer) {
@@ -93,25 +95,23 @@ export default class SliderMonitor extends (PureComponent || Component) {
       } else {
         this.startReplay();
       }
-    } else if (event.ctrlKey && event.keyCode === 219) {
-      // ctrl+[
+    } else if (event.ctrlKey && event.keyCode === 219) { // ctrl+[
       event.preventDefault();
       this.stepLeft();
-    } else if (event.ctrlKey && event.keyCode === 221) {
-      // ctrl+]
+    } else if (event.ctrlKey && event.keyCode === 221) { // ctrl+]
       event.preventDefault();
       this.stepRight();
     }
     return null;
-  };
+  }
 
-  handleSliderChange = value => {
+  handleSliderChange = (value) => {
     if (this.state.timer) {
       this.pauseReplay();
     }
 
     this.props.dispatch(jumpToState(value));
-  };
+  }
 
   startReplay = () => {
     const { computedStates, currentStateIndex, dispatch } = this.props;
@@ -149,7 +149,7 @@ export default class SliderMonitor extends (PureComponent || Component) {
     }, speed);
 
     this.setState({ timer });
-  };
+  }
 
   startRealtimeReplay = () => {
     if (this.props.computedStates.length < 2) {
@@ -163,9 +163,9 @@ export default class SliderMonitor extends (PureComponent || Component) {
     } else {
       this.loop(this.props.currentStateIndex);
     }
-  };
+  }
 
-  loop = index => {
+  loop = (index) => {
     let currentTimestamp = Date.now();
     let timestampDiff = this.getLatestTimestampDiff(index);
 
@@ -174,17 +174,12 @@ export default class SliderMonitor extends (PureComponent || Component) {
       if (replayDiff >= timestampDiff) {
         this.props.dispatch(jumpToState(this.props.currentStateIndex + 1));
 
-        if (
-          this.props.currentStateIndex >=
-          this.props.computedStates.length - 1
-        ) {
+        if (this.props.currentStateIndex >= this.props.computedStates.length - 1) {
           this.pauseReplay();
           return;
         }
 
-        timestampDiff = this.getLatestTimestampDiff(
-          this.props.currentStateIndex
-        );
+        timestampDiff = this.getLatestTimestampDiff(this.props.currentStateIndex);
         currentTimestamp = Date.now();
 
         this.setState({
@@ -202,33 +197,29 @@ export default class SliderMonitor extends (PureComponent || Component) {
         timer: requestAnimationFrame(aLoop)
       });
     }
-  };
+  }
 
   getLatestTimestampDiff = index =>
-    this.getTimestampOfStateIndex(index + 1) -
-    this.getTimestampOfStateIndex(index);
+    this.getTimestampOfStateIndex(index + 1) - this.getTimestampOfStateIndex(index)
 
-  getTimestampOfStateIndex = stateIndex => {
+  getTimestampOfStateIndex = (stateIndex) => {
     const id = this.props.stagedActionIds[stateIndex];
     return this.props.actionsById[id].timestamp;
-  };
+  }
 
-  pauseReplay = cb => {
+  pauseReplay = (cb) => {
     if (this.state.timer) {
       cancelAnimationFrame(this.state.timer);
       clearInterval(this.state.timer);
-      this.setState(
-        {
-          timer: undefined
-        },
-        () => {
-          if (typeof cb === 'function') {
-            cb();
-          }
+      this.setState({
+        timer: undefined
+      }, () => {
+        if (typeof cb === 'function') {
+          cb();
         }
-      );
+      });
     }
-  };
+  }
 
   stepLeft = () => {
     this.pauseReplay();
@@ -236,7 +227,7 @@ export default class SliderMonitor extends (PureComponent || Component) {
     if (this.props.currentStateIndex !== 0) {
       this.props.dispatch(jumpToState(this.props.currentStateIndex - 1));
     }
-  };
+  }
 
   stepRight = () => {
     this.pauseReplay();
@@ -244,9 +235,9 @@ export default class SliderMonitor extends (PureComponent || Component) {
     if (this.props.currentStateIndex !== this.props.computedStates.length - 1) {
       this.props.dispatch(jumpToState(this.props.currentStateIndex + 1));
     }
-  };
+  }
 
-  changeReplaySpeed = replaySpeed => {
+  changeReplaySpeed = (replaySpeed) => {
     this.setState({ replaySpeed });
 
     if (this.state.timer) {
@@ -258,15 +249,11 @@ export default class SliderMonitor extends (PureComponent || Component) {
         }
       });
     }
-  };
+  }
 
   render() {
     const {
-      currentStateIndex,
-      computedStates,
-      actionsById,
-      stagedActionIds,
-      hideResetButton
+      currentStateIndex, computedStates, actionsById, stagedActionIds, hideResetButton
     } = this.props;
     const { replaySpeed } = this.state;
     const theme = this.setUpTheme();
@@ -278,18 +265,10 @@ export default class SliderMonitor extends (PureComponent || Component) {
     else if (actionType === null) actionType = '<NULL>';
     else actionType = actionType.toString() || '<EMPTY>';
 
-    const onPlayClick =
-      replaySpeed === 'Live' ? this.startRealtimeReplay : this.startReplay;
-    const playPause = this.state.timer ? (
-      <SliderButton theme={theme} type="pause" onClick={this.pauseReplay} />
-    ) : (
-      <SliderButton
-        theme={theme}
-        type="play"
-        disabled={max <= 0}
-        onClick={onPlayClick}
-      />
-    );
+    const onPlayClick = replaySpeed === 'Live' ? this.startRealtimeReplay : this.startReplay;
+    const playPause = this.state.timer ?
+      <SliderButton theme={theme} type='pause' onClick={this.pauseReplay} /> :
+      <SliderButton theme={theme} type='play' disabled={max <= 0} onClick={onPlayClick} />;
 
     return (
       <Toolbar noBorder compact fullHeight theme={theme}>
@@ -305,13 +284,13 @@ export default class SliderMonitor extends (PureComponent || Component) {
         />
         <SliderButton
           theme={theme}
-          type="stepLeft"
+          type='stepLeft'
           disabled={currentStateIndex <= 0}
           onClick={this.stepLeft}
         />
         <SliderButton
           theme={theme}
-          type="stepRight"
+          type='stepRight'
           disabled={currentStateIndex === max}
           onClick={this.stepRight}
         />
@@ -323,10 +302,8 @@ export default class SliderMonitor extends (PureComponent || Component) {
           onClick={this.changeReplaySpeed}
         />
         {!hideResetButton && [
-          <Divider key="divider" theme={theme} />,
-          <Button key="reset" theme={theme} onClick={this.handleReset}>
-            Reset
-          </Button>
+          <Divider key='divider' theme={theme} />,
+          <Button key='reset' theme={theme} onClick={this.handleReset}>Reset</Button>
         ]}
       </Toolbar>
     );

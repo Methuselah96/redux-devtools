@@ -8,7 +8,7 @@ export default class SliderButton extends (PureComponent || Component) {
     type: PropTypes.string,
     disabled: PropTypes.bool,
     onClick: PropTypes.func
-  };
+  }
 
   iconStyle() {
     return {
@@ -23,19 +23,16 @@ export default class SliderButton extends (PureComponent || Component) {
     return (
       <Button
         onClick={this.props.onClick}
-        title="Play"
-        size="small"
+        title='Play'
+        size='small'
         disabled={this.props.disabled}
         theme={this.props.theme}
       >
         <svg
-          viewBox="0 0 24 24"
-          preserveAspectRatio="xMidYMid meet"
+          viewBox='0 0 24 24' preserveAspectRatio='xMidYMid meet'
           style={this.iconStyle()}
         >
-          <g>
-            <path d="M8 5v14l11-7z" />
-          </g>
+          <g><path d='M8 5v14l11-7z' /></g>
         </svg>
       </Button>
     );
@@ -44,49 +41,43 @@ export default class SliderButton extends (PureComponent || Component) {
   renderPauseButton = () => (
     <Button
       onClick={this.props.onClick}
-      title="Pause"
-      size="small"
+      title='Pause'
+      size='small'
       disabled={this.props.disabled}
       theme={this.props.theme}
     >
       <svg
-        viewBox="0 0 24 24"
-        preserveAspectRatio="xMidYMid meet"
+        viewBox='0 0 24 24' preserveAspectRatio='xMidYMid meet'
         style={this.iconStyle()}
       >
-        <g>
-          <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
-        </g>
+        <g><path d='M6 19h4V5H6v14zm8-14v14h4V5h-4z' /></g>
       </svg>
     </Button>
-  );
+    )
 
-  renderStepButton = direction => {
+  renderStepButton = (direction) => {
     const isLeft = direction === 'left';
-    const d = isLeft
-      ? 'M15.41 16.09l-4.58-4.59 4.58-4.59-1.41-1.41-6 6 6 6z'
-      : 'M8.59 16.34l4.58-4.59-4.58-4.59 1.41-1.41 6 6-6 6z';
+    const d = isLeft ?
+      'M15.41 16.09l-4.58-4.59 4.58-4.59-1.41-1.41-6 6 6 6z' :
+      'M8.59 16.34l4.58-4.59-4.58-4.59 1.41-1.41 6 6-6 6z';
 
     return (
       <Button
-        size="small"
+        size='small'
         title={isLeft ? 'Go back' : 'Go forward'}
         onClick={this.props.onClick}
         disabled={this.props.disabled}
         theme={this.props.theme}
       >
         <svg
-          viewBox="0 0 24 24"
-          preserveAspectRatio="xMidYMid meet"
+          viewBox='0 0 24 24' preserveAspectRatio='xMidYMid meet'
           style={this.iconStyle()}
         >
-          <g>
-            <path d={d} />
-          </g>
+          <g><path d={d} /></g>
         </svg>
       </Button>
     );
-  };
+  }
 
   render() {
     switch (this.props.type) {

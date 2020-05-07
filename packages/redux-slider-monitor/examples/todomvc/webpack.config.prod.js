@@ -3,6 +3,8 @@ const webpack = require('webpack');
 const devConfig = require('./webpack.config');
 
 devConfig.entry = './index';
-devConfig.plugins = [new webpack.NoEmitOnErrorsPlugin()];
+devConfig.plugins = [
+  new webpack.NoEmitOnErrorsPlugin()
+];
 
 module.exports = devConfig;
