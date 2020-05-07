@@ -1,8 +1,6 @@
 Redux DevTools Test Generator
 ==============================
 
-[Watch my presentation at React Europe](https://youtu.be/cbXLohVbzNI?t=392) to see how it works.
-
 ### Installation
 
 ```
@@ -13,7 +11,7 @@ npm install --save-dev redux-devtools-test-generator
 
 If you use [Redux DevTools Extension](https://github.com/zalmoxisus/redux-devtools-extension), [Remote Redux DevTools](https://github.com/zalmoxisus/remote-redux-devtools) or [RemoteDev](https://github.com/zalmoxisus/remotedev), it's already there, and no additional actions required. 
 
-With [`redux-devtools`](https://github.com/gaearon/redux-devtools) and [`redux-devtools-inspector`](https://github.com/alexkuz/redux-devtools-inspector):
+With [`redux-devtools`](https://github.com/reduxjs/redux-devtools) and [`redux-devtools-inspector`](https://github.com/reduxjs/redux-devtools/packages/redux-devtools-inspector):
 
 ##### `containers/DevTools.js`
 
@@ -54,7 +52,3 @@ Name                  | Description
 ### License
 
 MIT
-
-## Created By
-
-If you like this, follow [@mdiordiev](https://twitter.com/mdiordiev) on twitter.
