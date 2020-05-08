@@ -358,7 +358,7 @@ function recomputeStates<S, A extends Action>(
  * Lifts an app's action into an action on the lifted store.
  */
 export function liftAction<A extends Action>(
-  action: A | typeof INIT_ACTION,
+  action: A,
   trace?: ((action: A) => string | undefined) | boolean,
   traceLimit?: number,
   toExcludeFromTrace?: Function
@@ -902,13 +902,15 @@ export default function instrument<S, A extends Action>(
   monitorReducer = () => null,
   options: Options<S, A | typeof INIT_ACTION> = {}
 ): StoreEnhancer<
-  {},
+  S,
+  A | typeof INIT_ACTION,
   {
     liftedStore: Store<
       LiftedState<S, A | typeof INIT_ACTION>,
       LiftedAction<S, A | typeof INIT_ACTION>
     >;
-  }
+  },
+  {}
 > {
   if (typeof options.maxAge === 'number' && options.maxAge < 2) {
     throw new Error(
@@ -917,7 +919,18 @@ export default function instrument<S, A extends Action>(
     );
   }
 
-  return (createStore: StoreEnhancerStoreCreator) => <S, A extends Action>(
+  return (
+    createStore: StoreEnhancerStoreCreator<
+      S,
+      A | typeof INIT_ACTION,
+      {
+        liftedStore: Store<
+          LiftedState<S, A | typeof INIT_ACTION>,
+          LiftedAction<S, A | typeof INIT_ACTION>
+        >;
+      }
+    >
+  ) => (
     reducer: Reducer<S, A | typeof INIT_ACTION>,
     initialState?: PreloadedState<S>
   ): Store<S, A | typeof INIT_ACTION> & {
@@ -928,7 +941,10 @@ export default function instrument<S, A extends Action>(
   } => {
     function liftReducer(
       r: Reducer<S, A | typeof INIT_ACTION>
-    ): Reducer<LiftedState<S, A>, LiftedAction<S, A>> {
+    ): Reducer<
+      LiftedState<S, A | typeof INIT_ACTION>,
+      LiftedAction<S, A | typeof INIT_ACTION>
+    > {
       if (typeof r !== 'function') {
         if (r && typeof (r as { default: unknown }).default === 'function') {
           throw new Error(
@@ -948,10 +964,7 @@ export default function instrument<S, A extends Action>(
       );
     }
 
-    const liftedStore = createStore<
-      LiftedState<S, A | typeof INIT_ACTION>,
-      LiftedAction<S, A | typeof INIT_ACTION>
-    >(liftReducer(reducer));
+    const liftedStore = createStore(liftReducer(reducer));
     if (
       (liftedStore as Store<
         LiftedState<S, A | typeof INIT_ACTION>,
