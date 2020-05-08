@@ -1,9 +1,9 @@
 import difference from 'lodash/difference';
 import union from 'lodash/union';
 import isPlainObject from 'lodash/isPlainObject';
-import $$observable from 'symbol-observable';
 import {
   Action,
+  Observable,
   PreloadedState,
   Reducer,
   Store,
@@ -27,14 +27,6 @@ export const ActionTypes = {
   PAUSE_RECORDING: 'PAUSE_RECORDING'
 } as const;
 
-type InstrumentActionType = {
-  [K in keyof typeof ActionTypes]: typeof ActionTypes[K];
-}[keyof typeof ActionTypes];
-
-type InstrumentAction = {
-  [K in keyof typeof ActionTypes]: Action<typeof ActionTypes[K]>;
-}[keyof typeof ActionTypes];
-
 const isChrome =
   typeof window === 'object' &&
   (typeof window.chrome !== 'undefined' ||
@@ -51,18 +43,96 @@ interface PerformAction<A extends Action> {
   type: typeof ActionTypes.PERFORM_ACTION;
   action: A;
   timestamp: number;
-  stack: string;
+  stack: string | undefined;
 }
+
+interface ResetAction {
+  type: typeof ActionTypes.RESET;
+  timestamp: number;
+}
+
+interface RollbackAction {
+  type: typeof ActionTypes.ROLLBACK;
+  timestamp: number;
+}
+
+interface CommitAction {
+  type: typeof ActionTypes.COMMIT;
+  timestamp: number;
+}
+
+interface SweepAction {
+  type: typeof ActionTypes.SWEEP;
+}
+
+interface ToggleAction {
+  type: typeof ActionTypes.TOGGLE_ACTION;
+  id: number;
+}
+
+interface SetActionsActiveAction {
+  type: typeof ActionTypes.SET_ACTIONS_ACTIVE;
+  start: number;
+  end: number;
+  active: boolean;
+}
+
+interface ReorderAction {
+  type: typeof ActionTypes.REORDER_ACTION;
+  actionId: number;
+  beforeActionId: number;
+}
+
+interface JumpToStateAction {
+  type: typeof ActionTypes.JUMP_TO_STATE;
+  index: number;
+}
+
+interface JumpToActionAction {
+  type: typeof ActionTypes.JUMP_TO_ACTION;
+  actionId: number;
+}
+
+interface ImportStateAction<S, A extends Action> {
+  type: typeof ActionTypes.IMPORT_STATE;
+  nextLiftedState: LiftedState<S, A>;
+  noRecompute: boolean | undefined;
+}
+
+interface LockChangesAction {
+  type: typeof ActionTypes.LOCK_CHANGES;
+  status: boolean;
+}
+
+interface PauseRecordingAction {
+  type: typeof ActionTypes.PAUSE_RECORDING;
+  status: boolean;
+}
+
+type LiftedAction<S, A extends Action> =
+  | PerformAction<A>
+  | ResetAction
+  | RollbackAction
+  | CommitAction
+  | SweepAction
+  | ToggleAction
+  | SetActionsActiveAction
+  | ReorderAction
+  | JumpToStateAction
+  | JumpToActionAction
+  | ImportStateAction<S, A>
+  | LockChangesAction
+  | PauseRecordingAction;
 
 /**
  * Action creators to change the History state.
  */
 export const ActionCreators = {
   performAction<A extends Action>(
-    action: LiftedActionType,
-    trace,
-    traceLimit,
-    toExcludeFromTrace
+    action: A,
+    trace?: ((action: A) => string | undefined) | boolean,
+    traceLimit?: number,
+    toExcludeFromTrace?: Function
   ): PerformAction<A> {
     if (!isPlainObject(action)) {
       throw new Error(
@@ -79,7 +149,7 @@ export const ActionCreators = {
     }
 
     let stack;
-    if (trace) {
+    if (trace && traceLimit) {
       let extraFrames = 0;
       if (typeof trace === 'function') {
         stack = trace(action);
@@ -124,51 +194,58 @@ export const ActionCreators = {
     };
   },
 
-  reset() {
+  reset(): ResetAction {
     return { type: ActionTypes.RESET, timestamp: Date.now() };
   },
 
-  rollback() {
+  rollback(): RollbackAction {
     return { type: ActionTypes.ROLLBACK, timestamp: Date.now() };
   },
 
-  commit() {
+  commit(): CommitAction {
     return { type: ActionTypes.COMMIT, timestamp: Date.now() };
   },
 
-  sweep() {
+  sweep(): SweepAction {
     return { type: ActionTypes.SWEEP };
   },
 
-  toggleAction(id) {
+  toggleAction(id: number): ToggleAction {
     return { type: ActionTypes.TOGGLE_ACTION, id };
   },
 
-  setActionsActive(start, end, active = true) {
+  setActionsActive(
+    start: number,
+    end: number,
+    active = true
+  ): SetActionsActiveAction {
     return { type: ActionTypes.SET_ACTIONS_ACTIVE, start, end, active };
   },
 
-  reorderAction(actionId, beforeActionId) {
+  reorderAction(actionId: number, beforeActionId: number): ReorderAction {
     return { type: ActionTypes.REORDER_ACTION, actionId, beforeActionId };
   },
 
-  jumpToState(index) {
+  jumpToState(index: number): JumpToStateAction {
     return { type: ActionTypes.JUMP_TO_STATE, index };
   },
 
-  jumpToAction(actionId) {
+  jumpToAction(actionId: number): JumpToActionAction {
     return { type: ActionTypes.JUMP_TO_ACTION, actionId };
   },
 
-  importState(nextLiftedState, noRecompute) {
+  importState<S, A extends Action>(
+    nextLiftedState: LiftedState<S, A>,
+    noRecompute?: boolean
+  ): ImportStateAction<S, A> {
     return { type: ActionTypes.IMPORT_STATE, nextLiftedState, noRecompute };
   },
 
-  lockChanges(status) {
+  lockChanges(status: boolean): LockChangesAction {
     return { type: ActionTypes.LOCK_CHANGES, status };
   },
 
-  pauseRecording(status) {
+  pauseRecording(status: boolean): PauseRecordingAction {
     return { type: ActionTypes.PAUSE_RECORDING, status };
   }
 };
@@ -178,7 +255,11 @@ export const INIT_ACTION = { type: '@@INIT' };
 /**
  * Computes the next entry with exceptions catching.
  */
-function computeWithTryCatch(reducer, action, state) {
+function computeWithTryCatch<S, A extends Action>(
+  reducer: Reducer<S, A>,
+  action: A,
+  state: S
+) {
   let nextState = state;
   let nextError;
   try {
@@ -204,7 +285,12 @@ function computeWithTryCatch(reducer, action, state) {
 /**
  * Computes the next entry in the log by applying an action.
  */
-function computeNextEntry(reducer, action, state, shouldCatchErrors) {
+function computeNextEntry<S, A extends Action>(
+  reducer: Reducer<S, A>,
+  action: A,
+  state: S,
+  shouldCatchErrors: boolean | undefined
+) {
   if (!shouldCatchErrors) {
     return { state: reducer(state, action) };
   }
@@ -215,10 +301,10 @@ function computeNextEntry(reducer, action, state, shouldCatchErrors) {
  * Runs the reducer on invalidated actions to get a fresh computation log.
  */
 function recomputeStates<S, A extends Action>(
-  computedStates: { state: S }[],
+  computedStates: { state: S; error?: string }[],
   minInvalidatedStateIndex: number,
   reducer: Reducer<S, A>,
-  committedState: PreloadedState<S> | S | undefined,
+  committedState: S,
   actionsById: { [actionId: number]: PerformAction<A> },
   stagedActionIds: number[],
   skippedActionIds: number[],
@@ -271,13 +357,13 @@ function recomputeStates<S, A extends Action>(
 /**
  * Lifts an app's action into an action on the lifted store.
  */
-export function liftAction(
-  action: LiftedActionType,
-  trace?,
-  traceLimit?,
-  toExcludeFromTrace?
-) {
-  return ActionCreators.performAction(
+export function liftAction<A extends Action>(
+  action: A,
+  trace?: ((action: A) => string | undefined) | boolean,
+  traceLimit?: number,
+  toExcludeFromTrace?: Function
+): PerformAction<A> {
+  return ActionCreators.performAction<A>(
     action,
     trace,
     traceLimit,
@@ -291,9 +377,9 @@ interface LiftedState<S, A extends Action> {
   actionsById: { [actionId: number]: PerformAction<A> };
   stagedActionIds: number[];
   skippedActionIds: number[];
-  committedState: PreloadedState<S> | S | undefined;
+  committedState: S;
   currentStateIndex: number;
-  computedStates: { state: S }[];
+  computedStates: { state: S; error?: string }[];
   isLocked: boolean;
   isPaused: boolean;
 }
@@ -304,13 +390,13 @@ interface LiftedState<S, A extends Action> {
 export function liftReducerWith<S, A extends Action>(
   reducer: Reducer<S, A>,
   initialCommittedState: PreloadedState<S> | undefined,
-  monitorReducer,
+  monitorReducer: Reducer<S, A>,
   options: Options<S, A>
-) {
+): Reducer<LiftedState<S, A>, LiftedAction<S, A>> {
   const initialLiftedState: LiftedState<S, A> = {
     monitorState: monitorReducer(undefined, {}),
     nextActionId: 1,
-    actionsById: { 0: liftAction(INIT_ACTION) },
+    actionsById: { 0: liftAction<A>(INIT_ACTION) },
     stagedActionIds: [0],
     skippedActionIds: [],
     committedState: initialCommittedState,
@@ -323,7 +409,10 @@ export function liftReducerWith<S, A extends Action>(
   /**
    * Manages how the history actions modify the history state.
    */
-  return (liftedState: LiftedState<S, A>, liftedAction: LiftedAction) => {
+  return (
+    liftedState: LiftedState<S, A> | undefined,
+    liftedAction: LiftedAction<S, A>
+  ): LiftedState<S, A> => {
     let {
       monitorState,
       actionsById,
@@ -342,7 +431,7 @@ export function liftReducerWith<S, A extends Action>(
       actionsById = { ...actionsById };
     }
 
-    function commitExcessActions(n) {
+    function commitExcessActions(n: number) {
       // Auto-commits n-number of excess actions.
       let excess = n;
       let idsToDelete = stagedActionIds.slice(1, excess + 1);
@@ -359,7 +448,7 @@ export function liftReducerWith<S, A extends Action>(
       }
 
       skippedActionIds = skippedActionIds.filter(
-        id => idsToDelete.indexOf(id) === -1
+        id => !idsToDelete.includes(id)
       );
       stagedActionIds = [0, ...stagedActionIds.slice(excess + 1)];
       committedState = computedStates[excess].state;
@@ -368,7 +457,7 @@ export function liftReducerWith<S, A extends Action>(
         currentStateIndex > excess ? currentStateIndex - excess : 0;
     }
 
-    function computePausedAction(shouldInit) {
+    function computePausedAction(shouldInit?: boolean): LiftedState<S, A> {
       let computedState;
       if (shouldInit) {
         computedState = computedStates[currentStateIndex];
@@ -406,7 +495,7 @@ export function liftReducerWith<S, A extends Action>(
         monitorState,
         actionsById: {
           ...actionsById,
-          [nextActionId - 1]: liftAction({ type: options.pauseActionType })
+          [nextActionId - 1]: liftAction<A>({ type: options.pauseActionType })
         },
         nextActionId,
         stagedActionIds,
@@ -434,7 +523,7 @@ export function liftReducerWith<S, A extends Action>(
 
     if (/^@@redux\/(INIT|REPLACE)/.test(liftedAction.type)) {
       if (options.shouldHotReload === false) {
-        actionsById = { 0: liftAction(INIT_ACTION) };
+        actionsById = { 0: liftAction<A>(INIT_ACTION) };
         nextActionId = 1;
         stagedActionIds = [0];
         skippedActionIds = [];
@@ -451,7 +540,7 @@ export function liftReducerWith<S, A extends Action>(
 
       if (maxAge && stagedActionIds.length > maxAge) {
         // States must be recomputed before committing excess.
-        computedStates = recomputeStates(
+        computedStates = recomputeStates<S, A>(
           computedStates,
           minInvalidatedStateIndex,
           reducer,
@@ -492,7 +581,7 @@ export function liftReducerWith<S, A extends Action>(
         }
         case ActionTypes.RESET: {
           // Get back to the state the store was created with.
-          actionsById = { 0: liftAction(INIT_ACTION) };
+          actionsById = { 0: liftAction<A>(INIT_ACTION) };
           nextActionId = 1;
           stagedActionIds = [0];
           skippedActionIds = [];
@@ -504,7 +593,7 @@ export function liftReducerWith<S, A extends Action>(
         case ActionTypes.COMMIT: {
           // Consider the last committed state the new starting point.
           // Squash any staged actions into a single committed state.
-          actionsById = { 0: liftAction(INIT_ACTION) };
+          actionsById = { 0: liftAction<A>(INIT_ACTION) };
           nextActionId = 1;
           stagedActionIds = [0];
           skippedActionIds = [];
@@ -516,7 +605,7 @@ export function liftReducerWith<S, A extends Action>(
         case ActionTypes.ROLLBACK: {
           // Forget about any staged actions.
           // Start again from the last committed state.
-          actionsById = { 0: liftAction(INIT_ACTION) };
+          actionsById = { 0: liftAction<A>(INIT_ACTION) };
           nextActionId = 1;
           stagedActionIds = [0];
           skippedActionIds = [];
@@ -629,7 +718,7 @@ export function liftReducerWith<S, A extends Action>(
             minInvalidatedStateIndex = 0;
             // iterate through actions
             liftedAction.nextLiftedState.forEach(action => {
-              actionsById[nextActionId] = liftAction(
+              actionsById[nextActionId] = liftAction<A>(
                 action,
                 options.trace || options.shouldIncludeCallstack
               );
@@ -667,7 +756,7 @@ export function liftReducerWith<S, A extends Action>(
             return computePausedAction(true);
           }
           // Commit when unpausing
-          actionsById = { 0: liftAction(INIT_ACTION) };
+          actionsById = { 0: liftAction<A>(INIT_ACTION) };
           nextActionId = 1;
           stagedActionIds = [0];
           skippedActionIds = [];
@@ -726,15 +815,17 @@ export function unliftState<S, A extends Action>(
  * Provides an app's view into the lifted store.
  */
 export function unliftStore<S, A extends Action>(
-  liftedStore,
-  liftReducer,
-  options
-) {
+  liftedStore: Store<LiftedState<S, A>, LiftedAction<S, A>>,
+  liftReducer: (
+    r: Reducer<S, A>
+  ) => Reducer<LiftedState<S, A>, LiftedAction<S, A>>,
+  options: Options<S, A>
+): Store<S, A> & { liftedStore: Store<LiftedState<S, A>, LiftedAction<S, A>> } {
   let lastDefinedState: S;
   const trace = options.trace || options.shouldIncludeCallstack;
   const traceLimit = options.traceLimit || 10;
 
-  function getState() {
+  function getState(): S {
     const state = unliftState<S, A>(liftedStore.getState());
     if (state !== undefined) {
       lastDefinedState = state;
@@ -742,8 +833,8 @@ export function unliftStore<S, A extends Action>(
     return lastDefinedState;
   }
 
-  function dispatch(action) {
-    liftedStore.dispatch(liftAction(action, trace, traceLimit, dispatch));
+  function dispatch<T extends A>(action: T): T {
+    liftedStore.dispatch(liftAction<A>(action, trace, traceLimit, dispatch));
     return action;
   }
 
@@ -760,9 +851,9 @@ export function unliftStore<S, A extends Action>(
       liftedStore.replaceReducer(liftReducer(nextReducer));
     },
 
-    [$$observable]() {
+    [Symbol.observable](): Observable<S> {
       return {
-        ...liftedStore[$$observable](),
+        ...liftedStore[Symbol.observable](),
         subscribe(observer) {
           if (typeof observer !== 'object') {
             throw new TypeError('Expected the observer to be an object.');
@@ -777,6 +868,10 @@ export function unliftStore<S, A extends Action>(
           observeState();
           const unsubscribe = liftedStore.subscribe(observeState);
           return { unsubscribe };
+        },
+
+        [Symbol.observable]() {
+          return this;
         }
       };
     }
@@ -786,20 +881,30 @@ export function unliftStore<S, A extends Action>(
 interface Options<S, A extends Action> {
   maxAge?:
     | number
-    | ((liftedAction: LiftedAction, liftedState: LiftedState<S, A>) => number);
+    | ((
+        liftedAction: LiftedAction<S, A>,
+        liftedState: LiftedState<S, A> | undefined
+      ) => number);
   shouldStartLocked?: boolean;
   shouldRecordChanges?: boolean;
   shouldHotReload?: boolean;
   shouldCatchErrors?: boolean;
+  pauseActionType?: A;
+  trace?: (action: A) => string | undefined;
+  shouldIncludeCallstack?: boolean;
+  traceLimit?: number;
 }
 
 /**
  * Redux instrumentation store enhancer.
  */
-export default function instrument<Ext, StateExt, S, A extends Action>(
+export default function instrument<S, A extends Action>(
   monitorReducer = () => null,
   options: Options<S, A> = {}
-): StoreEnhancer<Ext, StateExt> {
+): StoreEnhancer<
+  {},
+  { liftedStore: Store<LiftedState<S, A>, LiftedAction<S, A>> }
+> {
   if (typeof options.maxAge === 'number' && options.maxAge < 2) {
     throw new Error(
       'DevTools.instrument({ maxAge }) option, if specified, ' +
@@ -810,8 +915,10 @@ export default function instrument<Ext, StateExt, S, A extends Action>(
   return (createStore: StoreEnhancerStoreCreator) => <S, A extends Action>(
     reducer: Reducer<S, A>,
     initialState?: PreloadedState<S>
-  ): Store<S & StateExt, A> & Ext => {
-    function liftReducer(r: Reducer<S, A>): Reducer<S, A> {
+  ) => {
+    function liftReducer(
+      r: Reducer<S, A>
+    ): Reducer<LiftedState<S, A>, LiftedAction<S, A>> {
       if (typeof r !== 'function') {
         if (r && typeof (r as { default: unknown }).default === 'function') {
           throw new Error(
@@ -823,17 +930,23 @@ export default function instrument<Ext, StateExt, S, A extends Action>(
         }
         throw new Error('Expected the reducer to be a function.');
       }
-      return liftReducerWith(r, initialState, monitorReducer, options);
+      return liftReducerWith<S, A>(r, initialState, monitorReducer, options);
     }
 
-    const liftedStore = createStore(liftReducer(reducer));
-    if (liftedStore.liftedStore) {
+    const liftedStore = createStore<LiftedState<S, A>, LiftedAction<S, A>>(
+      liftReducer(reducer)
+    );
+    if (
+      (liftedStore as Store<LiftedState<S, A>, LiftedAction<S, A>> & {
+        liftedStore: Store<LiftedState<S, A>, LiftedAction<S, A>>;
+      }).liftedStore
+    ) {
       throw new Error(
         'DevTools instrumentation should not be applied more than once. ' +
           'Check your store configuration.'
       );
     }
 
-    return unliftStore(liftedStore, liftReducer, options);
+    return unliftStore<S, A>(liftedStore, liftReducer, options);
   };
 }
