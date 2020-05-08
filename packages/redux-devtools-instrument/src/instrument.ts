@@ -41,7 +41,7 @@ const isChromeOrNode =
 
 interface PerformAction<A extends Action> {
   type: typeof ActionTypes.PERFORM_ACTION;
-  action: A;
+  action: A | typeof INIT_ACTION;
   timestamp: number;
   stack: string | undefined;
 }
@@ -129,8 +129,8 @@ type LiftedAction<S, A extends Action> =
  */
 export const ActionCreators = {
   performAction<A extends Action>(
-    action: A,
-    trace?: ((action: A) => string | undefined) | boolean,
+    action: A | typeof INIT_ACTION,
+    trace?: ((action: A | typeof INIT_ACTION) => string | undefined) | boolean,
     traceLimit?: number,
     toExcludeFromTrace?: Function
   ): PerformAction<A> {
@@ -250,7 +250,7 @@ export const ActionCreators = {
   }
 };
 
-export const INIT_ACTION = { type: '@@INIT' };
+export const INIT_ACTION = { type: '@@INIT' } as const;
 
 /**
  * Computes the next entry with exceptions catching.
@@ -305,7 +305,7 @@ function recomputeStates<S, A extends Action>(
   minInvalidatedStateIndex: number,
   reducer: Reducer<S, A>,
   committedState: S,
-  actionsById: { [actionId: number]: PerformAction<A> },
+  actionsById: { [actionId: number]: PerformAction<A | typeof INIT_ACTION> },
   stagedActionIds: number[],
   skippedActionIds: number[],
   shouldCatchErrors: boolean | undefined
@@ -358,7 +358,7 @@ function recomputeStates<S, A extends Action>(
  * Lifts an app's action into an action on the lifted store.
  */
 export function liftAction<A extends Action>(
-  action: A,
+  action: A | typeof INIT_ACTION,
   trace?: ((action: A) => string | undefined) | boolean,
   traceLimit?: number,
   toExcludeFromTrace?: Function
@@ -900,10 +900,15 @@ interface Options<S, A extends Action> {
  */
 export default function instrument<S, A extends Action>(
   monitorReducer = () => null,
-  options: Options<S, A> = {}
+  options: Options<S, A | typeof INIT_ACTION> = {}
 ): StoreEnhancer<
   {},
-  { liftedStore: Store<LiftedState<S, A>, LiftedAction<S, A>> }
+  {
+    liftedStore: Store<
+      LiftedState<S, A | typeof INIT_ACTION>,
+      LiftedAction<S, A | typeof INIT_ACTION>
+    >;
+  }
 > {
   if (typeof options.maxAge === 'number' && options.maxAge < 2) {
     throw new Error(
@@ -913,11 +918,16 @@ export default function instrument<S, A extends Action>(
   }
 
   return (createStore: StoreEnhancerStoreCreator) => <S, A extends Action>(
-    reducer: Reducer<S, A>,
+    reducer: Reducer<S, A | typeof INIT_ACTION>,
     initialState?: PreloadedState<S>
-  ) => {
+  ): Store<S, A | typeof INIT_ACTION> & {
+    liftedStore: Store<
+      LiftedState<S, A | typeof INIT_ACTION>,
+      LiftedAction<S, A | typeof INIT_ACTION>
+    >;
+  } => {
     function liftReducer(
-      r: Reducer<S, A>
+      r: Reducer<S, A | typeof INIT_ACTION>
     ): Reducer<LiftedState<S, A>, LiftedAction<S, A>> {
       if (typeof r !== 'function') {
         if (r && typeof (r as { default: unknown }).default === 'function') {
@@ -930,15 +940,27 @@ export default function instrument<S, A extends Action>(
         }
         throw new Error('Expected the reducer to be a function.');
       }
-      return liftReducerWith<S, A>(r, initialState, monitorReducer, options);
+      return liftReducerWith<S, A | typeof INIT_ACTION>(
+        r,
+        initialState,
+        monitorReducer,
+        options
+      );
     }
 
-    const liftedStore = createStore<LiftedState<S, A>, LiftedAction<S, A>>(
-      liftReducer(reducer)
-    );
+    const liftedStore = createStore<
+      LiftedState<S, A | typeof INIT_ACTION>,
+      LiftedAction<S, A | typeof INIT_ACTION>
+    >(liftReducer(reducer));
     if (
-      (liftedStore as Store<LiftedState<S, A>, LiftedAction<S, A>> & {
-        liftedStore: Store<LiftedState<S, A>, LiftedAction<S, A>>;
+      (liftedStore as Store<
+        LiftedState<S, A | typeof INIT_ACTION>,
+        LiftedAction<S, A | typeof INIT_ACTION>
+      > & {
+        liftedStore: Store<
+          LiftedState<S, A | typeof INIT_ACTION>,
+          LiftedAction<S, A | typeof INIT_ACTION>
+        >;
       }).liftedStore
     ) {
       throw new Error(
@@ -947,6 +969,10 @@ export default function instrument<S, A extends Action>(
       );
     }
 
-    return unliftStore<S, A>(liftedStore, liftReducer, options);
+    return unliftStore<S, A | typeof INIT_ACTION>(
+      liftedStore,
+      liftReducer,
+      options
+    );
   };
 }
