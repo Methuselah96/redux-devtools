@@ -3,11 +3,11 @@ import union from 'lodash/union';
 import isPlainObject from 'lodash/isPlainObject';
 import {
   Action,
+  AnyAction,
   Observable,
   PreloadedState,
   Reducer,
   Store,
-  StoreEnhancer,
   StoreEnhancerStoreCreator
 } from 'redux';
 
@@ -29,9 +29,11 @@ export const ActionTypes = {
 
 const isChrome =
   typeof window === 'object' &&
-  (typeof window.chrome !== 'undefined' ||
+  (typeof (window as typeof window & { chrome: unknown }).chrome !==
+    'undefined' ||
     (typeof window.process !== 'undefined' &&
-      window.process.type === 'renderer'));
+      (window.process as typeof window.process & { type: unknown }).type ===
+        'renderer'));
 
 const isChromeOrNode =
   isChrome ||
@@ -174,14 +176,16 @@ export const ActionCreators = {
           typeof Error.stackTraceLimit !== 'number' ||
           Error.stackTraceLimit > traceLimit
         ) {
-          const frames = stack.split('\n');
-          if (frames.length > traceLimit) {
-            stack = frames
-              .slice(
-                0,
-                traceLimit + extraFrames + (frames[0] === 'Error' ? 1 : 0)
-              )
-              .join('\n');
+          if (stack != null) {
+            const frames = stack.split('\n');
+            if (frames.length > traceLimit) {
+              stack = frames
+                .slice(
+                  0,
+                  traceLimit + extraFrames + (frames[0] === 'Error' ? 1 : 0)
+                )
+                .join('\n');
+            }
           }
         }
       }
@@ -391,11 +395,11 @@ interface LiftedState<S, A extends Action> {
 export function liftReducerWith<S, A extends Action>(
   reducer: Reducer<S, A>,
   initialCommittedState: PreloadedState<S> | undefined,
-  monitorReducer: Reducer<S, A>,
-  options: Options<S, A>
+  monitorReducer: Reducer,
+  options: Options
 ): Reducer<LiftedState<S, A>, LiftedAction<S, A>> {
   const initialLiftedState: LiftedState<S, A> = {
-    monitorState: monitorReducer(undefined, {}),
+    monitorState: monitorReducer(undefined, {} as AnyAction),
     nextActionId: 1,
     actionsById: { 0: liftAction<A>(INIT_ACTION as A) },
     stagedActionIds: [0],
@@ -466,7 +470,7 @@ export function liftReducerWith<S, A extends Action>(
       } else {
         computedState = computeNextEntry(
           reducer,
-          liftedAction.action,
+          (liftedAction as PerformAction<A>).action,
           computedStates[currentStateIndex].state,
           false
         );
@@ -496,7 +500,9 @@ export function liftReducerWith<S, A extends Action>(
         monitorState,
         actionsById: {
           ...actionsById,
-          [nextActionId - 1]: liftAction<A>({ type: options.pauseActionType })
+          [nextActionId - 1]: liftAction<A>({
+            type: options.pauseActionType
+          } as A)
         },
         nextActionId,
         stagedActionIds,
@@ -715,7 +721,7 @@ export function liftReducerWith<S, A extends Action>(
             skippedActionIds = [];
             currentStateIndex = liftedAction.nextLiftedState.length;
             computedStates = [];
-            committedState = liftedAction.preloadedState;
+            committedState = liftedAction.preloadedState as S;
             minInvalidatedStateIndex = 0;
             // iterate through actions
             liftedAction.nextLiftedState.forEach(action => {
@@ -820,7 +826,7 @@ export function unliftStore<S, A extends Action>(
   liftReducer: (
     r: Reducer<S, A>
   ) => Reducer<LiftedState<S, A>, LiftedAction<S, A>>,
-  options: Options<S, A>
+  options: Options
 ): Store<S, A> & { liftedStore: Store<LiftedState<S, A>, LiftedAction<S, A>> } {
   let lastDefinedState: S;
   const trace = options.trace || options.shouldIncludeCallstack;
@@ -879,19 +885,19 @@ export function unliftStore<S, A extends Action>(
   };
 }
 
-interface Options<S, T> {
+interface Options {
   maxAge?:
     | number
     | ((
-        currentLiftedAction: LiftedAction<S, Action<T>>,
-        previousLiftedState: LiftedState<S, Action<T>> | undefined
+        currentLiftedAction: LiftedAction<unknown, Action<unknown>>,
+        previousLiftedState: LiftedState<unknown, Action<unknown>> | undefined
       ) => number);
   shouldCatchErrors?: boolean;
   shouldRecordChanges?: boolean;
-  pauseActionType?: T;
+  pauseActionType?: unknown;
   shouldStartLocked?: boolean;
   shouldHotReload?: boolean;
-  trace?: boolean | ((action: Action<T>) => string) | undefined;
+  trace?: boolean | ((action: Action<unknown>) => string) | undefined;
   traceLimit?: number;
   shouldIncludeCallstack?: boolean;
 }
@@ -899,13 +905,10 @@ interface Options<S, T> {
 /**
  * Redux instrumentation store enhancer.
  */
-export default function instrument<S, A extends Action>(
-  monitorReducer = () => null,
-  options: Options<S, A> = {}
-): StoreEnhancer<
-  {},
-  { liftedStore: Store<LiftedState<S, A>, LiftedAction<S, A>> }
-> {
+export default function instrument(
+  monitorReducer: Reducer = () => null,
+  options: Options = {}
+) {
   if (typeof options.maxAge === 'number' && options.maxAge < 2) {
     throw new Error(
       'DevTools.instrument({ maxAge }) option, if specified, ' +
@@ -913,7 +916,10 @@ export default function instrument<S, A extends Action>(
     );
   }
 
-  return (createStore: StoreEnhancerStoreCreator) => <S, A extends Action>(
+  return (createStore: StoreEnhancerStoreCreator) => <
+    S,
+    A extends Action<unknown>
+  >(
     reducer: Reducer<S, A>,
     initialState?: PreloadedState<S>
   ) => {
