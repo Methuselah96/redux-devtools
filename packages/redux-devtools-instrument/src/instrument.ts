@@ -96,6 +96,7 @@ interface JumpToActionAction {
 interface ImportStateAction<S, A extends Action> {
   type: typeof ActionTypes.IMPORT_STATE;
   nextLiftedState: LiftedState<S, A>;
+  preloadedState?: S;
   noRecompute: boolean | undefined;
 }
 
@@ -396,10 +397,10 @@ export function liftReducerWith<S, A extends Action>(
   const initialLiftedState: LiftedState<S, A> = {
     monitorState: monitorReducer(undefined, {}),
     nextActionId: 1,
-    actionsById: { 0: liftAction<A>(INIT_ACTION) },
+    actionsById: { 0: liftAction<A>(INIT_ACTION as A) },
     stagedActionIds: [0],
     skippedActionIds: [],
-    committedState: initialCommittedState,
+    committedState: initialCommittedState as S,
     currentStateIndex: 0,
     computedStates: [],
     isLocked: options.shouldStartLocked === true,
@@ -473,7 +474,7 @@ export function liftReducerWith<S, A extends Action>(
       if (!options.pauseActionType || nextActionId === 1) {
         return {
           monitorState,
-          actionsById: { 0: liftAction(INIT_ACTION) },
+          actionsById: { 0: liftAction<A>(INIT_ACTION as A) },
           nextActionId: 1,
           stagedActionIds: [0],
           skippedActionIds: [],
@@ -523,13 +524,13 @@ export function liftReducerWith<S, A extends Action>(
 
     if (/^@@redux\/(INIT|REPLACE)/.test(liftedAction.type)) {
       if (options.shouldHotReload === false) {
-        actionsById = { 0: liftAction<A>(INIT_ACTION) };
+        actionsById = { 0: liftAction<A>(INIT_ACTION as A) };
         nextActionId = 1;
         stagedActionIds = [0];
         skippedActionIds = [];
         committedState =
           computedStates.length === 0
-            ? initialCommittedState
+            ? (initialCommittedState as S)
             : computedStates[currentStateIndex].state;
         currentStateIndex = 0;
         computedStates = [];
@@ -581,11 +582,11 @@ export function liftReducerWith<S, A extends Action>(
         }
         case ActionTypes.RESET: {
           // Get back to the state the store was created with.
-          actionsById = { 0: liftAction<A>(INIT_ACTION) };
+          actionsById = { 0: liftAction<A>(INIT_ACTION as A) };
           nextActionId = 1;
           stagedActionIds = [0];
           skippedActionIds = [];
-          committedState = initialCommittedState;
+          committedState = initialCommittedState as S;
           currentStateIndex = 0;
           computedStates = [];
           break;
@@ -593,7 +594,7 @@ export function liftReducerWith<S, A extends Action>(
         case ActionTypes.COMMIT: {
           // Consider the last committed state the new starting point.
           // Squash any staged actions into a single committed state.
-          actionsById = { 0: liftAction<A>(INIT_ACTION) };
+          actionsById = { 0: liftAction<A>(INIT_ACTION as A) };
           nextActionId = 1;
           stagedActionIds = [0];
           skippedActionIds = [];
@@ -605,7 +606,7 @@ export function liftReducerWith<S, A extends Action>(
         case ActionTypes.ROLLBACK: {
           // Forget about any staged actions.
           // Start again from the last committed state.
-          actionsById = { 0: liftAction<A>(INIT_ACTION) };
+          actionsById = { 0: liftAction<A>(INIT_ACTION as A) };
           nextActionId = 1;
           stagedActionIds = [0];
           skippedActionIds = [];
@@ -708,7 +709,7 @@ export function liftReducerWith<S, A extends Action>(
         case ActionTypes.IMPORT_STATE: {
           if (Array.isArray(liftedAction.nextLiftedState)) {
             // recompute array of actions
-            actionsById = { 0: liftAction(INIT_ACTION) };
+            actionsById = { 0: liftAction<A>(INIT_ACTION as A) };
             nextActionId = 1;
             stagedActionIds = [0];
             skippedActionIds = [];
@@ -756,7 +757,7 @@ export function liftReducerWith<S, A extends Action>(
             return computePausedAction(true);
           }
           // Commit when unpausing
-          actionsById = { 0: liftAction<A>(INIT_ACTION) };
+          actionsById = { 0: liftAction<A>(INIT_ACTION as A) };
           nextActionId = 1;
           stagedActionIds = [0];
           skippedActionIds = [];
