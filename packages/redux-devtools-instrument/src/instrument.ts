@@ -879,21 +879,21 @@ export function unliftStore<S, A extends Action>(
   };
 }
 
-interface Options<S, A extends Action> {
+interface Options<S, T> {
   maxAge?:
     | number
     | ((
-        liftedAction: LiftedAction<S, A>,
-        liftedState: LiftedState<S, A> | undefined
+        currentLiftedAction: LiftedAction<S, Action<T>>,
+        previousLiftedState: LiftedState<S, Action<T>> | undefined
       ) => number);
-  shouldStartLocked?: boolean;
-  shouldRecordChanges?: boolean;
-  shouldHotReload?: boolean;
   shouldCatchErrors?: boolean;
-  pauseActionType?: A;
-  trace?: (action: A) => string | undefined;
-  shouldIncludeCallstack?: boolean;
+  shouldRecordChanges?: boolean;
+  pauseActionType?: T;
+  shouldStartLocked?: boolean;
+  shouldHotReload?: boolean;
+  trace?: boolean | ((action: Action<T>) => string) | undefined;
   traceLimit?: number;
+  shouldIncludeCallstack?: boolean;
 }
 
 /**
