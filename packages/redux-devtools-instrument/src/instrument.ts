@@ -8,6 +8,7 @@ import {
   PreloadedState,
   Reducer,
   Store,
+  StoreEnhancer,
   StoreEnhancerStoreCreator
 } from 'redux';
 
@@ -396,7 +397,7 @@ export function liftReducerWith<S, A extends Action>(
   reducer: Reducer<S, A>,
   initialCommittedState: PreloadedState<S> | undefined,
   monitorReducer: Reducer,
-  options: Options
+  options: Options<S>
 ): Reducer<LiftedState<S, A>, LiftedAction<S, A>> {
   const initialLiftedState: LiftedState<S, A> = {
     monitorState: monitorReducer(undefined, {} as AnyAction),
@@ -818,6 +819,18 @@ export function unliftState<S, A extends Action>(
   return state;
 }
 
+export type LiftedStore<S, A extends Action> = Store<
+  LiftedState<S, A>,
+  LiftedAction<S, A>
+>;
+
+export type InstrumentExt<S, A extends Action> = {
+  liftedStore: LiftedStore<S, A>;
+};
+
+export type EnhancedStore<S, A extends Action> = Store<S, A> &
+  InstrumentExt<S, A>;
+
 /**
  * Provides an app's view into the lifted store.
  */
@@ -826,7 +839,7 @@ export function unliftStore<S, A extends Action>(
   liftReducer: (
     r: Reducer<S, A>
   ) => Reducer<LiftedState<S, A>, LiftedAction<S, A>>,
-  options: Options
+  options: Options<S>
 ): Store<S, A> & { liftedStore: Store<LiftedState<S, A>, LiftedAction<S, A>> } {
   let lastDefinedState: S;
   const trace = options.trace || options.shouldIncludeCallstack;
@@ -885,12 +898,12 @@ export function unliftStore<S, A extends Action>(
   };
 }
 
-interface Options {
+interface Options<S> {
   maxAge?:
     | number
     | ((
         currentLiftedAction: LiftedAction<unknown, Action<unknown>>,
-        previousLiftedState: LiftedState<unknown, Action<unknown>> | undefined
+        previousLiftedState: LiftedState<S, Action<unknown>> | undefined
       ) => number);
   shouldCatchErrors?: boolean;
   shouldRecordChanges?: boolean;
@@ -905,10 +918,10 @@ interface Options {
 /**
  * Redux instrumentation store enhancer.
  */
-export default function instrument(
+export default function instrument<S, A extends Action>(
   monitorReducer: Reducer = () => null,
-  options: Options = {}
-) {
+  options: Options<S> = {}
+): StoreEnhancer<S, A, InstrumentExt<S, A>> {
   if (typeof options.maxAge === 'number' && options.maxAge < 2) {
     throw new Error(
       'DevTools.instrument({ maxAge }) option, if specified, ' +
@@ -916,13 +929,10 @@ export default function instrument(
     );
   }
 
-  return (createStore: StoreEnhancerStoreCreator) => <
-    S,
-    A extends Action<unknown>
-  >(
+  return (createStore: StoreEnhancerStoreCreator) => (
     reducer: Reducer<S, A>,
     initialState?: PreloadedState<S>
-  ) => {
+  ): EnhancedStore<S, A> => {
     function liftReducer(
       r: Reducer<S, A>
     ): Reducer<LiftedState<S, A>, LiftedAction<S, A>> {
@@ -940,9 +950,7 @@ export default function instrument(
       return liftReducerWith<S, A>(r, initialState, monitorReducer, options);
     }
 
-    const liftedStore = createStore<LiftedState<S, A>, LiftedAction<S, A>>(
-      liftReducer(reducer)
-    );
+    const liftedStore = createStore(liftReducer(reducer));
     if (
       (liftedStore as Store<LiftedState<S, A>, LiftedAction<S, A>> & {
         liftedStore: Store<LiftedState<S, A>, LiftedAction<S, A>>;
