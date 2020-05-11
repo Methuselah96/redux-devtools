@@ -4,12 +4,11 @@ import isPlainObject from 'lodash/isPlainObject';
 import {
   Action,
   AnyAction,
+  Dispatch,
   Observable,
   PreloadedState,
   Reducer,
-  Store,
-  StoreEnhancer,
-  StoreEnhancerStoreCreator
+  Unsubscribe
 } from 'redux';
 
 export const ActionTypes = {
@@ -819,28 +818,38 @@ export function unliftState<S, A extends Action>(
   return state;
 }
 
-export type LiftedStore<S, A extends Action> = Store<
+export type LiftedReducer<S, A extends Action> = Reducer<
   LiftedState<S, A>,
   LiftedAction<S, A>
+>;
+
+export type LiftedStore<S, A extends Action> = Store<
+  LiftedState<S, A>,
+  LiftedAction<S, A>,
+  unknown,
+  unknown
 >;
 
 export type InstrumentExt<S, A extends Action> = {
   liftedStore: LiftedStore<S, A>;
 };
 
-export type EnhancedStore<S, A extends Action> = Store<S, A> &
+export type EnhancedStore<S, A extends Action> = Store<
+  S,
+  A,
+  never,
+  InstrumentExt<S, A>
+> &
   InstrumentExt<S, A>;
 
 /**
  * Provides an app's view into the lifted store.
  */
 export function unliftStore<S, A extends Action>(
-  liftedStore: Store<LiftedState<S, A>, LiftedAction<S, A>>,
-  liftReducer: (
-    r: Reducer<S, A>
-  ) => Reducer<LiftedState<S, A>, LiftedAction<S, A>>,
+  liftedStore: Store<LiftedState<S, A>, LiftedAction<S, A>, unknown, unknown>,
+  liftReducer: (r: Reducer<S, A>) => LiftedReducer<S, A>,
   options: Options<S>
-): Store<S, A> & { liftedStore: Store<LiftedState<S, A>, LiftedAction<S, A>> } {
+): EnhancedStore<S, A> {
   let lastDefinedState: S;
   const trace = options.trace || options.shouldIncludeCallstack;
   const traceLimit = options.traceLimit || 10;
@@ -867,8 +876,12 @@ export function unliftStore<S, A extends Action>(
 
     getState,
 
-    replaceReducer(nextReducer) {
-      liftedStore.replaceReducer(liftReducer(nextReducer));
+    replaceReducer<NewState, NewAction extends Action>(
+      nextReducer: Reducer<NewState, NewAction>
+    ) {
+      return liftedStore.replaceReducer(
+        liftReducer<NewState, NewAction>(nextReducer)
+      );
     },
 
     [Symbol.observable](): Observable<S> {
@@ -915,13 +928,40 @@ interface Options<S> {
   shouldIncludeCallstack?: boolean;
 }
 
+export type ExtendState<State, Extension> = [Extension] extends [never]
+  ? State
+  : State & Extension;
+
+export interface Store<
+  S = any,
+  A extends Action = AnyAction,
+  StateExt = never,
+  Ext = {}
+> {
+  dispatch: Dispatch<A>;
+  getState(): S;
+  subscribe(listener: () => void): Unsubscribe;
+  replaceReducer<NewState, NewActions extends Action>(
+    nextReducer: Reducer<NewState, NewActions>
+  ): Store<ExtendState<NewState, StateExt>, NewActions, StateExt, Ext> & Ext;
+  [Symbol.observable](): Observable<S>;
+}
+
+export type StoreEnhancer<Ext, StateExt> = (
+  next: StoreEnhancerStoreCreator<unknown, unknown>
+) => StoreEnhancerStoreCreator<Ext, StateExt>;
+export type StoreEnhancerStoreCreator<Ext, StateExt> = <S, A extends Action>(
+  reducer: Reducer<S, A>,
+  preloadedState?: PreloadedState<S>
+) => Store<ExtendState<S, StateExt>, A, StateExt, Ext> & Ext;
+
 /**
  * Redux instrumentation store enhancer.
  */
-export default function instrument<S, A extends Action>(
+export default function instrument<UpS, UpA extends Action>(
   monitorReducer: Reducer = () => null,
-  options: Options<S> = {}
-): StoreEnhancer<S, A, InstrumentExt<S, A>> {
+  options: Options<UpS> = {}
+): StoreEnhancer<InstrumentExt<UpS, UpA>, never> {
   if (typeof options.maxAge === 'number' && options.maxAge < 2) {
     throw new Error(
       'DevTools.instrument({ maxAge }) option, if specified, ' +
@@ -929,7 +969,14 @@ export default function instrument<S, A extends Action>(
     );
   }
 
-  return (createStore: StoreEnhancerStoreCreator) => (
+  return (
+    createStore: StoreEnhancerStoreCreator<
+      LiftedState<UpS, UpA>,
+      LiftedAction<UpS, UpA>,
+      unknown,
+      unknown
+    >
+  ) => <S = UpS, A = UpA>(
     reducer: Reducer<S, A>,
     initialState?: PreloadedState<S>
   ): EnhancedStore<S, A> => {
@@ -947,7 +994,7 @@ export default function instrument<S, A extends Action>(
         }
         throw new Error('Expected the reducer to be a function.');
       }
-      return liftReducerWith<S, A>(r, initialState, monitorReducer, options);
+      return liftReducerWith(r, initialState, monitorReducer, options);
     }
 
     const liftedStore = createStore(liftReducer(reducer));
