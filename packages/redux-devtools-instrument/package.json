@@ -3,6 +3,7 @@
   "version": "1.9.6",
   "description": "Redux DevTools instrumentation",
   "main": "lib/instrument.js",
+  "types": "lib/index.d.ts",
   "scripts": {
     "type-check": "tsc --noEmit",
     "type-check:watch": "npm run type-check -- --watch",
