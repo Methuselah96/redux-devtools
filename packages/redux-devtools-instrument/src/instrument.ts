@@ -918,10 +918,10 @@ interface Options<S = unknown, A extends Action = Action<unknown>> {
 /**
  * Redux instrumentation store enhancer.
  */
-export default function instrument<S, A extends Action>(
+export default function instrument(
   monitorReducer: Reducer = () => null,
-  options: Options<S> = {}
-): StoreEnhancer<S, A, InstrumentExt<S, A>> {
+  options: Options = {}
+): StoreEnhancer<InstrumentExt<any, any>> {
   if (typeof options.maxAge === 'number' && options.maxAge < 2) {
     throw new Error(
       'DevTools.instrument({ maxAge }) option, if specified, ' +
@@ -929,13 +929,11 @@ export default function instrument<S, A extends Action>(
     );
   }
 
-  return (createStore: StoreEnhancerStoreCreator) => (
+  return (createStore: StoreEnhancerStoreCreator) => <S, A extends Action>(
     reducer: Reducer<S, A>,
     initialState?: PreloadedState<S>
-  ): EnhancedStore<S, A> => {
-    function liftReducer(
-      r: Reducer<S, A>
-    ): Reducer<LiftedState<S, A>, LiftedAction<S, A>> {
+  ) => {
+    function liftReducer(r: Reducer<S, A>) {
       if (typeof r !== 'function') {
         if (r && typeof (r as { default: unknown }).default === 'function') {
           throw new Error(
