@@ -1,10 +1,9 @@
 import React, { Children, Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect, Provider, ReactReduxContext } from 'react-redux';
-import instrument from 'redux-devtools-instrument';
+import instrument, { Options } from 'redux-devtools-instrument';
 
-function logError(type) {
-  /* eslint-disable no-console */
+function logError(type: string) {
   if (type === 'NoStore') {
     console.error(
       'Redux DevTools could not render. You must pass the Redux store ' +
@@ -18,16 +17,19 @@ function logError(type) {
         'using createStore()?'
     );
   }
-  /* eslint-enable no-console */
 }
 
-export default function createDevTools(children) {
-  const monitorElement = Children.only(children);
+interface Props {}
+
+export default function createDevTools(
+  children: React.ReactElement<unknown, React.JSXElementConstructor<unknown>>
+) {
+  const monitorElement = Children.only(children)!;
   const monitorProps = monitorElement.props;
   const Monitor = monitorElement.type;
   const ConnectedMonitor = connect(state => state)(Monitor);
 
-  return class DevTools extends Component {
+  return class DevTools extends Component<Props> {
     static contextTypes = {
       store: PropTypes.object
     };
@@ -36,13 +38,13 @@ export default function createDevTools(children) {
       store: PropTypes.object
     };
 
-    static instrument = options =>
+    static instrument = (options: Options) =>
       instrument(
         (state, action) => Monitor.update(monitorProps, state, action),
         options
       );
 
-    constructor(props, context) {
+    constructor(props: Props, context) {
       super(props, context);
 
       if (ReactReduxContext) {

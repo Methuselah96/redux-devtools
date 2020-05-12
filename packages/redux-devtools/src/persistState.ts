@@ -1,11 +1,12 @@
 import mapValues from 'lodash/mapValues';
 import identity from 'lodash/identity';
+import { StoreEnhancer } from 'redux';
 
 export default function persistState(
-  sessionId,
+  sessionId: string,
   deserializeState = identity,
   deserializeAction = identity
-) {
+): StoreEnhancer {
   if (!sessionId) {
     return next => (...args) => next(...args);
   }
@@ -25,7 +26,7 @@ export default function persistState(
     };
   }
 
-  return next => (reducer, initialState, enhancer) => {
+  return next => (reducer, initialState) => {
     const key = `redux-dev-session-${sessionId}`;
 
     let finalInitialState;
@@ -44,7 +45,7 @@ export default function persistState(
       }
     }
 
-    const store = next(reducer, finalInitialState, enhancer);
+    const store = next(reducer, finalInitialState);
 
     return {
       ...store,
