@@ -32,7 +32,27 @@ const styles = {
   }
 };
 
-export default class LogMonitor extends Component {
+interface Props {
+  // dispatch: PropTypes.func,
+  // computedStates: PropTypes.array,
+  // actionsById: PropTypes.object,
+  // stagedActionIds: PropTypes.array,
+  // skippedActionIds: PropTypes.array,
+  // monitorState: PropTypes.shape({
+  //                                 initialScrollTop: PropTypes.number,
+  //                                 consecutiveToggleStartId: PropTypes.number
+  //                               }),
+
+  preserveScrollTop: boolean;
+  // select: PropTypes.func,
+  // theme: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+  expandActionRoot: boolean;
+  expandStateRoot: boolean;
+  markStateDiff: boolean;
+  // hideMainButtons: PropTypes.bool
+}
+
+export default class LogMonitor extends Component<Props> {
   static update = reducer;
 
   static propTypes = {
@@ -71,7 +91,7 @@ export default class LogMonitor extends Component {
     this.props.dispatch(updateScrollTop(node ? node.scrollTop : 0));
   }, 500);
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
     this.handleToggleAction = this.handleToggleAction.bind(this);
     this.handleToggleConsecutiveAction = this.handleToggleConsecutiveAction.bind(
