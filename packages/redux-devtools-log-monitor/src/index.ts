@@ -1,1 +1,2 @@
-export default from './LogMonitor';
+import LogMonitor from './LogMonitor';
+export default LogMonitor;
