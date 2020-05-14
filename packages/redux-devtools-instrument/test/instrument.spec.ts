@@ -1,4 +1,4 @@
-import { createStore, compose, Store, Action, AnyAction } from 'redux';
+import { createStore, compose, Store, Action, Reducer } from 'redux';
 import instrument, {
   ActionCreators,
   EnhancedStore,
@@ -40,11 +40,11 @@ function counterWithBug(state = 0, action: CounterWithBugAction) {
   }
 }
 
-type CounterWithAnotherBug =
+type CounterWithAnotherBugAction =
   | { type: 'INCREMENT' }
   | { type: 'DECREMENT' }
   | { type: 'SET_UNDEFINED' };
-function counterWithAnotherBug(state = 0, action: CounterWithAnotherBug) {
+function counterWithAnotherBug(state = 0, action: CounterWithAnotherBugAction) {
   switch (action.type) {
     case 'INCREMENT':
       // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
@@ -71,11 +71,11 @@ function doubleCounter(state = 0, action: DoubleCounterAction) {
   }
 }
 
-type CounterWithMultiply =
+type CounterWithMultiplyAction =
   | { type: 'INCREMENT' }
   | { type: 'DECREMENT' }
   | { type: 'MULTIPLY' };
-function counterWithMultiply(state = 0, action: CounterWithMultiply) {
+function counterWithMultiply(state = 0, action: CounterWithMultiplyAction) {
   switch (action.type) {
     case 'INCREMENT':
       return state + 1;
@@ -253,89 +253,89 @@ describe('instrument', () => {
   });
 
   it('should reorder actions', () => {
-    store = createStore(counterWithMultiply, instrument());
-    store.dispatch({ type: 'INCREMENT' });
-    store.dispatch({ type: 'DECREMENT' });
-    store.dispatch({ type: 'INCREMENT' });
-    store.dispatch({ type: 'MULTIPLY' });
-    expect(store.liftedStore.getState().stagedActionIds).toEqual([
+    const storeWithMultiply = createStore(counterWithMultiply, instrument());
+    storeWithMultiply.dispatch({ type: 'INCREMENT' });
+    storeWithMultiply.dispatch({ type: 'DECREMENT' });
+    storeWithMultiply.dispatch({ type: 'INCREMENT' });
+    storeWithMultiply.dispatch({ type: 'MULTIPLY' });
+    expect(storeWithMultiply.liftedStore.getState().stagedActionIds).toEqual([
       0,
       1,
       2,
       3,
       4
     ]);
-    expect(store.getState()).toBe(2);
+    expect(storeWithMultiply.getState()).toBe(2);
 
-    store.liftedStore.dispatch(ActionCreators.reorderAction(4, 1));
-    expect(store.liftedStore.getState().stagedActionIds).toEqual([
+    storeWithMultiply.liftedStore.dispatch(ActionCreators.reorderAction(4, 1));
+    expect(storeWithMultiply.liftedStore.getState().stagedActionIds).toEqual([
       0,
       4,
       1,
       2,
       3
     ]);
-    expect(store.getState()).toBe(1);
+    expect(storeWithMultiply.getState()).toBe(1);
 
-    store.liftedStore.dispatch(ActionCreators.reorderAction(4, 1));
-    expect(store.liftedStore.getState().stagedActionIds).toEqual([
+    storeWithMultiply.liftedStore.dispatch(ActionCreators.reorderAction(4, 1));
+    expect(storeWithMultiply.liftedStore.getState().stagedActionIds).toEqual([
       0,
       4,
       1,
       2,
       3
     ]);
-    expect(store.getState()).toBe(1);
+    expect(storeWithMultiply.getState()).toBe(1);
 
-    store.liftedStore.dispatch(ActionCreators.reorderAction(4, 2));
-    expect(store.liftedStore.getState().stagedActionIds).toEqual([
+    storeWithMultiply.liftedStore.dispatch(ActionCreators.reorderAction(4, 2));
+    expect(storeWithMultiply.liftedStore.getState().stagedActionIds).toEqual([
       0,
       1,
       4,
       2,
       3
     ]);
-    expect(store.getState()).toBe(2);
+    expect(storeWithMultiply.getState()).toBe(2);
 
-    store.liftedStore.dispatch(ActionCreators.reorderAction(1, 10));
-    expect(store.liftedStore.getState().stagedActionIds).toEqual([
+    storeWithMultiply.liftedStore.dispatch(ActionCreators.reorderAction(1, 10));
+    expect(storeWithMultiply.liftedStore.getState().stagedActionIds).toEqual([
       0,
       4,
       2,
       3,
       1
     ]);
-    expect(store.getState()).toBe(1);
+    expect(storeWithMultiply.getState()).toBe(1);
 
-    store.liftedStore.dispatch(ActionCreators.reorderAction(10, 1));
-    expect(store.liftedStore.getState().stagedActionIds).toEqual([
+    storeWithMultiply.liftedStore.dispatch(ActionCreators.reorderAction(10, 1));
+    expect(storeWithMultiply.liftedStore.getState().stagedActionIds).toEqual([
       0,
       4,
       2,
       3,
       1
     ]);
-    expect(store.getState()).toBe(1);
+    expect(storeWithMultiply.getState()).toBe(1);
 
-    store.liftedStore.dispatch(ActionCreators.reorderAction(1, -2));
-    expect(store.liftedStore.getState().stagedActionIds).toEqual([
+    storeWithMultiply.liftedStore.dispatch(ActionCreators.reorderAction(1, -2));
+    expect(storeWithMultiply.liftedStore.getState().stagedActionIds).toEqual([
       0,
       1,
       4,
       2,
       3
     ]);
-    expect(store.getState()).toBe(2);
+    expect(storeWithMultiply.getState()).toBe(2);
 
-    store.liftedStore.dispatch(ActionCreators.reorderAction(0, 1));
-    expect(store.liftedStore.getState().stagedActionIds).toEqual([
+    storeWithMultiply.liftedStore.dispatch(ActionCreators.reorderAction(0, 1));
+    expect(storeWithMultiply.liftedStore.getState().stagedActionIds).toEqual([
       0,
       1,
       4,
       2,
       3
     ]);
-    expect(store.getState()).toBe(2);
+    expect(storeWithMultiply.getState()).toBe(2);
   });
 
   it('should replace the reducer', () => {
@@ -364,8 +364,11 @@ describe('instrument', () => {
     store.dispatch({ type: 'INCREMENT' });
     expect(store.getState()).toBe(3);
 
-    store.replaceReducer(() => ({ test: true }));
-    expect(store.getState()).toEqual({ test: true });
+    store.replaceReducer(
+      (() => ({ test: true } as unknown)) as Reducer<number, CounterAction>
+    );
+    const newStore = (store as unknown) as Store<{ test: boolean }>;
+    expect(newStore.getState()).toEqual({ test: true });
   });
 
   it('should catch and record errors', () => {
@@ -393,7 +396,7 @@ describe('instrument', () => {
 
   it('should catch invalid action type (undefined type)', () => {
     expect(() => {
-      store.dispatch({ type: undefined } as CounterAction);
+      store.dispatch(({ type: undefined } as unknown) as CounterAction);
     }).toThrow(
       'Actions may not have an undefined "type" property. ' +
         'Have you misspelled a constant?'
@@ -401,12 +404,12 @@ describe('instrument', () => {
   });
 
   it('should catch invalid action type (function)', () => {
-    function ActionClass() {
+    function ActionClass(this: any) {
       this.type = 'test';
     }
 
     expect(() => {
-      store.dispatch(new ActionClass() as CounterAction);
+      store.dispatch(new (ActionClass as any)() as CounterAction);
     }).toThrow(
       'Actions must be plain objects. ' +
         'Use custom middleware for async actions.'
@@ -607,19 +610,32 @@ describe('instrument', () => {
       expect(liftedStoreWithBug.getState().stagedActionIds).toHaveLength(7);
 
       // Auto-commit 2 actions by "fixing" reducer bug, but introducing another.
-      storeWithBug.replaceReducer(counterWithAnotherBug);
-      expect(liftedStoreWithBug.getState().stagedActionIds).toHaveLength(5);
+      storeWithBug.replaceReducer(
+        counterWithAnotherBug as Reducer<number, CounterWithBugAction>
+      );
+      const liftedStoreWithAnotherBug = (storeWithBug as unknown) as LiftedStore<
+        number,
+        CounterWithAnotherBugAction
+      >;
+      expect(liftedStoreWithAnotherBug.getState().stagedActionIds).toHaveLength(
+        5
+      );
 
       // Auto-commit 2 more actions by "fixing" other reducer bug.
-      storeWithBug.replaceReducer(counter);
-      expect(liftedStoreWithBug.getState().stagedActionIds).toHaveLength(3);
+      storeWithBug.replaceReducer(
+        counter as Reducer<number, CounterWithBugAction>
+      );
+      const liftedStore = liftedStoreWithBug as LiftedStore<
+        number,
+        CounterAction
+      >;
+      expect(liftedStore.getState().stagedActionIds).toHaveLength(3);
 
       spy.mockReset();
     });
 
     it('should update currentStateIndex when auto-committing', () => {
       let liftedStoreState;
-      let currentComputedState;
 
       configuredStore.dispatch({ type: 'INCREMENT' });
       configuredStore.dispatch({ type: 'INCREMENT' });
@@ -629,7 +645,7 @@ describe('instrument', () => {
       // currentStateIndex should stay at 2 as actions are committed.
       configuredStore.dispatch({ type: 'INCREMENT' });
       liftedStoreState = configuredLiftedStore.getState();
-      currentComputedState =
+      const currentComputedState =
         liftedStoreState.computedStates[liftedStoreState.currentStateIndex];
       expect(liftedStoreState.currentStateIndex).toBe(2);
       expect(currentComputedState.state).toBe(3);
@@ -674,8 +690,14 @@ describe('instrument', () => {
       storeWithBug.dispatch({ type: 'DECREMENT' });
 
       // Auto-commit 2 actions by "fixing" reducer bug.
-      storeWithBug.replaceReducer(counter);
-      const liftedStoreState = liftedStoreWithBug.getState();
+      storeWithBug.replaceReducer(
+        counter as Reducer<number, CounterWithBugAction>
+      );
+      const liftedStore = liftedStoreWithBug as LiftedStore<
+        number,
+        CounterAction
+      >;
+      const liftedStoreState = liftedStore.getState();
       const currentComputedState =
         liftedStoreState.computedStates[liftedStoreState.currentStateIndex];
       expect(liftedStoreState.currentStateIndex).toBe(2);
@@ -700,8 +722,14 @@ describe('instrument', () => {
       liftedStoreWithBug.dispatch(ActionCreators.jumpToState(1));
 
       // Auto-commit 2 actions by "fixing" reducer bug.
-      storeWithBug.replaceReducer(counter);
-      const liftedStoreState = liftedStoreWithBug.getState();
+      storeWithBug.replaceReducer(
+        counter as Reducer<number, CounterWithBugAction>
+      );
+      const liftedStore = liftedStoreWithBug as LiftedStore<
+        number,
+        CounterAction
+      >;
+      const liftedStoreState = liftedStore.getState();
       const currentComputedState =
         liftedStoreState.computedStates[liftedStoreState.currentStateIndex];
       expect(liftedStoreState.currentStateIndex).toBe(0);
@@ -825,7 +853,7 @@ describe('instrument', () => {
         expect(exportedState.actionsById[1].stack).toContain(
           'instrument.spec.js'
         );
-        expect(exportedState.actionsById[1].stack.split('\n')).toHaveLength(
+        expect(exportedState.actionsById[1].stack!.split('\n')).toHaveLength(
           10 + 1
         ); // +1 is for `Error\n`
       }
@@ -861,7 +889,7 @@ describe('instrument', () => {
         expect(exportedState.actionsById[1].stack).toContain(
           'instrument.spec.js'
         );
-        expect(exportedState.actionsById[1].stack.split('\n')).toHaveLength(
+        expect(exportedState.actionsById[1].stack!.split('\n')).toHaveLength(
           3 + 1
         );
       }
@@ -899,7 +927,7 @@ describe('instrument', () => {
         expect(exportedState.actionsById[1].stack).toContain(
           'instrument.spec.js'
         );
-        expect(exportedState.actionsById[1].stack.split('\n')).toHaveLength(
+        expect(exportedState.actionsById[1].stack!.split('\n')).toHaveLength(
           3 + 1
         );
       }
@@ -934,7 +962,7 @@ describe('instrument', () => {
       expect(exportedState.actionsById[1].stack).toContain(
         'instrument.spec.js'
       );
-      expect(exportedState.actionsById[1].stack.split('\n')).toHaveLength(
+      expect(exportedState.actionsById[1].stack!.split('\n')).toHaveLength(
         5 + 1
       );
     });
@@ -961,7 +989,7 @@ describe('instrument', () => {
         expect(exportedState.actionsById[1].stack).toContain(
           'instrument.spec.js'
         );
-        expect(exportedState.actionsById[1].stack.split('\n')).toHaveLength(
+        expect(exportedState.actionsById[1].stack!.split('\n')).toHaveLength(
           10 + 1
         );
       }
@@ -996,7 +1024,7 @@ describe('instrument', () => {
       expect(exportedState.actionsById[1].stack).toContain(
         'instrument.spec.js'
       );
-      expect(exportedState.actionsById[1].stack.split('\n')).toHaveLength(
+      expect(exportedState.actionsById[1].stack!.split('\n')).toHaveLength(
         5 + 3 + 1
       );
     });
@@ -1023,7 +1051,7 @@ describe('instrument', () => {
     it('should get stack trace inside setTimeout using a function', done => {
       const stack = new Error().stack;
       setTimeout(() => {
-        const traceFn = () => stack + new Error().stack;
+        const traceFn = () => stack + new Error().stack!;
         monitoredStore = createStore(
           counter,
           instrument(undefined, { trace: traceFn })
