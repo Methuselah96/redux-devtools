@@ -2,12 +2,18 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import shouldPureComponentUpdate from 'react-pure-render/function';
 import * as themes from 'redux-devtools-themes';
-import { ActionCreators } from 'redux-devtools';
-import { updateScrollTop, startConsecutiveToggle } from './actions';
-import reducer from './reducers';
+import { ActionCreators, ActionTypes, LiftedAction } from 'redux-devtools';
+import { Action, Dispatch } from 'redux';
+import {
+  updateScrollTop,
+  startConsecutiveToggle,
+  LogMonitorAction
+} from './actions';
+import reducer, { LogMonitorState } from './reducers';
 import LogMonitorButtonBar from './LogMonitorButtonBar';
 import LogMonitorEntryList from './LogMonitorEntryList';
 import debounce from 'lodash.debounce';
+import { Base16Theme } from './types';
 
 const { toggleAction, setActionsActive } = ActionCreators;
 
@@ -20,7 +26,7 @@ const styles = {
     height: '100%',
     minWidth: 300,
     direction: 'ltr'
-  },
+  } as const,
   elements: {
     position: 'absolute',
     left: 0,
@@ -29,30 +35,53 @@ const styles = {
     bottom: 0,
     overflowX: 'hidden',
     overflowY: 'auto'
-  }
+  } as const
 };
+// interface LiftedState<S, A extends Action> {
+//   monitorState: unknown;
+//   nextActionId: number;
+//   actionsById: { [actionId: number]: PerformAction<A> };
+//   stagedActionIds: number[];
+//   skippedActionIds: number[];
+//   committedState: S;
+//   currentStateIndex: number;
+//   computedStates: { state: S; error?: string }[];
+//   isLocked: boolean;
+//   isPaused: boolean;
+// }
 
-interface Props {
-  // dispatch: PropTypes.func,
-  // computedStates: PropTypes.array,
-  // actionsById: PropTypes.object,
-  // stagedActionIds: PropTypes.array,
-  // skippedActionIds: PropTypes.array,
-  // monitorState: PropTypes.shape({
-  //                                 initialScrollTop: PropTypes.number,
-  //                                 consecutiveToggleStartId: PropTypes.number
-  //                               }),
+export interface PerformAction<A extends Action> {
+  type: typeof ActionTypes.PERFORM_ACTION;
+  action: A;
+  timestamp: number;
+  stack: string | undefined;
+}
+
+interface MonitorState {
+  initialScrollTop: number;
+}
+
+export interface Props<S, A extends Action> {
+  dispatch: Dispatch<LogMonitorAction | LiftedAction<S, A>>;
+  computedStates: { state: S; error?: string }[];
+  actionsById: { [actionId: number]: PerformAction<A> };
+  stagedActionIds: number[];
+  skippedActionIds: number[];
+  currentStateIndex: number;
+  monitorState: LogMonitorState;
 
   preserveScrollTop: boolean;
-  // select: PropTypes.func,
-  // theme: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+  select: (state: S) => unknown;
+  theme: 'string' | Base16Theme;
   expandActionRoot: boolean;
   expandStateRoot: boolean;
   markStateDiff: boolean;
-  // hideMainButtons: PropTypes.bool
+  hideMainButtons?: boolean;
 }
 
-export default class LogMonitor extends Component<Props> {
+export default class LogMonitor<S, A extends Action> extends Component<
+  Props<S, A>
+> {
   static update = reducer;
 
   static propTypes = {
@@ -76,7 +105,7 @@ export default class LogMonitor extends Component<Props> {
   };
 
   static defaultProps = {
-    select: state => state,
+    select: (state: unknown) => state,
     theme: 'nicinabox',
     preserveScrollTop: true,
     expandActionRoot: true,
@@ -84,21 +113,15 @@ export default class LogMonitor extends Component<Props> {
     markStateDiff: false
   };
 
+  scrollDown?: boolean;
+  node?: HTMLDivElement | null;
+
   shouldComponentUpdate = shouldPureComponentUpdate;
 
   updateScrollTop = debounce(() => {
     const node = this.node;
     this.props.dispatch(updateScrollTop(node ? node.scrollTop : 0));
   }, 500);
-
-  constructor(props: Props) {
-    super(props);
-    this.handleToggleAction = this.handleToggleAction.bind(this);
-    this.handleToggleConsecutiveAction = this.handleToggleConsecutiveAction.bind(
-      this
-    );
-    this.getRef = this.getRef.bind(this);
-  }
 
   scroll() {
     const node = this.node;
@@ -134,7 +157,7 @@ export default class LogMonitor extends Component<Props> {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps: Props<S, A>) {
     const node = this.node;
     if (!node) {
       this.scrollDown = true;
@@ -154,27 +177,27 @@ export default class LogMonitor extends Component<Props> {
     this.scroll();
   }
 
-  handleToggleAction(id) {
+  handleToggleAction = (id: number) => {
     this.props.dispatch(toggleAction(id));
-  }
+  };
 
-  handleToggleConsecutiveAction(id) {
+  handleToggleConsecutiveAction = (id: number) => {
     const { monitorState, actionsById } = this.props;
     const { consecutiveToggleStartId } = monitorState;
     if (consecutiveToggleStartId && actionsById[consecutiveToggleStartId]) {
       const { skippedActionIds } = this.props;
       const start = Math.min(consecutiveToggleStartId, id);
       const end = Math.max(consecutiveToggleStartId, id);
-      const active = skippedActionIds.indexOf(consecutiveToggleStartId) > -1;
+      const active = skippedActionIds.includes(consecutiveToggleStartId);
       this.props.dispatch(setActionsActive(start, end + 1, active));
       this.props.dispatch(startConsecutiveToggle(null));
     } else if (id > 0) {
       this.props.dispatch(startConsecutiveToggle(id));
     }
-  }
+  };
 
   getTheme() {
-    let { theme } = this.props;
+    const { theme } = this.props;
     if (typeof theme !== 'string') {
       return theme;
     }
@@ -190,9 +213,9 @@ export default class LogMonitor extends Component<Props> {
     return themes.nicinabox;
   }
 
-  getRef(node) {
+  getRef: React.RefCallback<HTMLDivElement> = node => {
     this.node = node;
-  }
+  };
 
   render() {
     const theme = this.getTheme();

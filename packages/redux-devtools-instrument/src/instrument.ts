@@ -42,7 +42,7 @@ const isChromeOrNode =
     process.release &&
     process.release.name === 'node');
 
-interface PerformAction<A extends Action> {
+export interface PerformAction<A extends Action> {
   type: typeof ActionTypes.PERFORM_ACTION;
   action: A;
   timestamp: number;
@@ -113,7 +113,7 @@ interface PauseRecordingAction {
   status: boolean;
 }
 
-type LiftedAction<S, A extends Action> =
+export type LiftedAction<S, A extends Action> =
   | PerformAction<A>
   | ResetAction
   | RollbackAction

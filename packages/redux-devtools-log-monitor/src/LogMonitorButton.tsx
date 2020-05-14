@@ -1,6 +1,7 @@
 import React from 'react';
 import brighten from './brighten';
 import shouldPureComponentUpdate from 'react-pure-render/function';
+import { Base16Theme } from './types';
 
 const styles = {
   base: {
@@ -17,51 +18,52 @@ const styles = {
     fontSize: '0.8em',
     color: 'white',
     textDecoration: 'none'
-  }
+  } as const
 };
 
-export default class LogMonitorButton extends React.Component {
+interface Props {
+  theme: Base16Theme;
+  onClick: () => void;
+  enabled: boolean;
+}
+
+interface State {
+  hovered: boolean;
+  active: boolean;
+}
+
+export default class LogMonitorButton extends React.Component<Props, State> {
   shouldComponentUpdate = shouldPureComponentUpdate;
 
-  constructor(props) {
-    super(props);
+  state: State = {
+    hovered: false,
+    active: false
+  };
 
-    this.handleMouseEnter = this.handleMouseEnter.bind(this);
-    this.handleMouseLeave = this.handleMouseLeave.bind(this);
-    this.handleMouseDown = this.handleMouseDown.bind(this);
-    this.handleMouseUp = this.handleMouseUp.bind(this);
-    this.onClick = this.onClick.bind(this);
-
-    this.state = {
-      hovered: false,
-      active: false
-    };
-  }
-
-  handleMouseEnter() {
+  handleMouseEnter = () => {
     this.setState({ hovered: true });
-  }
+  };
 
-  handleMouseLeave() {
+  handleMouseLeave = () => {
     this.setState({ hovered: false });
-  }
+  };
 
-  handleMouseDown() {
+  handleMouseDown = () => {
     this.setState({ active: true });
-  }
+  };
 
-  handleMouseUp() {
+  handleMouseUp = () => {
     this.setState({ active: false });
-  }
+  };
 
-  onClick() {
+  onClick = () => {
     if (!this.props.enabled) {
       return;
     }
     if (this.props.onClick) {
       this.props.onClick();
     }
-  }
+  };
 
   render() {
     let style = {

@@ -1,26 +1,33 @@
-import React, { Component } from 'react';
+import React, { Component, MouseEventHandler } from 'react';
 import JSONTree from 'react-json-tree';
+import { Action } from 'redux';
+import { Base16Theme } from './types';
 
 const styles = {
   actionBar: {
     paddingTop: 8,
     paddingBottom: 7,
     paddingLeft: 16
-  },
+  } as const,
   payload: {
     margin: 0,
     paddingLeft: 16,
     overflow: 'auto'
-  }
+  } as const
 };
 
-export default class LogMonitorAction extends Component {
-  constructor(props) {
-    super(props);
-    this.shouldExpandNode = this.shouldExpandNode.bind(this);
-  }
+interface Props<A extends Action<unknown>> {
+  theme: Base16Theme;
+  collapsed: boolean;
+  action: A;
+  expandActionRoot: boolean;
+  onClick: MouseEventHandler<HTMLDivElement>;
+}
 
-  renderPayload(payload) {
+export default class LogMonitorAction<
+  A extends Action<unknown>
+> extends Component<Props<A>> {
+  renderPayload(payload: {}) {
     return (
       <div
         style={{
@@ -43,9 +50,13 @@ export default class LogMonitorAction extends Component {
     );
   }
 
-  shouldExpandNode(keyName, data, level) {
+  shouldExpandNode = (
+    keyName: (string | number)[],
+    data: unknown,
+    level: number
+  ) => {
     return this.props.expandActionRoot && level === 0;
-  }
+  };
 
   render() {
     const { type, ...payload } = this.props.action;

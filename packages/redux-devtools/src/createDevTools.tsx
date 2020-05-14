@@ -1,7 +1,12 @@
 import React, { Children, Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect, Provider, ReactReduxContext } from 'react-redux';
-import instrument, { Options } from 'redux-devtools-instrument';
+import instrument, {
+  InstrumentExt,
+  LiftedStore,
+  Options
+} from 'redux-devtools-instrument';
+import { Action, Store } from 'redux';
 
 function logError(type: string) {
   if (type === 'NoStore') {
@@ -19,9 +24,11 @@ function logError(type: string) {
   }
 }
 
-interface Props {}
+interface Props<S, A extends Action> {
+  store: Store<S, Action<A>> & InstrumentExt<S, A>;
+}
 
-export default function createDevTools(
+export default function createDevTools<S, A extends Action>(
   children: React.ReactElement<unknown, React.JSXElementConstructor<unknown>>
 ) {
   const monitorElement = Children.only(children)!;
@@ -29,7 +36,7 @@ export default function createDevTools(
   const Monitor = monitorElement.type;
   const ConnectedMonitor = connect(state => state)(Monitor);
 
-  return class DevTools extends Component<Props> {
+  return class DevTools extends Component<Props<S, A>> {
     static contextTypes = {
       store: PropTypes.object
     };
@@ -38,13 +45,15 @@ export default function createDevTools(
       store: PropTypes.object
     };
 
+    liftedStore?: LiftedStore<S, A>;
+
     static instrument = (options: Options) =>
       instrument(
         (state, action) => Monitor.update(monitorProps, state, action),
         options
       );
 
-    constructor(props: Props, context) {
+    constructor(props: Props<S, A>, context) {
       super(props, context);
 
       if (ReactReduxContext) {

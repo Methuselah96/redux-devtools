@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { Action, Dispatch } from 'redux';
 import shouldPureComponentUpdate from 'react-pure-render/function';
-import { ActionCreators } from 'redux-devtools';
+import { ActionCreators, LiftedAction } from 'redux-devtools';
 import LogMonitorButton from './LogMonitorButton';
+import { LogMonitorAction } from './actions';
+import { Base16Theme } from './types';
 
 const { reset, rollback, commit, sweep } = ActionCreators;
 
@@ -14,9 +17,18 @@ const style = {
   zIndex: 1,
   display: 'flex',
   flexDirection: 'row'
-};
+} as const;
 
-export default class LogMonitorButtonBar extends Component {
+interface Props<S, A extends Action> {
+  theme: Base16Theme;
+  dispatch: Dispatch<LogMonitorAction | LiftedAction<S, A>>;
+  hasStates: boolean;
+  hasSkippedActions: boolean;
+}
+
+export default class LogMonitorButtonBar<S, A extends Action> extends Component<
+  Props<S, A>
+> {
   static propTypes = {
     dispatch: PropTypes.func,
     theme: PropTypes.object
@@ -24,29 +36,21 @@ export default class LogMonitorButtonBar extends Component {
 
   shouldComponentUpdate = shouldPureComponentUpdate;
 
-  constructor(props) {
-    super(props);
-    this.handleReset = this.handleReset.bind(this);
-    this.handleRollback = this.handleRollback.bind(this);
-    this.handleSweep = this.handleSweep.bind(this);
-    this.handleCommit = this.handleCommit.bind(this);
-  }
-
-  handleRollback() {
+  handleRollback = () => {
     this.props.dispatch(rollback());
-  }
+  };
 
-  handleSweep() {
+  handleSweep = () => {
     this.props.dispatch(sweep());
-  }
+  };
 
-  handleCommit() {
+  handleCommit = () => {
     this.props.dispatch(commit());
-  }
+  };
 
-  handleReset() {
+  handleReset = () => {
     this.props.dispatch(reset());
-  }
+  };
 
   render() {
     const { theme, hasStates, hasSkippedActions } = this.props;

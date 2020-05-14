@@ -1,9 +1,31 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { Action } from 'redux';
 import LogMonitorEntry from './LogMonitorEntry';
 import shouldPureComponentUpdate from 'react-pure-render/function';
+import { Base16Theme } from './types';
 
-export default class LogMonitorEntryList extends Component {
+interface Props<S, A extends Action<unknown>> {
+  actionsById: { [actionId: number]: PerformAction<A> };
+  computedStates: { state: S; error?: string }[];
+  stagedActionIds: number[];
+  skippedActionIds: number[];
+  currentStateIndex: number;
+  consecutiveToggleStartId: number | null | undefined;
+
+  select: (state: S) => unknown;
+  onActionClick: (id: number) => void;
+  onActionShiftClick: (id: number) => void;
+  theme: Base16Theme;
+  expandActionRoot: boolean;
+  expandStateRoot: boolean;
+  markStateDiff: boolean;
+}
+
+export default class LogMonitorEntryList<
+  S,
+  A extends Action<unknown>
+> extends Component<Props<S, A>> {
   static propTypes = {
     actionsById: PropTypes.object,
     computedStates: PropTypes.array,
@@ -56,7 +78,7 @@ export default class LogMonitorEntryList extends Component {
           actionId={actionId}
           state={state}
           previousState={previousState}
-          collapsed={skippedActionIds.indexOf(actionId) > -1}
+          collapsed={skippedActionIds.includes(actionId)}
           inFuture={i > currentStateIndex}
           selected={consecutiveToggleStartId === i}
           error={error}

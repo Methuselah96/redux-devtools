@@ -1,29 +1,56 @@
-import React, { Component } from 'react';
+import React, { Component, MouseEventHandler } from 'react';
 import PropTypes from 'prop-types';
 import JSONTree from 'react-json-tree';
+import { Action } from 'redux';
 import LogMonitorEntryAction from './LogMonitorEntryAction';
 import shouldPureComponentUpdate from 'react-pure-render/function';
+import { Base16Theme } from './types';
 
 const styles = {
   entry: {
     display: 'block',
     WebkitUserSelect: 'none'
-  },
+  } as const,
 
   root: {
     marginLeft: 0
-  }
+  } as const
 };
 
-const getDeepItem = (data, path) =>
+const getDeepItem = (data: unknown, path: (string | number)[]) =>
   path.reduce((obj, key) => obj && obj[key], data);
-const dataIsEqual = (data, previousData, keyPath) => {
+const dataIsEqual = (
+  data: unknown,
+  previousData: unknown,
+  keyPath: (string | number)[]
+) => {
   const path = [...keyPath].reverse().slice(1);
 
   return getDeepItem(data, path) === getDeepItem(previousData, path);
 };
 
-export default class LogMonitorEntry extends Component {
+interface Props<S, A extends Action<unknown>> {
+  state: S;
+  action: A;
+  actionId: number;
+  select: (state: S) => unknown;
+  inFuture: boolean;
+  error: string | undefined;
+  onActionClick: (id: number) => void;
+  onActionShiftClick: (id: number) => void;
+  collapsed: boolean;
+  selected: boolean;
+  expandActionRoot: boolean;
+  expandStateRoot: boolean;
+  theme: Base16Theme;
+  previousState: S;
+  markStateDiff: boolean;
+}
+
+export default class LogMonitorEntry<
+  S,
+  A extends Action<unknown>
+> extends Component<Props<S, A>> {
   static propTypes = {
     state: PropTypes.object.isRequired,
     action: PropTypes.object.isRequired,
@@ -41,13 +68,7 @@ export default class LogMonitorEntry extends Component {
 
   shouldComponentUpdate = shouldPureComponentUpdate;
 
-  constructor(props) {
-    super(props);
-    this.handleActionClick = this.handleActionClick.bind(this);
-    this.shouldExpandNode = this.shouldExpandNode.bind(this);
-  }
-
-  printState(state, error) {
+  printState(state: S, error: string | undefined) {
     let errorText = error;
     if (!errorText) {
       try {
@@ -112,7 +133,7 @@ export default class LogMonitorEntry extends Component {
     );
   }
 
-  handleActionClick(e) {
+  handleActionClick: MouseEventHandler<HTMLDivElement> = e => {
     const { actionId, onActionClick, onActionShiftClick } = this.props;
     if (actionId > 0) {
       if (e.shiftKey) {
@@ -121,11 +142,15 @@ export default class LogMonitorEntry extends Component {
         onActionClick(actionId);
       }
     }
-  }
+  };
 
-  shouldExpandNode(keyName, data, level) {
+  shouldExpandNode = (
+    keyName: (string | number)[],
+    data: unknown,
+    level: number
+  ) => {
     return this.props.expandStateRoot && level === 0;
-  }
+  };
 
   render() {
     const {
