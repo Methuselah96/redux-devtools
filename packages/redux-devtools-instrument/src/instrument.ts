@@ -811,8 +811,8 @@ export function liftReducerWith<S, A extends Action>(
 /**
  * Provides an app's view into the state of the lifted store.
  */
-export function unliftState<S, A extends Action>(
-  liftedState: LiftedState<S, A>
+export function unliftState<S, A extends Action, NextStateExt>(
+  liftedState: LiftedState<S, A> & NextStateExt
 ) {
   const { computedStates, currentStateIndex } = liftedState;
   const { state } = computedStates[currentStateIndex];
@@ -834,19 +834,22 @@ export type EnhancedStore<S, A extends Action> = Store<S, A> &
 /**
  * Provides an app's view into the lifted store.
  */
-export function unliftStore<S, A extends Action>(
-  liftedStore: Store<LiftedState<S, A>, LiftedAction<S, A>>,
+export function unliftStore<S, A extends Action, NextExt, NextStateExt>(
+  liftedStore: Store<LiftedState<S, A>, LiftedAction<S, A>, NextStateExt> &
+    NextExt,
   liftReducer: (
     r: Reducer<S, A>
   ) => Reducer<LiftedState<S, A>, LiftedAction<S, A>>,
   options: Options<S>
-): Store<S, A> & { liftedStore: Store<LiftedState<S, A>, LiftedAction<S, A>> } {
-  let lastDefinedState: S;
+): Store<S, A, NextStateExt> &
+  NextExt & { liftedStore: Store<LiftedState<S, A>, LiftedAction<S, A>> } {
+  let lastDefinedState: S & NextStateExt;
   const trace = options.trace || options.shouldIncludeCallstack;
   const traceLimit = options.traceLimit || 10;
 
-  function getState(): S {
-    const state = unliftState<S, A>(liftedStore.getState());
+  function getState(): S & NextStateExt {
+    const state = unliftState<S, A, NextStateExt>(liftedStore.getState()) as S &
+      NextStateExt;
     if (state !== undefined) {
       lastDefinedState = state;
     }
@@ -929,7 +932,9 @@ export default function instrument(
     );
   }
 
-  return (createStore: StoreEnhancerStoreCreator) => <S, A extends Action>(
+  return <NextExt, NextStateExt>(
+    createStore: StoreEnhancerStoreCreator<NextExt, NextStateExt>
+  ) => <S, A extends Action>(
     reducer: Reducer<S, A>,
     initialState?: PreloadedState<S>
   ) => {
@@ -950,9 +955,18 @@ export default function instrument(
 
     const liftedStore = createStore(liftReducer(reducer));
     if (
-      (liftedStore as Store<LiftedState<S, A>, LiftedAction<S, A>> & {
-        liftedStore: Store<LiftedState<S, A>, LiftedAction<S, A>>;
-      }).liftedStore
+      (liftedStore as Store<
+        LiftedState<S, A>,
+        LiftedAction<S, A>,
+        NextStateExt
+      > &
+        NextExt & {
+          liftedStore: Store<
+            LiftedState<S, A>,
+            LiftedAction<S, A>,
+            NextStateExt
+          >;
+        }).liftedStore
     ) {
       throw new Error(
         'DevTools instrumentation should not be applied more than once. ' +
@@ -960,6 +974,10 @@ export default function instrument(
       );
     }
 
-    return unliftStore<S, A>(liftedStore, liftReducer, options);
+    return unliftStore<S, A, NextExt, NextStateExt>(
+      liftedStore,
+      liftReducer,
+      options
+    );
   };
 }
