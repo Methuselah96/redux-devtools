@@ -27,15 +27,15 @@ function logError(type: string) {
 }
 
 interface Props<S, A extends Action> {
-  store: EnhancedStore<S, A>;
+  store?: EnhancedStore<S, A>;
 }
 
 type Monitor<S, A extends Action<unknown>> = React.ReactElement<
-  LiftedState<S, A>
+  LiftedState<S, A>, (React.JSXElementConstructor<new (props: LiftedState<S, A>) => Component<LiftedState<S, A>, unknown>>) & { update: (props: unknown, state: unknown, action: unknown) => unknown }
 >;
 
 export default function createDevTools<S, A extends Action>(
-  children: React.ReactElement<unknown, React.JSXElementConstructor<unknown>>
+  children: Monitor<S, A>
 ) {
   const monitorElement = Children.only(children)!;
   const monitorProps = monitorElement.props;
@@ -79,7 +79,7 @@ export default function createDevTools<S, A extends Action>(
       if (context.store) {
         this.liftedStore = context.store.liftedStore;
       } else {
-        this.liftedStore = props.store.liftedStore;
+        this.liftedStore = props.store!.liftedStore;
       }
 
       if (!this.liftedStore) {
@@ -102,17 +102,17 @@ export default function createDevTools<S, A extends Action>(
         }
         return (
           <ReactReduxContext.Consumer>
-            {props => {
+            {(props => {
               if (!props || !props.store) {
                 logError('NoStore');
                 return null;
               }
-              if (!props.store.liftedStore) {
+              if (!(props.store as unknown as EnhancedStore<S, A>).liftedStore) {
                 logError('NoLiftedStore');
                 return null;
               }
               return (
-                <Provider store={props.store.liftedStore}>
+                <Provider store={(props.store as unknown as EnhancedStore<S, A>).liftedStore}>
                   <ConnectedMonitor {...monitorProps} />
                 </Provider>
               );
