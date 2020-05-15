@@ -849,14 +849,16 @@ export function unliftStore<
   NextExt,
   NextStateExt
 >(
-  liftedStore: Store<LiftedState<S, A>, LiftedAction<S, A>, NextStateExt> &
+  liftedStore: Store<LiftedState<S, A> & NextStateExt, LiftedAction<S, A>> &
     NextExt,
   liftReducer: (
     r: Reducer<S, A>
   ) => Reducer<LiftedState<S, A>, LiftedAction<S, A>>,
   options: Options<S, A>
-): Store<S, A, NextStateExt> &
-  NextExt & { liftedStore: Store<LiftedState<S, A>, LiftedAction<S, A>> } {
+): Store<S & NextStateExt, A> &
+  NextExt & {
+    liftedStore: Store<LiftedState<S, A> & NextStateExt, LiftedAction<S, A>>;
+  } {
   let lastDefinedState: S & NextStateExt;
   const trace = options.trace || options.shouldIncludeCallstack;
   const traceLimit = options.traceLimit || 10;
@@ -875,7 +877,7 @@ export function unliftStore<
     return action;
   }
 
-  return ({
+  return {
     ...liftedStore,
 
     liftedStore,
@@ -884,13 +886,20 @@ export function unliftStore<
 
     getState,
 
-    replaceReducer(nextReducer: Reducer<S, A>) {
-      liftedStore.replaceReducer(liftReducer(nextReducer));
+    replaceReducer(nextReducer: Reducer<S & NextStateExt, A>) {
+      liftedStore.replaceReducer(
+        (liftReducer(
+          (nextReducer as unknown) as Reducer<S, A>
+        ) as unknown) as Reducer<
+          LiftedState<S, A> & NextStateExt,
+          LiftedAction<S, A>
+        >
+      );
     },
 
-    [$$observable](): Observable<S> {
+    [Symbol.observable](): Observable<S> {
       return {
-        ...(liftedStore as any)[$$observable](),
+        ...liftedStore[Symbol.observable](),
         subscribe(observer) {
           if (typeof observer !== 'object') {
             throw new TypeError('Expected the observer to be an object.');
@@ -907,13 +916,12 @@ export function unliftStore<
           return { unsubscribe };
         },
 
-        [$$observable]() {
+        [Symbol.observable]() {
           return this;
         }
       };
     }
-  } as unknown) as Store<S, A, NextStateExt> &
-    NextExt & { liftedStore: Store<LiftedState<S, A>, LiftedAction<S, A>> };
+  };
 }
 
 export interface Options<S, A extends Action<unknown>> {
@@ -976,15 +984,13 @@ export default function instrument<OptionsS, OptionsA extends Action<unknown>>(
     const liftedStore = createStore(liftReducer(reducer));
     if (
       (liftedStore as Store<
-        LiftedState<S, A>,
-        LiftedAction<S, A>,
-        NextStateExt
+        LiftedState<S, A> & NextStateExt,
+        LiftedAction<S, A>
       > &
         NextExt & {
           liftedStore: Store<
-            LiftedState<S, A>,
-            LiftedAction<S, A>,
-            NextStateExt
+            LiftedState<S, A> & NextStateExt,
+            LiftedAction<S, A>
           >;
         }).liftedStore
     ) {
