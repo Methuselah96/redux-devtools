@@ -3,12 +3,11 @@ import PropTypes from 'prop-types';
 import { connect, Provider, ReactReduxContext } from 'react-redux';
 import instrument, {
   EnhancedStore,
-  InstrumentExt,
   LiftedState,
   LiftedStore,
   Options
 } from 'redux-devtools-instrument';
-import { Action, Store } from 'redux';
+import { Action } from 'redux';
 
 function logError(type: string) {
   if (type === 'NoStore') {
@@ -26,25 +25,45 @@ function logError(type: string) {
   }
 }
 
-interface Props<S, A extends Action> {
-  store?: EnhancedStore<S, A>;
+interface Props<
+  S,
+  A extends Action,
+  MonitorState,
+  MonitorAction extends Action<unknown>
+> {
+  store?: EnhancedStore<S, A, MonitorState, MonitorAction>;
 }
 
-type Monitor<S, A extends Action<unknown>> = React.ReactElement<
-  LiftedState<S, A>, (React.JSXElementConstructor<new (props: LiftedState<S, A>) => Component<LiftedState<S, A>, unknown>>) & { update: (props: unknown, state: unknown, action: unknown) => unknown }
+type Monitor<
+  S,
+  A extends Action<unknown>,
+  MonitorProps,
+  MonitorState
+> = React.ReactElement<
+  MonitorProps & LiftedState<S, A, MonitorState>,
+  React.JSXElementConstructor<MonitorProps & LiftedState<S, A, MonitorState>>
 >;
 
-export default function createDevTools<S, A extends Action>(
-  children: Monitor<S, A>
-) {
+export default function createDevTools<
+  S,
+  A extends Action<unknown>,
+  MonitorProps,
+  MonitorState,
+  MonitorAction extends Action<unknown>
+>(children: Monitor<S, A, MonitorProps, MonitorState>) {
   const monitorElement = Children.only(children)!;
   const monitorProps = monitorElement.props;
   const Monitor = monitorElement.type;
-  const ConnectedMonitor = connect((state: EnhancedStore<S, A>) => state)(
-    Monitor
-  );
+  const ConnectedMonitor = connect<
+    LiftedState<S, A, MonitorState>,
+    {},
+    MonitorProps,
+    LiftedState<S, A, MonitorState>
+  >(state => state)(Monitor);
 
-  return class DevTools extends Component<Props<S, A>> {
+  return class DevTools extends Component<
+    Props<S, A, MonitorState, MonitorAction>
+  > {
     static contextTypes = {
       store: PropTypes.object
     };
@@ -53,15 +72,18 @@ export default function createDevTools<S, A extends Action>(
       store: PropTypes.object
     };
 
-    liftedStore?: LiftedStore<S, A>;
+    liftedStore?: LiftedStore<S, A, MonitorState, MonitorAction>;
 
-    static instrument = (options: Options<S, A>) =>
+    static instrument = (options: Options<S, A, MonitorState, MonitorAction>) =>
       instrument(
         (state, action) => Monitor.update(monitorProps, state, action),
         options
       );
 
-    constructor(props: Props<S, A>, context: { store?: EnhancedStore<S, A> }) {
+    constructor(
+      props: Props<S, A, MonitorState, MonitorAction>,
+      context: { store?: EnhancedStore<S, A, MonitorState, MonitorAction> }
+    ) {
       super(props, context);
 
       if (ReactReduxContext) {
@@ -102,17 +124,33 @@ export default function createDevTools<S, A extends Action>(
         }
         return (
           <ReactReduxContext.Consumer>
-            {(props => {
+            {props => {
               if (!props || !props.store) {
                 logError('NoStore');
                 return null;
               }
-              if (!(props.store as unknown as EnhancedStore<S, A>).liftedStore) {
+              if (
+                !((props.store as unknown) as EnhancedStore<
+                  S,
+                  A,
+                  MonitorState,
+                  MonitorAction
+                >).liftedStore
+              ) {
                 logError('NoLiftedStore');
                 return null;
               }
               return (
-                <Provider store={(props.store as unknown as EnhancedStore<S, A>).liftedStore}>
+                <Provider
+                  store={
+                    ((props.store as unknown) as EnhancedStore<
+                      S,
+                      A,
+                      MonitorState,
+                      MonitorAction
+                    >).liftedStore
+                  }
+                >
                   <ConnectedMonitor {...monitorProps} />
                 </Provider>
               );

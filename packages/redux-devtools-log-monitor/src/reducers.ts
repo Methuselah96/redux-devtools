@@ -20,7 +20,7 @@ function initialScrollTop<S, A extends Action>(
 
 function startConsecutiveToggle<S, A extends Action>(
   props: Props<S, A>,
-  state: number | undefined,
+  state: number | undefined | null,
   action: LogMonitorAction
 ) {
   return action.type === START_CONSECUTIVE_TOGGLE ? action.id : state;
@@ -28,7 +28,7 @@ function startConsecutiveToggle<S, A extends Action>(
 
 interface InitialLogMonitorState {
   initialScrollTop?: number;
-  consecutiveToggleStartId?: number;
+  consecutiveToggleStartId?: number | null;
 }
 
 export interface LogMonitorState {
