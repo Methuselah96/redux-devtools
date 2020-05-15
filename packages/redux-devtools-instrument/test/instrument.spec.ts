@@ -2,6 +2,7 @@ import { createStore, compose, Store, Action, Reducer } from 'redux';
 import instrument, {
   ActionCreators,
   EnhancedStore,
+  LiftedState,
   LiftedStore
 } from '../src/instrument';
 import { Observable } from 'rxjs';
@@ -109,10 +110,12 @@ describe('instrument', () => {
     let lastValue;
     // let calls = 0;
 
-    Observable.from(store).subscribe(state => {
-      lastValue = state;
-      // calls++;
-    });
+    Observable.from((store as unknown) as Observable<number>).subscribe(
+      state => {
+        lastValue = state;
+        // calls++;
+      }
+    );
 
     expect(lastValue).toBe(0);
     store.dispatch({ type: 'INCREMENT' });
@@ -1006,8 +1009,15 @@ describe('instrument', () => {
     });
 
     it('should include 3 extra frames when Error.captureStackTrace not suported', () => {
-      const captureStackTrace = Error.captureStackTrace;
-      Error.captureStackTrace = undefined;
+      const captureStackTrace = (
+        targetObject: object,
+        constructorOpt?: Function
+      ) => {
+        Error.captureStackTrace(targetObject, constructorOpt);
+      };
+      Error.captureStackTrace = () => {
+        // noop
+      };
       monitoredStore = createStore(
         counter,
         instrument(undefined, { trace: true, traceLimit: 5 })
@@ -1048,36 +1058,38 @@ describe('instrument', () => {
       );
     });
 
-    it('should get stack trace inside setTimeout using a function', done => {
-      const stack = new Error().stack;
-      setTimeout(() => {
-        const traceFn = () => stack + new Error().stack!;
-        monitoredStore = createStore(
-          counter,
-          instrument(undefined, { trace: traceFn })
-        );
-        monitoredLiftedStore = monitoredStore.liftedStore;
-        monitoredStore.dispatch({ type: 'INCREMENT' });
+    it('should get stack trace inside setTimeout using a function', () => {
+      return new Promise(done => {
+        const stack = new Error().stack;
+        setTimeout(() => {
+          const traceFn = () => stack + new Error().stack!;
+          monitoredStore = createStore(
+            counter,
+            instrument(undefined, { trace: traceFn })
+          );
+          monitoredLiftedStore = monitoredStore.liftedStore;
+          monitoredStore.dispatch({ type: 'INCREMENT' });
 
-        exportedState = monitoredLiftedStore.getState();
-        expect(exportedState.actionsById[0].stack).toBe(undefined);
-        expect(typeof exportedState.actionsById[1].stack).toBe('string');
-        expect(exportedState.actionsById[1].stack).toContain(
-          'at performAction'
-        );
-        expect(exportedState.actionsById[1].stack).toContain('instrument.js');
-        expect(exportedState.actionsById[1].stack).toContain(
-          'instrument.spec.js'
-        );
-        done();
+          exportedState = monitoredLiftedStore.getState();
+          expect(exportedState.actionsById[0].stack).toBeUndefined();
+          expect(typeof exportedState.actionsById[1].stack).toBe('string');
+          expect(exportedState.actionsById[1].stack).toContain(
+            'at performAction'
+          );
+          expect(exportedState.actionsById[1].stack).toContain('instrument.js');
+          expect(exportedState.actionsById[1].stack).toContain(
+            'instrument.spec.js'
+          );
+          done();
+        });
       });
     });
   });
 
   describe('Import State', () => {
-    let monitoredStore;
-    let monitoredLiftedStore;
-    let exportedState;
+    let monitoredStore: EnhancedStore<number, CounterAction>;
+    let monitoredLiftedStore: LiftedStore<number, CounterAction>;
+    let exportedState: LiftedState<number, CounterAction>;
 
     beforeEach(() => {
       monitoredStore = createStore(counter, instrument());
@@ -1157,7 +1169,9 @@ describe('instrument', () => {
     });
   });
 
-  function filterStackAndTimestamps(state) {
+  function filterStackAndTimestamps<S, A extends Action<unknown>>(
+    state: LiftedState<S, A>
+  ) {
     state.actionsById = _.mapValues(state.actionsById, action => {
       delete action.timestamp;
       delete action.stack;
@@ -1167,14 +1181,14 @@ describe('instrument', () => {
   }
 
   describe('Import Actions', () => {
-    let monitoredStore;
-    let monitoredLiftedStore;
-    let exportedState;
+    let monitoredStore: EnhancedStore<number, CounterAction>;
+    let monitoredLiftedStore: LiftedStore<number, CounterAction>;
+    let exportedState: LiftedState<number, CounterAction>;
     const savedActions = [
       { type: 'INCREMENT' },
       { type: 'INCREMENT' },
       { type: 'INCREMENT' }
-    ];
+    ] as const;
 
     beforeEach(() => {
       monitoredStore = createStore(counter, instrument());
@@ -1272,8 +1286,13 @@ describe('instrument', () => {
       expect(store.liftedStore.getState().nextActionId).toBe(1);
       expect(store.getState()).toBe(0);
 
-      const savedActions = [{ type: 'INCREMENT' }, { type: 'INCREMENT' }];
-      store.liftedStore.dispatch(ActionCreators.importState(savedActions));
+      const savedActions = [
+        { type: 'INCREMENT' },
+        { type: 'INCREMENT' }
+      ] as const;
+      store.liftedStore.dispatch(
+        ActionCreators.importState<number, CounterAction>(savedActions)
+      );
       expect(store.liftedStore.getState().nextActionId).toBe(3);
       expect(store.getState()).toBe(2);
 
@@ -1360,13 +1379,22 @@ describe('instrument', () => {
   });
 
   it('throws if reducer is not a function', () => {
-    expect(() => createStore(undefined, instrument())).toThrow(
-      'Expected the reducer to be a function.'
-    );
+    expect(() =>
+      createStore((undefined as unknown) as Reducer, instrument())
+    ).toThrow('Expected the reducer to be a function.');
   });
 
   it('warns if the reducer is not a function but has a default field that is', () => {
-    expect(() => createStore({ default: () => {} }, instrument())).toThrow(
+    expect(() =>
+      createStore(
+        ({
+          default: () => {
+            // noop
+          }
+        } as unknown) as Reducer,
+        instrument()
+      )
+    ).toThrow(
       'Expected the reducer to be a function. ' +
         'Instead got an object with a "default" field. ' +
         'Did you pass a module instead of the default export? ' +

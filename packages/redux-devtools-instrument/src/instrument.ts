@@ -1,6 +1,7 @@
 import difference from 'lodash/difference';
 import union from 'lodash/union';
 import isPlainObject from 'lodash/isPlainObject';
+import $$observable from 'symbol-observable';
 import {
   Action,
   AnyAction,
@@ -98,7 +99,7 @@ interface JumpToActionAction {
 
 interface ImportStateAction<S, A extends Action> {
   type: typeof ActionTypes.IMPORT_STATE;
-  nextLiftedState: LiftedState<S, A>;
+  nextLiftedState: LiftedState<S, A> | readonly A[];
   preloadedState?: S;
   noRecompute: boolean | undefined;
 }
@@ -241,7 +242,7 @@ export const ActionCreators = {
   },
 
   importState<S, A extends Action>(
-    nextLiftedState: LiftedState<S, A>,
+    nextLiftedState: LiftedState<S, A> | readonly A[],
     noRecompute?: boolean
   ): ImportStateAction<S, A> {
     return { type: ActionTypes.IMPORT_STATE, nextLiftedState, noRecompute };
@@ -377,7 +378,7 @@ export function liftAction<A extends Action>(
   );
 }
 
-interface LiftedState<S, A extends Action> {
+export interface LiftedState<S, A extends Action<unknown>> {
   monitorState: unknown;
   nextActionId: number;
   actionsById: { [actionId: number]: PerformAction<A> };
@@ -390,14 +391,20 @@ interface LiftedState<S, A extends Action> {
   isPaused: boolean;
 }
 
+function isArray<S, A extends Action<unknown>>(
+  nextLiftedState: LiftedState<S, A> | readonly A[]
+): nextLiftedState is readonly A[] {
+  return Array.isArray(nextLiftedState);
+}
+
 /**
  * Creates a history state reducer from an app's reducer.
  */
-export function liftReducerWith<S, A extends Action>(
+export function liftReducerWith<S, A extends Action<unknown>>(
   reducer: Reducer<S, A>,
   initialCommittedState: PreloadedState<S> | undefined,
   monitorReducer: Reducer,
-  options: Options<S>
+  options: Options<S, A>
 ): Reducer<LiftedState<S, A>, LiftedAction<S, A>> {
   const initialLiftedState: LiftedState<S, A> = {
     monitorState: monitorReducer(undefined, {} as AnyAction),
@@ -714,7 +721,7 @@ export function liftReducerWith<S, A extends Action>(
           break;
         }
         case ActionTypes.IMPORT_STATE: {
-          if (Array.isArray(liftedAction.nextLiftedState)) {
+          if (isArray(liftedAction.nextLiftedState)) {
             // recompute array of actions
             actionsById = { 0: liftAction<A>(INIT_ACTION as A) };
             nextActionId = 1;
@@ -834,13 +841,18 @@ export type EnhancedStore<S, A extends Action> = Store<S, A> &
 /**
  * Provides an app's view into the lifted store.
  */
-export function unliftStore<S, A extends Action, NextExt, NextStateExt>(
+export function unliftStore<
+  S,
+  A extends Action<unknown>,
+  NextExt,
+  NextStateExt
+>(
   liftedStore: Store<LiftedState<S, A>, LiftedAction<S, A>, NextStateExt> &
     NextExt,
   liftReducer: (
     r: Reducer<S, A>
   ) => Reducer<LiftedState<S, A>, LiftedAction<S, A>>,
-  options: Options<S>
+  options: Options<S, A>
 ): Store<S, A, NextStateExt> &
   NextExt & { liftedStore: Store<LiftedState<S, A>, LiftedAction<S, A>> } {
   let lastDefinedState: S & NextStateExt;
@@ -861,7 +873,7 @@ export function unliftStore<S, A extends Action, NextExt, NextStateExt>(
     return action;
   }
 
-  return {
+  return ({
     ...liftedStore,
 
     liftedStore,
@@ -870,13 +882,13 @@ export function unliftStore<S, A extends Action, NextExt, NextStateExt>(
 
     getState,
 
-    replaceReducer(nextReducer) {
+    replaceReducer(nextReducer: Reducer<S, A>) {
       liftedStore.replaceReducer(liftReducer(nextReducer));
     },
 
-    [Symbol.observable](): Observable<S> {
+    [$$observable](): Observable<S> {
       return {
-        ...liftedStore[Symbol.observable](),
+        ...(liftedStore as any)[$$observable](),
         subscribe(observer) {
           if (typeof observer !== 'object') {
             throw new TypeError('Expected the observer to be an object.');
@@ -893,15 +905,16 @@ export function unliftStore<S, A extends Action, NextExt, NextStateExt>(
           return { unsubscribe };
         },
 
-        [Symbol.observable]() {
+        [$$observable]() {
           return this;
         }
       };
     }
-  };
+  } as unknown) as Store<S, A, NextStateExt> &
+    NextExt & { liftedStore: Store<LiftedState<S, A>, LiftedAction<S, A>> };
 }
 
-interface Options<S = unknown, A extends Action = Action<unknown>> {
+export interface Options<S, A extends Action<unknown>> {
   maxAge?:
     | number
     | ((
@@ -913,7 +926,7 @@ interface Options<S = unknown, A extends Action = Action<unknown>> {
   pauseActionType?: unknown;
   shouldStartLocked?: boolean;
   shouldHotReload?: boolean;
-  trace?: boolean | ((action: A) => string);
+  trace?: boolean | ((action: A) => string | undefined);
   traceLimit?: number;
   shouldIncludeCallstack?: boolean;
 }
@@ -921,9 +934,9 @@ interface Options<S = unknown, A extends Action = Action<unknown>> {
 /**
  * Redux instrumentation store enhancer.
  */
-export default function instrument(
+export default function instrument<OptionsS, OptionsA extends Action<unknown>>(
   monitorReducer: Reducer = () => null,
-  options: Options = {}
+  options: Options<OptionsS, OptionsA> = {}
 ): StoreEnhancer<InstrumentExt<any, any>> {
   if (typeof options.maxAge === 'number' && options.maxAge < 2) {
     throw new Error(
@@ -934,7 +947,7 @@ export default function instrument(
 
   return <NextExt, NextStateExt>(
     createStore: StoreEnhancerStoreCreator<NextExt, NextStateExt>
-  ) => <S, A extends Action>(
+  ) => <S, A extends Action<unknown>>(
     reducer: Reducer<S, A>,
     initialState?: PreloadedState<S>
   ) => {
@@ -950,7 +963,12 @@ export default function instrument(
         }
         throw new Error('Expected the reducer to be a function.');
       }
-      return liftReducerWith<S, A>(r, initialState, monitorReducer, options);
+      return liftReducerWith<S, A>(
+        r,
+        initialState,
+        monitorReducer,
+        (options as unknown) as Options<S, A>
+      );
     }
 
     const liftedStore = createStore(liftReducer(reducer));
@@ -977,7 +995,7 @@ export default function instrument(
     return unliftStore<S, A, NextExt, NextStateExt>(
       liftedStore,
       liftReducer,
-      options
+      (options as unknown) as Options<S, A>
     );
   };
 }

@@ -25,7 +25,7 @@ function logError(type: string) {
 }
 
 interface Props<S, A extends Action> {
-  store: Store<S, Action<A>> & InstrumentExt<S, A>;
+  store: Store<S, A> & InstrumentExt<S, A>;
 }
 
 export default function createDevTools<S, A extends Action>(
@@ -34,7 +34,9 @@ export default function createDevTools<S, A extends Action>(
   const monitorElement = Children.only(children)!;
   const monitorProps = monitorElement.props;
   const Monitor = monitorElement.type;
-  const ConnectedMonitor = connect(state => state)(Monitor);
+  const ConnectedMonitor = connect(
+    (state: Store<S, A> & InstrumentExt<S, A>) => state
+  )(Monitor);
 
   return class DevTools extends Component<Props<S, A>> {
     static contextTypes = {
@@ -47,7 +49,7 @@ export default function createDevTools<S, A extends Action>(
 
     liftedStore?: LiftedStore<S, A>;
 
-    static instrument = (options: Options) =>
+    static instrument = (options: Options<S, A>) =>
       instrument(
         (state, action) => Monitor.update(monitorProps, state, action),
         options
