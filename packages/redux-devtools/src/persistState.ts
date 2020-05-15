@@ -1,17 +1,18 @@
 import mapValues from 'lodash/mapValues';
 import identity from 'lodash/identity';
-import { StoreEnhancer } from 'redux';
+import { Action, StoreEnhancer } from 'redux';
+import { LiftedState } from 'redux-devtools-instrument';
 
-export default function persistState(
+export default function persistState<S, A extends Action<unknown>>(
   sessionId: string,
-  deserializeState = identity,
-  deserializeAction = identity
+  deserializeState: (state: S) => S = identity,
+  deserializeAction: (action: A) => A = identity
 ): StoreEnhancer {
   if (!sessionId) {
     return next => (...args) => next(...args);
   }
 
-  function deserialize(state) {
+  function deserialize(state: LiftedState<S, A>): LiftedState<S, A> {
     return {
       ...state,
       actionsById: mapValues(state.actionsById, liftedAction => ({
