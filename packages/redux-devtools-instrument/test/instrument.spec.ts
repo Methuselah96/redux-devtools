@@ -616,7 +616,7 @@ describe('instrument', () => {
       storeWithBug.replaceReducer(
         counterWithAnotherBug as Reducer<number, CounterWithBugAction>
       );
-      const liftedStoreWithAnotherBug = (storeWithBug as unknown) as LiftedStore<
+      const liftedStoreWithAnotherBug = (liftedStoreWithBug as unknown) as LiftedStore<
         number,
         CounterWithAnotherBugAction
       >;
@@ -848,13 +848,13 @@ describe('instrument', () => {
         expect(exportedState.actionsById[0].stack).toBeUndefined();
         expect(typeof exportedState.actionsById[1].stack).toBe('string');
         expect(exportedState.actionsById[1].stack).toMatch(/^Error/);
-        expect(exportedState.actionsById[1].stack).not.toMatch(/instrument.js/);
+        expect(exportedState.actionsById[1].stack).not.toMatch(/instrument.ts/);
         expect(exportedState.actionsById[1].stack).toMatch(/\bfn1\b/);
         expect(exportedState.actionsById[1].stack).toMatch(/\bfn2\b/);
         expect(exportedState.actionsById[1].stack).toMatch(/\bfn3\b/);
         expect(exportedState.actionsById[1].stack).toMatch(/\bfn4\b/);
         expect(exportedState.actionsById[1].stack).toContain(
-          'instrument.spec.js'
+          'instrument.spec.ts'
         );
         expect(exportedState.actionsById[1].stack!.split('\n')).toHaveLength(
           10 + 1
@@ -884,13 +884,12 @@ describe('instrument', () => {
         exportedState = monitoredLiftedStore.getState();
         expect(exportedState.actionsById[0].stack).toBeUndefined();
         expect(typeof exportedState.actionsById[1].stack).toBe('string');
-        expect(exportedState.actionsById[1].stack).toMatch(/\bat dispatch\b/);
         expect(exportedState.actionsById[1].stack).toMatch(/\bfn1\b/);
         expect(exportedState.actionsById[1].stack).toMatch(/\bfn2\b/);
-        expect(exportedState.actionsById[1].stack).not.toMatch(/\bfn3\b/);
+        expect(exportedState.actionsById[1].stack).toMatch(/\bfn3\b/);
         expect(exportedState.actionsById[1].stack).not.toMatch(/\bfn4\b/);
         expect(exportedState.actionsById[1].stack).toContain(
-          'instrument.spec.js'
+          'instrument.spec.ts'
         );
         expect(exportedState.actionsById[1].stack!.split('\n')).toHaveLength(
           3 + 1
@@ -922,13 +921,12 @@ describe('instrument', () => {
         exportedState = monitoredLiftedStore.getState();
         expect(exportedState.actionsById[0].stack).toBeUndefined();
         expect(typeof exportedState.actionsById[1].stack).toBe('string');
-        expect(exportedState.actionsById[1].stack).toMatch(/\bat dispatch\b/);
         expect(exportedState.actionsById[1].stack).toMatch(/\bfn1\b/);
         expect(exportedState.actionsById[1].stack).toMatch(/\bfn2\b/);
-        expect(exportedState.actionsById[1].stack).not.toMatch(/\bfn3\b/);
+        expect(exportedState.actionsById[1].stack).toMatch(/\bfn3\b/);
         expect(exportedState.actionsById[1].stack).not.toMatch(/\bfn4\b/);
         expect(exportedState.actionsById[1].stack).toContain(
-          'instrument.spec.js'
+          'instrument.spec.ts'
         );
         expect(exportedState.actionsById[1].stack!.split('\n')).toHaveLength(
           3 + 1
@@ -963,7 +961,7 @@ describe('instrument', () => {
       expect(typeof exportedState.actionsById[1].stack).toBe('string');
       expect(exportedState.actionsById[1].stack).toMatch(/^Error/);
       expect(exportedState.actionsById[1].stack).toContain(
-        'instrument.spec.js'
+        'instrument.spec.ts'
       );
       expect(exportedState.actionsById[1].stack!.split('\n')).toHaveLength(
         5 + 1
@@ -990,7 +988,7 @@ describe('instrument', () => {
         expect(exportedState.actionsById[1].stack).toMatch(/\bfn3\b/);
         expect(exportedState.actionsById[1].stack).toMatch(/\bfn4\b/);
         expect(exportedState.actionsById[1].stack).toContain(
-          'instrument.spec.js'
+          'instrument.spec.ts'
         );
         expect(exportedState.actionsById[1].stack!.split('\n')).toHaveLength(
           10 + 1
@@ -1008,16 +1006,10 @@ describe('instrument', () => {
       fn4();
     });
 
-    it('should include 3 extra frames when Error.captureStackTrace not suported', () => {
-      const captureStackTrace = (
-        targetObject: object,
-        constructorOpt?: Function
-      ) => {
-        Error.captureStackTrace(targetObject, constructorOpt);
-      };
-      Error.captureStackTrace = () => {
-        // noop
-      };
+    it('should include 3 extra frames when Error.captureStackTrace not supported', () => {
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      const captureStackTrace = Error.captureStackTrace;
+      Error.captureStackTrace = (undefined as unknown) as () => {};
       monitoredStore = createStore(
         counter,
         instrument(undefined, { trace: true, traceLimit: 5 })
@@ -1030,9 +1022,9 @@ describe('instrument', () => {
       expect(exportedState.actionsById[0].stack).toBeUndefined();
       expect(typeof exportedState.actionsById[1].stack).toBe('string');
       expect(exportedState.actionsById[1].stack).toMatch(/^Error/);
-      expect(exportedState.actionsById[1].stack).toContain('instrument.js');
+      expect(exportedState.actionsById[1].stack).toContain('instrument.ts');
       expect(exportedState.actionsById[1].stack).toContain(
-        'instrument.spec.js'
+        'instrument.spec.ts'
       );
       expect(exportedState.actionsById[1].stack!.split('\n')).toHaveLength(
         5 + 3 + 1
@@ -1051,10 +1043,12 @@ describe('instrument', () => {
       exportedState = monitoredLiftedStore.getState();
       expect(exportedState.actionsById[0].stack).toBeUndefined();
       expect(typeof exportedState.actionsById[1].stack).toBe('string');
-      expect(exportedState.actionsById[1].stack).toContain('at performAction');
-      expect(exportedState.actionsById[1].stack).toContain('instrument.js');
       expect(exportedState.actionsById[1].stack).toContain(
-        'instrument.spec.js'
+        'at Object.performAction'
+      );
+      expect(exportedState.actionsById[1].stack).toContain('instrument.ts');
+      expect(exportedState.actionsById[1].stack).toContain(
+        'instrument.spec.ts'
       );
     });
 
@@ -1074,11 +1068,11 @@ describe('instrument', () => {
           expect(exportedState.actionsById[0].stack).toBeUndefined();
           expect(typeof exportedState.actionsById[1].stack).toBe('string');
           expect(exportedState.actionsById[1].stack).toContain(
-            'at performAction'
+            'at Object.performAction'
           );
-          expect(exportedState.actionsById[1].stack).toContain('instrument.js');
+          expect(exportedState.actionsById[1].stack).toContain('instrument.ts');
           expect(exportedState.actionsById[1].stack).toContain(
-            'instrument.spec.js'
+            'instrument.spec.ts'
           );
           done();
         });
