@@ -4,7 +4,6 @@ import isPlainObject from 'lodash/isPlainObject';
 import $$observable from 'symbol-observable';
 import {
   Action,
-  AnyAction,
   Observable,
   PreloadedState,
   Reducer,
@@ -43,7 +42,7 @@ const isChromeOrNode =
     process.release &&
     process.release.name === 'node');
 
-export interface PerformAction<A extends Action> {
+export interface PerformAction<A extends Action<unknown>> {
   type: typeof ActionTypes.PERFORM_ACTION;
   action: A;
   timestamp: number;
@@ -97,7 +96,7 @@ interface JumpToActionAction {
   actionId: number;
 }
 
-interface ImportStateAction<S, A extends Action> {
+interface ImportStateAction<S, A extends Action<unknown>> {
   type: typeof ActionTypes.IMPORT_STATE;
   nextLiftedState: LiftedState<S, A> | readonly A[];
   preloadedState?: S;
@@ -114,7 +113,7 @@ interface PauseRecordingAction {
   status: boolean;
 }
 
-export type LiftedAction<S, A extends Action> =
+export type LiftedAction<S, A extends Action<unknown>> =
   | PerformAction<A>
   | ResetAction
   | RollbackAction
@@ -133,7 +132,7 @@ export type LiftedAction<S, A extends Action> =
  * Action creators to change the History state.
  */
 export const ActionCreators = {
-  performAction<A extends Action>(
+  performAction<A extends Action<unknown>>(
     action: A,
     trace?: ((action: A) => string | undefined) | boolean,
     traceLimit?: number,
@@ -243,7 +242,7 @@ export const ActionCreators = {
     return { type: ActionTypes.JUMP_TO_ACTION, actionId };
   },
 
-  importState<S, A extends Action>(
+  importState<S, A extends Action<unknown>>(
     nextLiftedState: LiftedState<S, A> | readonly A[],
     noRecompute?: boolean
   ): ImportStateAction<S, A> {
@@ -264,7 +263,7 @@ export const INIT_ACTION = { type: '@@INIT' };
 /**
  * Computes the next entry with exceptions catching.
  */
-function computeWithTryCatch<S, A extends Action>(
+function computeWithTryCatch<S, A extends Action<unknown>>(
   reducer: Reducer<S, A>,
   action: A,
   state: S
@@ -294,7 +293,7 @@ function computeWithTryCatch<S, A extends Action>(
 /**
  * Computes the next entry in the log by applying an action.
  */
-function computeNextEntry<S, A extends Action>(
+function computeNextEntry<S, A extends Action<unknown>>(
   reducer: Reducer<S, A>,
   action: A,
   state: S,
@@ -309,7 +308,7 @@ function computeNextEntry<S, A extends Action>(
 /**
  * Runs the reducer on invalidated actions to get a fresh computation log.
  */
-function recomputeStates<S, A extends Action>(
+function recomputeStates<S, A extends Action<unknown>>(
   computedStates: { state: S; error?: string }[],
   minInvalidatedStateIndex: number,
   reducer: Reducer<S, A>,
@@ -366,7 +365,7 @@ function recomputeStates<S, A extends Action>(
 /**
  * Lifts an app's action into an action on the lifted store.
  */
-export function liftAction<A extends Action>(
+export function liftAction<A extends Action<unknown>>(
   action: A,
   trace?: ((action: A) => string | undefined) | boolean,
   traceLimit?: number,
@@ -405,11 +404,11 @@ function isArray<S, A extends Action<unknown>>(
 export function liftReducerWith<S, A extends Action<unknown>>(
   reducer: Reducer<S, A>,
   initialCommittedState: PreloadedState<S> | undefined,
-  monitorReducer: Reducer,
+  monitorReducer: Reducer<unknown, Action<unknown>>,
   options: Options<S, A>
 ): Reducer<LiftedState<S, A>, LiftedAction<S, A>> {
   const initialLiftedState: LiftedState<S, A> = {
-    monitorState: monitorReducer(undefined, {} as AnyAction),
+    monitorState: monitorReducer(undefined, {} as Action<unknown>),
     nextActionId: 1,
     actionsById: { 0: liftAction<A>(INIT_ACTION as A) },
     stagedActionIds: [0],
@@ -820,7 +819,7 @@ export function liftReducerWith<S, A extends Action<unknown>>(
 /**
  * Provides an app's view into the state of the lifted store.
  */
-export function unliftState<S, A extends Action, NextStateExt>(
+export function unliftState<S, A extends Action<unknown>, NextStateExt>(
   liftedState: LiftedState<S, A> & NextStateExt
 ) {
   const { computedStates, currentStateIndex } = liftedState;
@@ -828,16 +827,16 @@ export function unliftState<S, A extends Action, NextStateExt>(
   return state;
 }
 
-export type LiftedStore<S, A extends Action> = Store<
+export type LiftedStore<S, A extends Action<unknown>> = Store<
   LiftedState<S, A>,
   LiftedAction<S, A>
 >;
 
-export type InstrumentExt<S, A extends Action> = {
+export type InstrumentExt<S, A extends Action<unknown>> = {
   liftedStore: LiftedStore<S, A>;
 };
 
-export type EnhancedStore<S, A extends Action> = Store<S, A> &
+export type EnhancedStore<S, A extends Action<unknown>> = Store<S, A> &
   InstrumentExt<S, A>;
 
 /**
@@ -877,7 +876,7 @@ export function unliftStore<
     return action;
   }
 
-  return {
+  return ({
     ...liftedStore,
 
     liftedStore,
@@ -897,9 +896,9 @@ export function unliftStore<
       );
     },
 
-    [Symbol.observable](): Observable<S> {
+    [$$observable](): Observable<S> {
       return {
-        ...liftedStore[Symbol.observable](),
+        ...(liftedStore as any)[$$observable](),
         subscribe(observer) {
           if (typeof observer !== 'object') {
             throw new TypeError('Expected the observer to be an object.');
@@ -916,12 +915,15 @@ export function unliftStore<
           return { unsubscribe };
         },
 
-        [Symbol.observable]() {
+        [$$observable]() {
           return this;
         }
       };
     }
-  };
+  } as unknown) as Store<S & NextStateExt, A> &
+    NextExt & {
+      liftedStore: Store<LiftedState<S, A> & NextStateExt, LiftedAction<S, A>>;
+    };
 }
 
 export interface Options<S, A extends Action<unknown>> {
@@ -945,7 +947,7 @@ export interface Options<S, A extends Action<unknown>> {
  * Redux instrumentation store enhancer.
  */
 export default function instrument<OptionsS, OptionsA extends Action<unknown>>(
-  monitorReducer: Reducer = () => null,
+  monitorReducer: Reducer<unknown, Action<unknown>> = () => null,
   options: Options<OptionsS, OptionsA> = {}
 ): StoreEnhancer<InstrumentExt<any, any>> {
   if (typeof options.maxAge === 'number' && options.maxAge < 2) {
@@ -988,10 +990,7 @@ export default function instrument<OptionsS, OptionsA extends Action<unknown>>(
         LiftedAction<S, A>
       > &
         NextExt & {
-          liftedStore: Store<
-            LiftedState<S, A> & NextStateExt,
-            LiftedAction<S, A>
-          >;
+          liftedStore: Store<LiftedState<S, A>, LiftedAction<S, A>>;
         }).liftedStore
     ) {
       throw new Error(
