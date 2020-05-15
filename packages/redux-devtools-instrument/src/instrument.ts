@@ -154,7 +154,7 @@ export const ActionCreators = {
     }
 
     let stack;
-    if (trace && traceLimit) {
+    if (trace) {
       let extraFrames = 0;
       if (typeof trace === 'function') {
         stack = trace(action);
@@ -163,7 +163,7 @@ export const ActionCreators = {
         let prevStackTraceLimit;
         if (Error.captureStackTrace && isChromeOrNode) {
           // avoid error-polyfill
-          if (Error.stackTraceLimit < traceLimit) {
+          if (traceLimit && Error.stackTraceLimit < traceLimit) {
             prevStackTraceLimit = Error.stackTraceLimit;
             Error.stackTraceLimit = traceLimit;
           }
@@ -176,11 +176,11 @@ export const ActionCreators = {
         if (
           extraFrames ||
           typeof Error.stackTraceLimit !== 'number' ||
-          Error.stackTraceLimit > traceLimit
+          (traceLimit && Error.stackTraceLimit > traceLimit)
         ) {
           if (stack != null) {
             const frames = stack.split('\n');
-            if (frames.length > traceLimit) {
+            if (traceLimit && frames.length > traceLimit) {
               stack = frames
                 .slice(
                   0,
