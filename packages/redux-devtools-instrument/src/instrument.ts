@@ -1016,7 +1016,7 @@ export default function instrument<
   no_options_action = never,
   no_monitor_state = null,
   no_monitor_action = never
->(): StoreEnhancer<InstrumentExt<any, any, null, never>>;
+>(): StoreEnhancer<InstrumentExt<any, any, any, any>>;
 export default function instrument<
   OptionsS,
   OptionsA extends Action<unknown>,
@@ -1024,8 +1024,8 @@ export default function instrument<
   no_monitor_action = never
 >(
   monitorReducer: undefined,
-  options: Options<OptionsS, OptionsA, null, never>
-): StoreEnhancer<InstrumentExt<any, any, null, Action<unknown>>>;
+  options: Options<OptionsS, OptionsA, any, any>
+): StoreEnhancer<InstrumentExt<any, any, any, any>>;
 export default function instrument<
   OptionsS,
   OptionsA extends Action<unknown>,
