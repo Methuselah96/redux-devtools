@@ -4,7 +4,6 @@ import isPlainObject from 'lodash/isPlainObject';
 import $$observable from 'symbol-observable';
 import {
   Action,
-  AnyAction,
   Observable,
   PreloadedState,
   Reducer,
@@ -248,7 +247,7 @@ export const ActionCreators = {
     return { type: ActionTypes.JUMP_TO_ACTION, actionId };
   },
 
-  importState<S, A extends Action<unknown>, MonitorState = unknown>(
+  importState<S, A extends Action<unknown>, MonitorState>(
     nextLiftedState: LiftedState<S, A, MonitorState> | readonly A[],
     noRecompute?: boolean
   ): ImportStateAction<S, A, MonitorState> {
@@ -377,7 +376,7 @@ export function liftAction<A extends Action<unknown>>(
   traceLimit?: number,
   toExcludeFromTrace?: Function
 ): PerformAction<A> {
-  return ActionCreators.performAction<A>(
+  return ActionCreators.performAction(
     action,
     trace,
     traceLimit,
@@ -385,11 +384,13 @@ export function liftAction<A extends Action<unknown>>(
   );
 }
 
-export interface LiftedState<
-  S,
-  A extends Action<unknown>,
-  MonitorState = unknown
-> {
+function isArray<S, A extends Action<unknown>, MonitorState>(
+  nextLiftedState: LiftedState<S, A, MonitorState> | readonly A[]
+): nextLiftedState is readonly A[] {
+  return Array.isArray(nextLiftedState);
+}
+
+export interface LiftedState<S, A extends Action<unknown>, MonitorState> {
   monitorState: MonitorState;
   nextActionId: number;
   actionsById: { [actionId: number]: PerformAction<A> };
@@ -400,12 +401,6 @@ export interface LiftedState<
   computedStates: { state: S; error?: string }[];
   isLocked: boolean;
   isPaused: boolean;
-}
-
-function isArray<S, A extends Action<unknown>, MonitorState>(
-  nextLiftedState: LiftedState<S, A, MonitorState> | readonly A[]
-): nextLiftedState is readonly A[] {
-  return Array.isArray(nextLiftedState);
 }
 
 /**
@@ -428,7 +423,7 @@ export function liftReducerWith<
   const initialLiftedState: LiftedState<S, A, MonitorState> = {
     monitorState: monitorReducer(undefined, {} as MonitorAction),
     nextActionId: 1,
-    actionsById: { 0: liftAction<A>(INIT_ACTION as A) },
+    actionsById: { 0: liftAction(INIT_ACTION as A) },
     stagedActionIds: [0],
     skippedActionIds: [],
     committedState: initialCommittedState as S,
@@ -510,7 +505,7 @@ export function liftReducerWith<
       if (!options.pauseActionType || nextActionId === 1) {
         return {
           monitorState,
-          actionsById: { 0: liftAction<A>(INIT_ACTION as A) },
+          actionsById: { 0: liftAction(INIT_ACTION as A) },
           nextActionId: 1,
           stagedActionIds: [0],
           skippedActionIds: [],
@@ -532,7 +527,7 @@ export function liftReducerWith<
         monitorState,
         actionsById: {
           ...actionsById,
-          [nextActionId - 1]: liftAction<A>({
+          [nextActionId - 1]: liftAction({
             type: options.pauseActionType
           } as A)
         },
@@ -562,7 +557,7 @@ export function liftReducerWith<
 
     if (/^@@redux\/(INIT|REPLACE)/.test(liftedAction.type)) {
       if (options.shouldHotReload === false) {
-        actionsById = { 0: liftAction<A>(INIT_ACTION as A) };
+        actionsById = { 0: liftAction(INIT_ACTION as A) };
         nextActionId = 1;
         stagedActionIds = [0];
         skippedActionIds = [];
@@ -620,7 +615,7 @@ export function liftReducerWith<
         }
         case ActionTypes.RESET: {
           // Get back to the state the store was created with.
-          actionsById = { 0: liftAction<A>(INIT_ACTION as A) };
+          actionsById = { 0: liftAction(INIT_ACTION as A) };
           nextActionId = 1;
           stagedActionIds = [0];
           skippedActionIds = [];
@@ -632,7 +627,7 @@ export function liftReducerWith<
         case ActionTypes.COMMIT: {
           // Consider the last committed state the new starting point.
           // Squash any staged actions into a single committed state.
-          actionsById = { 0: liftAction<A>(INIT_ACTION as A) };
+          actionsById = { 0: liftAction(INIT_ACTION as A) };
           nextActionId = 1;
           stagedActionIds = [0];
           skippedActionIds = [];
@@ -644,7 +639,7 @@ export function liftReducerWith<
         case ActionTypes.ROLLBACK: {
           // Forget about any staged actions.
           // Start again from the last committed state.
-          actionsById = { 0: liftAction<A>(INIT_ACTION as A) };
+          actionsById = { 0: liftAction(INIT_ACTION as A) };
           nextActionId = 1;
           stagedActionIds = [0];
           skippedActionIds = [];
@@ -747,7 +742,7 @@ export function liftReducerWith<
         case ActionTypes.IMPORT_STATE: {
           if (isArray(liftedAction.nextLiftedState)) {
             // recompute array of actions
-            actionsById = { 0: liftAction<A>(INIT_ACTION as A) };
+            actionsById = { 0: liftAction(INIT_ACTION as A) };
             nextActionId = 1;
             stagedActionIds = [0];
             skippedActionIds = [];
@@ -795,7 +790,7 @@ export function liftReducerWith<
             return computePausedAction(true);
           }
           // Commit when unpausing
-          actionsById = { 0: liftAction<A>(INIT_ACTION as A) };
+          actionsById = { 0: liftAction(INIT_ACTION as A) };
           nextActionId = 1;
           stagedActionIds = [0];
           skippedActionIds = [];
@@ -848,10 +843,12 @@ export function unliftState<
   MonitorState,
   MonitorAction extends Action<unknown>,
   NextStateExt
->(liftedState: LiftedState<S, A, MonitorState> & NextStateExt) {
+>(
+  liftedState: LiftedState<S, A, MonitorState> & NextStateExt
+): S & NextStateExt {
   const { computedStates, currentStateIndex } = liftedState;
   const { state } = computedStates[currentStateIndex];
-  return state;
+  return state as S & NextStateExt;
 }
 
 export type LiftedReducer<
@@ -867,8 +864,8 @@ export type LiftedReducer<
 export type LiftedStore<
   S,
   A extends Action<unknown>,
-  MonitorState = unknown,
-  MonitorAction extends Action<unknown> = Action<unknown>
+  MonitorState,
+  MonitorAction extends Action<unknown>
 > = Store<
   LiftedState<S, A, MonitorState>,
   LiftedAction<S, A, MonitorState, MonitorAction>
@@ -886,8 +883,8 @@ export type InstrumentExt<
 export type EnhancedStore<
   S,
   A extends Action<unknown>,
-  MonitorState = unknown,
-  MonitorAction extends Action<unknown> = Action<unknown>
+  MonitorState,
+  MonitorAction extends Action<unknown>
 > = Store<S, A> & InstrumentExt<S, A, MonitorState, MonitorAction>;
 
 /**
@@ -924,7 +921,7 @@ export function unliftStore<
   function getState(): S & NextStateExt {
     const state = unliftState<S, A, MonitorState, MonitorAction, NextStateExt>(
       liftedStore.getState()
-    ) as S & NextStateExt;
+    );
     if (state !== undefined) {
       lastDefinedState = state;
     }
@@ -1014,6 +1011,30 @@ export interface Options<
 /**
  * Redux instrumentation store enhancer.
  */
+export default function instrument<
+  no_options_state = never,
+  no_options_action = never,
+  no_monitor_state = null,
+  no_monitor_action = never
+>(): StoreEnhancer<InstrumentExt<any, any, null, never>>;
+export default function instrument<
+  OptionsS,
+  OptionsA extends Action<unknown>,
+  no_monitor_state = null,
+  no_monitor_action = never
+>(
+  monitorReducer: undefined,
+  options: Options<OptionsS, OptionsA, null, never>
+): StoreEnhancer<InstrumentExt<any, any, null, Action<unknown>>>;
+export default function instrument<
+  OptionsS,
+  OptionsA extends Action<unknown>,
+  MonitorState,
+  MonitorAction extends Action<unknown>
+>(
+  monitorReducer: Reducer<MonitorState, MonitorAction>,
+  options: Options<OptionsS, OptionsA, MonitorState, MonitorAction>
+): StoreEnhancer<InstrumentExt<any, any, MonitorState, MonitorAction>>;
 export default function instrument<
   OptionsS,
   OptionsA extends Action<unknown>,

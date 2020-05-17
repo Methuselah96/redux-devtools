@@ -38,10 +38,19 @@ type Monitor<
   S,
   A extends Action<unknown>,
   MonitorProps,
-  MonitorState
+  MonitorState,
+  MonitorAction extends Action<unknown>
 > = React.ReactElement<
   MonitorProps & LiftedState<S, A, MonitorState>,
-  React.JSXElementConstructor<MonitorProps & LiftedState<S, A, MonitorState>>
+  React.JSXElementConstructor<
+    MonitorProps & LiftedState<S, A, MonitorState>
+  > & {
+    update(
+      monitorProps: MonitorProps,
+      state: MonitorState | undefined,
+      action: MonitorAction
+    ): MonitorState;
+  }
 >;
 
 export default function createDevTools<
@@ -50,16 +59,13 @@ export default function createDevTools<
   MonitorProps,
   MonitorState,
   MonitorAction extends Action<unknown>
->(children: Monitor<S, A, MonitorProps, MonitorState>) {
+>(children: React.ReactElement<{}, React.ComponentType>) {
   const monitorElement = Children.only(children)!;
   const monitorProps = monitorElement.props;
   const Monitor = monitorElement.type;
-  const ConnectedMonitor = connect<
-    LiftedState<S, A, MonitorState>,
-    {},
-    MonitorProps,
-    LiftedState<S, A, MonitorState>
-  >(state => state)(Monitor);
+  const ConnectedMonitor = connect(
+    (state: LiftedState<S, A, MonitorState>) => state
+  )(Monitor);
 
   return class DevTools extends Component<
     Props<S, A, MonitorState, MonitorAction>
