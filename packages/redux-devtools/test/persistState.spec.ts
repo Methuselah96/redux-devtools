@@ -1,12 +1,13 @@
 import { instrument, persistState } from '../src';
 import { compose, createStore } from 'redux';
+import './globalLocalStorage.d.ts';
 
 describe('persistState', () => {
-  const savedLocalStorage = localStorage;
+  const savedLocalStorage = global.localStorage;
+  delete global.localStorage;
 
   beforeEach(() => {
-    // eslint-disable-next-line no-global-assign
-    localStorage = {
+    global.localStorage = {
       store: {},
       getItem(key) {
         return this.store[key] || null;
@@ -30,8 +31,7 @@ describe('persistState', () => {
   });
 
   afterAll(() => {
-    // eslint-disable-next-line no-global-assign
-    localStorage = savedLocalStorage;
+    global.localStorage = savedLocalStorage;
   });
 
   type Action = { type: 'INCREMENT' } | { type: 'DECREMENT' };
@@ -120,7 +120,7 @@ describe('persistState', () => {
     const spy = jest.spyOn(console, 'warn').mockImplementation(() => {
       // noop
     });
-    delete localStorage.getItem;
+    delete global.localStorage.getItem;
     createStore(reducer, compose(instrument(), persistState('id')));
 
     expect(spy.mock.calls[0]).toContain(
@@ -134,7 +134,7 @@ describe('persistState', () => {
     const spy = jest.spyOn(console, 'warn').mockImplementation(() => {
       // noop
     });
-    delete localStorage.setItem;
+    delete global.localStorage.setItem;
     const store = createStore(
       reducer,
       compose(instrument(), persistState('id'))
