@@ -1,19 +1,22 @@
 import React, { Component, MouseEventHandler } from 'react';
 import JSONTree from 'react-json-tree';
 import { Action } from 'redux';
-import { Base16Theme } from './types';
+import { Base16Theme } from 'base16';
 
-const styles = {
+const styles: {
+  actionBar: React.CSSProperties;
+  payload: React.CSSProperties;
+} = {
   actionBar: {
     paddingTop: 8,
     paddingBottom: 7,
     paddingLeft: 16
-  } as const,
+  },
   payload: {
     margin: 0,
     paddingLeft: 16,
     overflow: 'auto'
-  } as const
+  }
 };
 
 interface Props<A extends Action<unknown>> {
@@ -22,6 +25,7 @@ interface Props<A extends Action<unknown>> {
   action: A;
   expandActionRoot: boolean;
   onClick: MouseEventHandler<HTMLDivElement>;
+  style: React.CSSProperties;
 }
 
 export default class LogMonitorAction<
@@ -69,7 +73,7 @@ export default class LogMonitorAction<
         }}
       >
         <div style={styles.actionBar} onClick={this.props.onClick}>
-          {type !== null && type.toString()}
+          {type !== null && (type as any).toString()}
         </div>
         {!this.props.collapsed ? this.renderPayload(payload) : ''}
       </div>

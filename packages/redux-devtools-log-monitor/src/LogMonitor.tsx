@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import shouldPureComponentUpdate from 'react-pure-render/function';
 import * as themes from 'redux-devtools-themes';
-import { ActionCreators, ActionTypes, LiftedAction } from 'redux-devtools';
+import { ActionCreators, LiftedAction, PerformAction } from 'redux-devtools';
+import { Base16Theme } from 'base16';
 import { Action, Dispatch } from 'redux';
 import {
   updateScrollTop,
@@ -13,11 +14,13 @@ import reducer, { LogMonitorState } from './reducers';
 import LogMonitorButtonBar from './LogMonitorButtonBar';
 import LogMonitorEntryList from './LogMonitorEntryList';
 import debounce from 'lodash.debounce';
-import { Base16Theme } from './types';
 
 const { toggleAction, setActionsActive } = ActionCreators;
 
-const styles = {
+const styles: {
+  container: React.CSSProperties;
+  elements: React.CSSProperties;
+} = {
   container: {
     fontFamily: 'monaco, Consolas, Lucida Console, monospace',
     position: 'relative',
@@ -26,7 +29,7 @@ const styles = {
     height: '100%',
     minWidth: 300,
     direction: 'ltr'
-  } as const,
+  },
   elements: {
     position: 'absolute',
     left: 0,
@@ -35,34 +38,13 @@ const styles = {
     bottom: 0,
     overflowX: 'hidden',
     overflowY: 'auto'
-  } as const
+  }
 };
-// interface LiftedState<S, A extends Action> {
-//   monitorState: unknown;
-//   nextActionId: number;
-//   actionsById: { [actionId: number]: PerformAction<A> };
-//   stagedActionIds: number[];
-//   skippedActionIds: number[];
-//   committedState: S;
-//   currentStateIndex: number;
-//   computedStates: { state: S; error?: string }[];
-//   isLocked: boolean;
-//   isPaused: boolean;
-// }
-
-export interface PerformAction<A extends Action> {
-  type: typeof ActionTypes.PERFORM_ACTION;
-  action: A;
-  timestamp: number;
-  stack: string | undefined;
-}
-
-interface MonitorState {
-  initialScrollTop: number;
-}
 
 export interface Props<S, A extends Action> {
-  dispatch: Dispatch<LogMonitorAction | LiftedAction<S, A>>;
+  dispatch: Dispatch<
+    LogMonitorAction | LiftedAction<S, A, LogMonitorState, LogMonitorAction>
+  >;
   computedStates: { state: S; error?: string }[];
   actionsById: { [actionId: number]: PerformAction<A> };
   stagedActionIds: number[];
@@ -72,7 +54,7 @@ export interface Props<S, A extends Action> {
 
   preserveScrollTop: boolean;
   select: (state: S) => unknown;
-  theme: 'string' | Base16Theme;
+  theme: keyof typeof themes | Base16Theme;
   expandActionRoot: boolean;
   expandStateRoot: boolean;
   markStateDiff: boolean;

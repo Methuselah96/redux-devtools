@@ -2,14 +2,15 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Action, Dispatch } from 'redux';
 import shouldPureComponentUpdate from 'react-pure-render/function';
+import { Base16Theme } from 'base16';
 import { ActionCreators, LiftedAction } from 'redux-devtools';
 import LogMonitorButton from './LogMonitorButton';
 import { LogMonitorAction } from './actions';
-import { Base16Theme } from './types';
+import { LogMonitorState } from './reducers';
 
 const { reset, rollback, commit, sweep } = ActionCreators;
 
-const style = {
+const style: React.CSSProperties = {
   textAlign: 'center',
   borderBottomWidth: 1,
   borderBottomStyle: 'solid',
@@ -17,11 +18,13 @@ const style = {
   zIndex: 1,
   display: 'flex',
   flexDirection: 'row'
-} as const;
+};
 
 interface Props<S, A extends Action> {
   theme: Base16Theme;
-  dispatch: Dispatch<LogMonitorAction | LiftedAction<S, A>>;
+  dispatch: Dispatch<
+    LogMonitorAction | LiftedAction<S, A, LogMonitorState, LogMonitorAction>
+  >;
   hasStates: boolean;
   hasSkippedActions: boolean;
 }

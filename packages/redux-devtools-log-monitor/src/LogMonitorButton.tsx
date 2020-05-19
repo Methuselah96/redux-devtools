@@ -1,9 +1,9 @@
 import React from 'react';
+import { Base16Theme } from 'base16';
 import brighten from './brighten';
 import shouldPureComponentUpdate from 'react-pure-render/function';
-import { Base16Theme } from './types';
 
-const styles = {
+const styles: { base: React.CSSProperties } = {
   base: {
     cursor: 'pointer',
     fontWeight: 'bold',
@@ -18,7 +18,7 @@ const styles = {
     fontSize: '0.8em',
     color: 'white',
     textDecoration: 'none'
-  } as const
+  }
 };
 
 interface Props {
@@ -82,7 +82,7 @@ export default class LogMonitorButton extends React.Component<Props, State> {
         opacity: 0.2,
         cursor: 'text',
         backgroundColor: 'transparent'
-      };
+      } as const;
     }
     return (
       <a

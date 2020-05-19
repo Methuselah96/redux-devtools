@@ -1,26 +1,27 @@
 import React, { Component, MouseEventHandler } from 'react';
 import PropTypes from 'prop-types';
 import JSONTree from 'react-json-tree';
+import { Base16Theme } from 'base16';
 import { Action } from 'redux';
 import LogMonitorEntryAction from './LogMonitorEntryAction';
 import shouldPureComponentUpdate from 'react-pure-render/function';
-import { Base16Theme } from './types';
+import { Styling, StylingConfig, StylingValue } from 'react-base16-styling';
 
-const styles = {
+const styles: { entry: React.CSSProperties; root: React.CSSProperties } = {
   entry: {
     display: 'block',
     WebkitUserSelect: 'none'
-  } as const,
+  },
 
   root: {
     marginLeft: 0
-  } as const
+  }
 };
 
-const getDeepItem = (data: unknown, path: (string | number)[]) =>
+const getDeepItem = (data: any, path: (string | number)[]) =>
   path.reduce((obj, key) => obj && obj[key], data);
 const dataIsEqual = (
-  data: unknown,
+  data: any,
   previousData: unknown,
   keyPath: (string | number)[]
 ) => {
@@ -29,11 +30,11 @@ const dataIsEqual = (
   return getDeepItem(data, path) === getDeepItem(previousData, path);
 };
 
-interface Props<S, A extends Action<unknown>> {
-  state: S;
-  action: A;
+interface Props {
+  state: {};
+  action: any;
   actionId: number;
-  select: (state: S) => unknown;
+  select: (state: any) => any;
   inFuture: boolean;
   error: string | undefined;
   onActionClick: (id: number) => void;
@@ -43,14 +44,11 @@ interface Props<S, A extends Action<unknown>> {
   expandActionRoot: boolean;
   expandStateRoot: boolean;
   theme: Base16Theme;
-  previousState: S;
+  previousState: any | undefined;
   markStateDiff: boolean;
 }
 
-export default class LogMonitorEntry<
-  S,
-  A extends Action<unknown>
-> extends Component<Props<S, A>> {
+export default class LogMonitorEntry extends Component<Props> {
   static propTypes = {
     state: PropTypes.object.isRequired,
     action: PropTypes.object.isRequired,
@@ -68,19 +66,23 @@ export default class LogMonitorEntry<
 
   shouldComponentUpdate = shouldPureComponentUpdate;
 
-  printState(state: S, error: string | undefined) {
+  printState(state: any, error: string | undefined) {
     let errorText = error;
     if (!errorText) {
       try {
         const data = this.props.select(state);
-        let theme;
+        let theme: StylingConfig | Base16Theme;
 
         if (this.props.markStateDiff) {
           const previousData =
             typeof this.props.previousState !== 'undefined'
               ? this.props.select(this.props.previousState)
               : undefined;
-          const getValueStyle = ({ style }, nodeType, keyPath) => ({
+          const getValueStyle: StylingValue = (
+            { style }: Styling,
+            nodeType: string,
+            keyPath: (string | number)[]
+          ): Styling => ({
             style: {
               ...style,
               backgroundColor: dataIsEqual(data, previousData, keyPath)
@@ -88,15 +90,17 @@ export default class LogMonitorEntry<
                 : this.props.theme.base01
             }
           });
-          const getNestedNodeStyle = ({ style }, keyPath) => ({
+          const getNestedNodeStyle: StylingValue = (
+            { style }: Styling,
+            keyPath: (string | number)[]
+          ): Styling => ({
             style: {
               ...style,
               ...(keyPath.length > 1 ? {} : styles.root)
             }
           });
           theme = {
-            extend: this.props.theme,
-            tree: styles.tree,
+            extend: (this.props.theme as unknown) as StylingValue,
             value: getValueStyle,
             nestedNode: getNestedNodeStyle
           };
@@ -162,7 +166,7 @@ export default class LogMonitorEntry<
       selected,
       inFuture
     } = this.props;
-    const styleEntry = {
+    const styleEntry: React.CSSProperties = {
       opacity: collapsed ? 0.5 : 1,
       cursor: actionId > 0 ? 'pointer' : 'default'
     };

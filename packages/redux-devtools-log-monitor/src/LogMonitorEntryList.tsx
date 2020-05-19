@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Action } from 'redux';
+import { Base16Theme } from 'base16';
+import { PerformAction } from 'redux-devtools';
 import LogMonitorEntry from './LogMonitorEntry';
 import shouldPureComponentUpdate from 'react-pure-render/function';
-import { Base16Theme } from './types';
 
 interface Props<S, A extends Action<unknown>> {
   actionsById: { [actionId: number]: PerformAction<A> };
@@ -13,7 +14,7 @@ interface Props<S, A extends Action<unknown>> {
   currentStateIndex: number;
   consecutiveToggleStartId: number | null | undefined;
 
-  select: (state: S) => unknown;
+  select: (state: S) => any;
   onActionClick: (id: number) => void;
   onActionShiftClick: (id: number) => void;
   theme: Base16Theme;
