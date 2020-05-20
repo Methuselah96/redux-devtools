@@ -15,7 +15,11 @@ function iterateToKey(obj, key) {
   }
 }
 
-export default function getInspectedState(state, path, convertImmutable) {
+export default function getInspectedState<S>(
+  state: S,
+  path: readonly unknown[],
+  convertImmutable: boolean
+): S {
   state =
     path && path.length
       ? {

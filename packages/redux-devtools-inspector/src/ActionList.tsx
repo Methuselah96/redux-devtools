@@ -3,6 +3,9 @@ import dragula from 'react-dragula';
 import ActionListRow from './ActionListRow';
 import ActionListHeader from './ActionListHeader';
 import shouldPureComponentUpdate from 'react-pure-render/function';
+import { Action } from 'redux';
+import { PerformAction } from 'redux-devtools';
+import { StylingFunction } from 'react-base16-styling';
 
 function getTimestamps(actions, actionIds, actionId) {
   const idx = actionIds.indexOf(actionId);
@@ -14,7 +17,23 @@ function getTimestamps(actions, actionIds, actionId) {
   };
 }
 
-export default class ActionList extends Component {
+interface Props<S, A extends Action<unknown>> {
+  actions: { [actionId: number]: PerformAction<A> };
+  actionIds: number[];
+  isWideLayout: boolean;
+  searchValue: unknown;
+  selectedActionId: number | null;
+  startActionId: number | null;
+  skippedActionIds: number[];
+  draggableActions: boolean;
+  hideMainButtons?: boolean;
+  hideActionButtons?: boolean;
+  styling: StylingFunction;
+}
+
+export default class ActionList<S, A extends Action<unknown>> extends Component<
+  Props<S, A>
+> {
   shouldComponentUpdate = shouldPureComponentUpdate;
 
   componentWillReceiveProps(nextProps) {

@@ -9,9 +9,21 @@ import ActionList from './ActionList';
 import ActionPreview from './ActionPreview';
 import getInspectedState from './utils/getInspectedState';
 import createDiffPatcher from './createDiffPatcher';
-import { getBase16Theme } from 'react-base16-styling';
-import { reducer, updateMonitorState } from './redux';
-import { ActionCreators } from 'redux-devtools';
+import {
+  Base16Theme,
+  getBase16Theme,
+  StylingFunction,
+  Theme
+} from 'react-base16-styling';
+import {
+  MonitorAction,
+  MonitorState,
+  reducer,
+  updateMonitorState
+} from './redux';
+import { ActionCreators, LiftedAction, LiftedState } from 'redux-devtools';
+import { Action, Dispatch } from 'redux';
+import { Delta, DiffContext } from 'jsondiffpatch';
 
 const {
   commit,
@@ -22,21 +34,41 @@ const {
   reorderAction
 } = ActionCreators;
 
-function getLastActionId(props) {
+export interface Props<S, A extends Action<unknown>>
+  extends LiftedState<S, A, MonitorState> {
+  dispatch: Dispatch<
+    MonitorAction | LiftedAction<S, A, MonitorState, MonitorAction>
+  >;
+
+  select: (state: S) => unknown;
+  supportImmutable: boolean;
+  draggableActions: boolean;
+  theme: Theme;
+  invertTheme: boolean;
+  diffObjectHash?: (item: any, index: number) => string;
+  diffPropertyFilter?: (name: string, context: DiffContext) => boolean;
+  hideMainButtons?: boolean;
+  hideActionButtons?: boolean;
+}
+
+function getLastActionId<S, A extends Action<unknown>>(props: Props<S, A>) {
   return props.stagedActionIds[props.stagedActionIds.length - 1];
 }
 
-function getCurrentActionId(props, monitorState) {
+function getCurrentActionId<S, A extends Action<unknown>>(
+  props: Props<S, A>,
+  monitorState: MonitorState
+) {
   return monitorState.selectedActionId === null
     ? props.stagedActionIds[props.currentStateIndex]
     : monitorState.selectedActionId;
 }
 
-function getFromState(
-  actionIndex,
-  stagedActionIds,
-  computedStates,
-  monitorState
+function getFromState<S>(
+  actionIndex: number,
+  stagedActionIds: number[],
+  computedStates: { state: S; error?: string }[],
+  monitorState: MonitorState
 ) {
   const { startActionId } = monitorState;
   if (startActionId === null) {
@@ -47,7 +79,10 @@ function getFromState(
   return computedStates[fromStateIdx];
 }
 
-function createIntermediateState(props, monitorState) {
+function createIntermediateState<S, A extends Action<unknown>>(
+  props: Props<S, A>,
+  monitorState: MonitorState
+) {
   const {
     supportImmutable,
     computedStates,
@@ -97,15 +132,27 @@ function createIntermediateState(props, monitorState) {
   };
 }
 
-function createThemeState(props) {
-  const base16Theme = getBase16Theme(props.theme, base16Themes);
+function createThemeState<S, A extends Action<unknown>>(props: Props<S, A>) {
+  const base16Theme = getBase16Theme(props.theme, base16Themes)!;
   const styling = createStylingFromTheme(props.theme, props.invertTheme);
 
   return { base16Theme, styling };
 }
 
-export default class DevtoolsInspector extends Component {
-  constructor(props) {
+interface State<S, A extends Action<unknown>> {
+  isWideLayout: boolean;
+  themeState: { base16Theme: Base16Theme; styling: StylingFunction };
+  delta: false | Delta | null | undefined;
+  nextState: S;
+  action: A;
+  error: string | undefined;
+}
+
+export default class DevtoolsInspector<
+  S,
+  A extends Action<unknown>
+> extends Component<Props<S, A>, State<S, A>> {
+  constructor(props: Props<S, A>) {
     super(props);
     this.state = {
       ...createIntermediateState(props, props.monitorState),
@@ -142,7 +189,7 @@ export default class DevtoolsInspector extends Component {
   static update = reducer;
 
   static defaultProps = {
-    select: state => state,
+    select: (state: unknown) => state,
     supportImmutable: false,
     draggableActions: true,
     theme: 'inspector',
@@ -151,29 +198,35 @@ export default class DevtoolsInspector extends Component {
 
   shouldComponentUpdate = shouldPureComponentUpdate;
 
+  updateSizeTimeout?: number;
+  inspectorRef?: HTMLDivElement | null;
+
   componentDidMount() {
     this.updateSizeMode();
-    this.updateSizeTimeout = setInterval(this.updateSizeMode.bind(this), 150);
+    this.updateSizeTimeout = window.setInterval(
+      this.updateSizeMode.bind(this),
+      150
+    );
   }
 
   componentWillUnmount() {
     clearTimeout(this.updateSizeTimeout);
   }
 
-  updateMonitorState = monitorState => {
+  updateMonitorState = (monitorState: Partial<MonitorState>) => {
     this.props.dispatch(updateMonitorState(monitorState));
   };
 
   updateSizeMode() {
-    const isWideLayout = this.inspectorRef.offsetWidth > 500;
+    const isWideLayout = this.inspectorRef!.offsetWidth > 500;
 
     if (isWideLayout !== this.state.isWideLayout) {
       this.setState({ isWideLayout });
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    let nextMonitorState = nextProps.monitorState;
+  componentWillReceiveProps(nextProps: Props<S, A>) {
+    const nextMonitorState = nextProps.monitorState;
     const monitorState = this.props.monitorState;
 
     if (
@@ -197,7 +250,7 @@ export default class DevtoolsInspector extends Component {
     }
   }
 
-  inspectorCreateRef = node => {
+  inspectorCreateRef: React.RefCallback<HTMLDivElement> = node => {
     this.inspectorRef = node;
   };
 
@@ -295,11 +348,11 @@ export default class DevtoolsInspector extends Component {
     );
   }
 
-  handleToggleAction = actionId => {
+  handleToggleAction = (actionId: number) => {
     this.props.dispatch(toggleAction(actionId));
   };
 
-  handleJumpToState = actionId => {
+  handleJumpToState = (actionId: number) => {
     if (jumpToAction) {
       this.props.dispatch(jumpToAction(actionId));
     } else {
@@ -309,7 +362,7 @@ export default class DevtoolsInspector extends Component {
     }
   };
 
-  handleReorderAction = (actionId, beforeActionId) => {
+  handleReorderAction = (actionId: number, beforeActionId: number) => {
     if (reorderAction)
       this.props.dispatch(reorderAction(actionId, beforeActionId));
   };
@@ -369,7 +422,7 @@ export default class DevtoolsInspector extends Component {
     this.updateMonitorState({ [pathType]: path });
   };
 
-  handleSelectTab = tabName => {
+  handleSelectTab = (tabName: string) => {
     this.updateMonitorState({ tabName });
   };
 }
