@@ -1,7 +1,20 @@
 import React from 'react';
-import { PropTypes } from 'prop-types';
+import PropTypes from 'prop-types';
+import { StylingFunction } from 'react-base16-styling';
 
-const RightSlider = ({ styling, shown, children, rotate }) => (
+interface Props {
+  styling: StylingFunction;
+  shown?: boolean;
+  children: React.ReactNode;
+  rotate?: boolean;
+}
+
+const RightSlider: React.FunctionComponent<Props> = ({
+  styling,
+  shown,
+  children,
+  rotate
+}) => (
   <div
     {...styling([
       'rightSlider',

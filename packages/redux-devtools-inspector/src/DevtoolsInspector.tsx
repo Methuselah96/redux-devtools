@@ -375,7 +375,7 @@ export default class DevtoolsInspector<
     this.props.dispatch(sweep());
   };
 
-  handleSearch = val => {
+  handleSearch = (val: string) => {
     this.updateMonitorState({ searchValue: val });
   };
 

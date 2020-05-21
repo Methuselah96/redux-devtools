@@ -1,9 +1,13 @@
 import React, { Component } from 'react';
-import { DEFAULT_STATE } from './redux';
+import { DEFAULT_STATE, MonitorState } from './redux';
 import ActionPreviewHeader from './ActionPreviewHeader';
 import DiffTab from './tabs/DiffTab';
 import StateTab from './tabs/StateTab';
 import ActionTab from './tabs/ActionTab';
+import { Base16Theme, StylingFunction } from 'react-base16-styling';
+import { Delta } from 'jsondiffpatch';
+import { Action } from 'redux';
+import { PerformAction } from 'redux-devtools';
 
 const DEFAULT_TABS = [
   {
@@ -20,7 +24,32 @@ const DEFAULT_TABS = [
   }
 ];
 
-class ActionPreview extends Component {
+interface Props<S, A extends Action<unknown>> {
+  styling: StylingFunction;
+  delta: false | Delta | null | undefined;
+  error: string | undefined;
+  nextState: S;
+  onInspectPath: unknown;
+  inspectedPath: unknown[];
+  tabName: string;
+  isWideLayout: boolean;
+  onSelectTab: (tabName: string) => void;
+  action: A;
+  actions: { [actionId: number]: PerformAction<A> };
+  selectedActionId: number | null;
+  startActionId: number | null;
+  computedStates: { state: S; error?: string }[];
+  base16Theme: Base16Theme;
+  invertTheme: boolean;
+  tabs: unknown;
+  dataTypeKey: unknown;
+  monitorState: MonitorState;
+  updateMonitorState: (monitorState: Partial<MonitorState>) => void;
+}
+
+class ActionPreview<S, A extends Action<unknown>> extends Component<
+  Props<S, A>
+> {
   static defaultProps = {
     tabName: DEFAULT_STATE.tabName
   };
