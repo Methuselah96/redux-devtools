@@ -12,9 +12,10 @@ export type MonitorAction = UpdateMonitorStateAction;
 export interface MonitorState {
   readonly selectedActionId: number | null;
   readonly startActionId: number | null;
-  readonly inspectedActionPath: readonly unknown[];
-  readonly inspectedStatePath: readonly unknown[];
+  readonly inspectedActionPath: (string | number)[];
+  readonly inspectedStatePath: (string | number)[];
   readonly tabName: string;
+  readonly searchValue?: string;
 }
 
 export const DEFAULT_STATE: MonitorState = {

@@ -26,7 +26,7 @@ interface Props<S, A extends Action<unknown>> {
   actions: { [actionId: number]: PerformAction<A> };
   actionIds: number[];
   isWideLayout: boolean;
-  searchValue: unknown;
+  searchValue: string | undefined;
   selectedActionId: number | null;
   startActionId: number | null;
   skippedActionIds: number[];
@@ -35,6 +35,7 @@ interface Props<S, A extends Action<unknown>> {
   hideActionButtons: boolean | undefined;
   styling: StylingFunction;
 
+  onSelect: (event: React.MouseEvent<HTMLDivElement>, actionId: number) => void;
   onSearch: (value: string) => void;
   onToggleAction: (actionId: number) => void;
   onJumpToState: (actionId: number) => void;
@@ -134,8 +135,9 @@ export default class ActionList<S, A extends Action<unknown>> extends Component<
     const filteredActionIds = searchValue
       ? actionIds.filter(
           id =>
-            actions[id].action.type.toLowerCase().indexOf(lowerSearchValue) !==
-            -1
+            (actions[id].action.type as string)
+              .toLowerCase()
+              .indexOf(lowerSearchValue) !== -1
         )
       : actionIds;
 
@@ -166,13 +168,15 @@ export default class ActionList<S, A extends Action<unknown>> extends Component<
               isSelected={
                 (startActionId !== null &&
                   actionId >= startActionId &&
-                  actionId <= selectedActionId) ||
+                  actionId <= (selectedActionId as number)) ||
                 actionId === selectedActionId
               }
               isInFuture={
                 actionIds.indexOf(actionId) > actionIds.indexOf(currentActionId)
               }
-              onSelect={e => onSelect(e, actionId)}
+              onSelect={(e: React.MouseEvent<HTMLDivElement>) =>
+                onSelect(e, actionId)
+              }
               timestamps={getTimestamps(actions, actionIds, actionId)}
               action={actions[actionId].action}
               onToggleClick={() => onToggleAction(actionId)}

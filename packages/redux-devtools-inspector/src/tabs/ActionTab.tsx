@@ -2,8 +2,13 @@ import React from 'react';
 import JSONTree from 'react-json-tree';
 import getItemString from './getItemString';
 import getJsonTreeTheme from './getJsonTreeTheme';
+import { TabComponentProps } from '../ActionPreview';
+import { Action } from 'redux';
 
-const ActionTab = ({
+const ActionTab: React.FunctionComponent<TabComponentProps<
+  unknown,
+  Action<unknown>
+>> = ({
   action,
   styling,
   base16Theme,

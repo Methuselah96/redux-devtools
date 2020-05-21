@@ -6,7 +6,7 @@ import {
 } from './utils/createStylingFromTheme';
 import shouldPureComponentUpdate from 'react-pure-render/function';
 import ActionList from './ActionList';
-import ActionPreview from './ActionPreview';
+import ActionPreview, { Tab } from './ActionPreview';
 import getInspectedState from './utils/getInspectedState';
 import createDiffPatcher from './createDiffPatcher';
 import {
@@ -43,6 +43,7 @@ export interface Props<S, A extends Action<unknown>>
   select: (state: S) => unknown;
   supportImmutable: boolean;
   draggableActions: boolean;
+  tabs: Tab<S, A>[] | ((tabs: Tab<S, A>[]) => Tab<S, A>[]);
   theme: Theme;
   invertTheme: boolean;
   diffObjectHash?: (item: any, index: number) => string;
@@ -340,7 +341,9 @@ export default class DevtoolsInspector<
           monitorState={this.props.monitorState}
           updateMonitorState={this.updateMonitorState}
           styling={styling}
-          onInspectPath={this.handleInspectPath.bind(this, inspectedPathType)}
+          onInspectPath={keyPath =>
+            this.handleInspectPath(inspectedPathType, keyPath)
+          }
           inspectedPath={monitorState[inspectedPathType]}
           onSelectTab={this.handleSelectTab}
         />
@@ -379,7 +382,10 @@ export default class DevtoolsInspector<
     this.updateMonitorState({ searchValue: val });
   };
 
-  handleSelectAction = (e, actionId) => {
+  handleSelectAction = (
+    e: React.MouseEvent<HTMLDivElement>,
+    actionId: number
+  ) => {
     const { monitorState } = this.props;
     let startActionId;
     let selectedActionId;
@@ -418,7 +424,10 @@ export default class DevtoolsInspector<
     this.updateMonitorState({ startActionId, selectedActionId });
   };
 
-  handleInspectPath = (pathType, path) => {
+  handleInspectPath = (
+    pathType: 'inspectedActionPath' | 'inspectedStatePath',
+    path: (string | number)[]
+  ) => {
     this.updateMonitorState({ [pathType]: path });
   };
 
