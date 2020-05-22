@@ -48,6 +48,7 @@ export interface Props<S, A extends Action<unknown>>
   invertTheme: boolean;
   diffObjectHash?: (item: any, index: number) => string;
   diffPropertyFilter?: (name: string, context: DiffContext) => boolean;
+  dataTypeKey?: string;
   hideMainButtons?: boolean;
   hideActionButtons?: boolean;
 }
@@ -143,7 +144,7 @@ function createThemeState<S, A extends Action<unknown>>(props: Props<S, A>) {
 interface State<S, A extends Action<unknown>> {
   isWideLayout: boolean;
   themeState: { base16Theme: Base16Theme; styling: StylingFunction };
-  delta: false | Delta | null | undefined;
+  delta: Delta | null | undefined | false;
   nextState: S;
   action: A;
   error: string | undefined;

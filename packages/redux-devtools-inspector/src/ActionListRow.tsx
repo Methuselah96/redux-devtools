@@ -81,8 +81,14 @@ export default class ActionListRow<A extends Action<unknown>> extends Component<
     return (
       <div
         onClick={onSelect}
-        onMouseEnter={!hideActionButtons && this.handleMouseEnter}
-        onMouseLeave={!hideActionButtons && this.handleMouseLeave}
+        onMouseEnter={
+          (!hideActionButtons &&
+            this.handleMouseEnter) as React.MouseEventHandler<HTMLDivElement>
+        }
+        onMouseLeave={
+          (!hideActionButtons &&
+            this.handleMouseLeave) as React.MouseEventHandler<HTMLDivElement>
+        }
         onMouseDown={this.handleMouseDown}
         onMouseUp={this.handleMouseEnter}
         data-id={actionId}
@@ -103,7 +109,7 @@ export default class ActionListRow<A extends Action<unknown>> extends Component<
             isSkipped && 'actionListItemNameSkipped'
           ])}
         >
-          {actionType}
+          {actionType as string}
         </div>
         {hideActionButtons ? (
           <RightSlider styling={styling} shown>

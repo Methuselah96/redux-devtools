@@ -24,8 +24,8 @@ export interface TabComponentProps<S, A extends Action<unknown>> {
   base16Theme: Base16Theme;
   invertTheme: boolean;
   isWideLayout: boolean;
-  dataTypeKey: unknown;
-  delta: false | Delta | null | undefined;
+  dataTypeKey: string | undefined;
+  delta: Delta | null | undefined | false;
   action: A;
   nextState: S;
   monitorState: MonitorState;
@@ -54,7 +54,7 @@ const DEFAULT_TABS = [
 
 interface Props<S, A extends Action<unknown>> {
   styling: StylingFunction;
-  delta: false | Delta | null | undefined;
+  delta: Delta | null | undefined | false;
   error: string | undefined;
   nextState: S;
   onInspectPath: (path: (string | number)[]) => void;
@@ -70,7 +70,7 @@ interface Props<S, A extends Action<unknown>> {
   base16Theme: Base16Theme;
   invertTheme: boolean;
   tabs: Tab<S, A>[] | ((tabs: Tab<S, A>[]) => Tab<S, A>[]);
-  dataTypeKey: unknown;
+  dataTypeKey: string | undefined;
   monitorState: MonitorState;
   updateMonitorState: (monitorState: Partial<MonitorState>) => void;
 }
@@ -108,10 +108,10 @@ class ActionPreview<S, A extends Action<unknown>> extends Component<
 
     const renderedTabs: Tab<S, A>[] =
       typeof tabs === 'function'
-        ? tabs(DEFAULT_TABS)
+        ? tabs(DEFAULT_TABS as Tab<S, A>[])
         : tabs
         ? tabs
-        : DEFAULT_TABS;
+        : (DEFAULT_TABS as Tab<S, A>[]);
 
     const { component: TabComponent } =
       renderedTabs.find(tab => tab.name === tabName)! ||
@@ -120,7 +120,7 @@ class ActionPreview<S, A extends Action<unknown>> extends Component<
     return (
       <div key="actionPreview" {...styling('actionPreview')}>
         <ActionPreviewHeader
-          tabs={renderedTabs}
+          tabs={(renderedTabs as unknown) as Tab<unknown, Action<unknown>>[]}
           {...{ styling, inspectedPath, onInspectPath, tabName, onSelectTab }}
         />
         {!error && (

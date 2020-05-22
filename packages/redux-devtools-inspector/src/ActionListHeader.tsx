@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import RightSlider from './RightSlider';
 import { StylingFunction } from 'react-base16-styling';
 
@@ -61,5 +62,15 @@ const ActionListHeader: React.FunctionComponent<Props> = ({
     )}
   </div>
 );
+
+ActionListHeader.propTypes = {
+  styling: PropTypes.func.isRequired,
+  onSearch: PropTypes.func.isRequired,
+  hasSkippedActions: PropTypes.bool.isRequired,
+  hasStagedActions: PropTypes.bool.isRequired,
+  onCommit: PropTypes.func.isRequired,
+  onSweep: PropTypes.func.isRequired,
+  hideMainButtons: PropTypes.bool
+};
 
 export default ActionListHeader;

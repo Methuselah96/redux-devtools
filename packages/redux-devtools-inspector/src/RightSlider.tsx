@@ -28,7 +28,10 @@ const RightSlider: React.FunctionComponent<Props> = ({
 );
 
 RightSlider.propTypes = {
-  shown: PropTypes.bool
+  styling: PropTypes.func.isRequired,
+  shown: PropTypes.bool,
+  children: PropTypes.any.isRequired,
+  rotate: PropTypes.bool
 };
 
 export default RightSlider;

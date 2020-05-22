@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import JSONTree from 'react-json-tree';
 import getItemString from './getItemString';
 import getJsonTreeTheme from './getJsonTreeTheme';
@@ -28,5 +29,15 @@ const ActionTab: React.FunctionComponent<TabComponentProps<
     hideRoot
   />
 );
+
+ActionTab.propTypes = {
+  action: PropTypes.any.isRequired,
+  styling: PropTypes.func.isRequired,
+  base16Theme: PropTypes.any.isRequired,
+  invertTheme: PropTypes.bool.isRequired,
+  labelRenderer: PropTypes.func.isRequired,
+  dataTypeKey: PropTypes.string,
+  isWideLayout: PropTypes.bool.isRequired
+};
 
 export default ActionTab;

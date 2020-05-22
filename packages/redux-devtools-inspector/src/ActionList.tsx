@@ -133,11 +133,10 @@ export default class ActionList<S, A extends Action<unknown>> extends Component<
     } = this.props;
     const lowerSearchValue = searchValue && searchValue.toLowerCase();
     const filteredActionIds = searchValue
-      ? actionIds.filter(
-          id =>
-            (actions[id].action.type as string)
-              .toLowerCase()
-              .indexOf(lowerSearchValue) !== -1
+      ? actionIds.filter(id =>
+          (actions[id].action.type as string)
+            .toLowerCase()
+            .includes(lowerSearchValue as string)
         )
       : actionIds;
 
