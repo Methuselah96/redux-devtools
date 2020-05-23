@@ -7,6 +7,21 @@ import Form from '../Form';
 
 const DialogWrapper = createStyledComponent(styles);
 
+interface Props {
+  open?: boolean;
+  title?: string;
+  children?: unknown;
+  actions?: unknown;
+  submitText?: string;
+  fullWidth?: boolean;
+  noHeader?: boolean;
+  noFooter?: boolean;
+  modal?: boolean;
+  onDismiss?: unknown;
+  onSubmit?: unknown;
+  theme;
+}
+
 export default class Dialog extends (PureComponent || Component) {
   onSubmit = () => {
     if (this.submitButton) this.submitButton.click();

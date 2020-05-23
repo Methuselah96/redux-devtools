@@ -1,10 +1,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { ThemeProvider } from 'styled-components';
-import { getTheme } from '../utils/theme';
+import { getTheme, ThemeData } from '../utils/theme';
 import { MainContainerWrapper, ContainerWrapper } from './styles';
 
-const Container = ({ themeData, className, theme, children }) => {
+interface Props {
+  themeData: ThemeData;
+  className: string;
+}
+
+const Container: React.FunctionComponent<Props> = ({
+  themeData,
+  className,
+  theme,
+  children
+}) => {
   if (!themeData) {
     return (
       <ContainerWrapper className={className} theme={theme}>

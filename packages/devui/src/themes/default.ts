@@ -1,4 +1,6 @@
-export default colors => ({
+import { Base16Theme } from 'base16';
+
+export default (colors: Base16Theme) => ({
   ...colors,
   fontFamily: "'Source Sans Pro', sans-serif",
   codeFontFamily: "'Source Code Pro', monospace",
