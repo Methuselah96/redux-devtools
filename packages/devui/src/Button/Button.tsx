@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, MouseEventHandler } from 'react';
 import PropTypes from 'prop-types';
 import createStyledComponent from '../utils/createStyledComponent';
 import * as styles from './styles';
@@ -8,8 +8,74 @@ const ButtonWrapper = createStyledComponent(styles, 'button');
 const TooltipWrapper = createStyledComponent(tooltipStyle);
 const CommonWrapper = createStyledComponent(commonStyle);
 
-export default class Button extends Component {
-  shouldComponentUpdate(nextProps) {
+interface Props {
+  children: unknown;
+  title?: string;
+  tooltipPosition:
+    | 'top'
+    | 'bottom'
+    | 'left'
+    | 'right'
+    | 'bottom-left'
+    | 'bottom-right'
+    | 'top-left'
+    | 'top-right';
+  onClick?: MouseEventHandler<HTMLButtonElement>;
+  type?: string;
+  disabled?: boolean;
+  primary?: boolean;
+  size?: 'big' | 'normal' | 'small';
+  mark?:
+    | false
+    | 'base08'
+    | 'base09'
+    | 'base0A'
+    | 'base0B'
+    | 'base0C'
+    | 'base0D'
+    | 'base0E'
+    | 'base0F';
+  theme?: unknown;
+}
+
+export default class Button extends Component<Props> {
+  static propTypes = {
+    children: PropTypes.any.isRequired,
+    title: PropTypes.string,
+    tooltipPosition: PropTypes.oneOf([
+      'top',
+      'bottom',
+      'left',
+      'right',
+      'bottom-left',
+      'bottom-right',
+      'top-left',
+      'top-right'
+    ]),
+    onClick: PropTypes.func,
+    type: PropTypes.string,
+    disabled: PropTypes.bool,
+    primary: PropTypes.bool,
+    size: PropTypes.oneOf(['big', 'normal', 'small']),
+    mark: PropTypes.oneOf([
+      false,
+      'base08',
+      'base09',
+      'base0A',
+      'base0B',
+      'base0C',
+      'base0D',
+      'base0E',
+      'base0F'
+    ]),
+    theme: PropTypes.object
+  };
+
+  static defaultProps = {
+    tooltipPosition: 'top'
+  };
+
+  shouldComponentUpdate(nextProps: Props) {
     return (
       nextProps.children !== this.props.children ||
       nextProps.disabled !== this.props.disabled ||
@@ -21,7 +87,7 @@ export default class Button extends Component {
     );
   }
 
-  onMouseUp = e => {
+  onMouseUp: MouseEventHandler<HTMLButtonElement> = e => {
     e.target.blur();
   };
 
@@ -85,8 +151,4 @@ Button.propTypes = {
     'base0F'
   ]),
   theme: PropTypes.object
-};
-
-Button.defaultProps = {
-  tooltipPosition: 'top'
 };
