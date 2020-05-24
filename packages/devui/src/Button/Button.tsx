@@ -52,7 +52,7 @@ export default class Button extends Component<Props> {
   }
 
   onMouseUp: React.MouseEventHandler<HTMLButtonElement> = e => {
-    e.target.blur();
+    e.currentTarget.blur();
   };
 
   render() {

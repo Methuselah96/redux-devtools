@@ -10,29 +10,31 @@ const DialogWrapper = createStyledComponent(styles);
 interface Props {
   open?: boolean;
   title?: string;
-  children?: unknown;
-  actions?: unknown;
+  children?: React.ReactNode[];
+  actions?: React.ReactNode[];
   submitText?: string;
   fullWidth?: boolean;
   noHeader?: boolean;
   noFooter?: boolean;
   modal?: boolean;
-  onDismiss?: unknown;
-  onSubmit?: unknown;
-  theme;
+  onDismiss: (e: React.MouseEvent<HTMLButtonElement> | false) => void;
+  onSubmit: () => void;
+  theme: unknown;
 }
 
-export default class Dialog extends (PureComponent || Component) {
+export default class Dialog extends (PureComponent || Component)<Props> {
+  submitButton?: HTMLInputElement | null;
+
   onSubmit = () => {
     if (this.submitButton) this.submitButton.click();
     else this.props.onSubmit();
   };
 
-  getFormButtonRef = node => {
+  getFormButtonRef: React.RefCallback<HTMLInputElement> = node => {
     this.submitButton = node;
   };
 
-  onKeyDown = e => {
+  onKeyDown: React.KeyboardEventHandler<HTMLDivElement> = e => {
     if (e.keyCode === 27 /* esc */) {
       e.preventDefault();
       this.props.onDismiss(false);
@@ -112,19 +114,19 @@ export default class Dialog extends (PureComponent || Component) {
       </DialogWrapper>
     );
   }
-}
 
-Dialog.propTypes = {
-  open: PropTypes.bool,
-  title: PropTypes.string,
-  children: PropTypes.any,
-  actions: PropTypes.node,
-  submitText: PropTypes.string,
-  fullWidth: PropTypes.bool,
-  noHeader: PropTypes.bool,
-  noFooter: PropTypes.bool,
-  modal: PropTypes.bool,
-  onDismiss: PropTypes.func,
-  onSubmit: PropTypes.func,
-  theme: PropTypes.object
-};
+  static propTypes = {
+    open: PropTypes.bool,
+    title: PropTypes.string,
+    children: PropTypes.any,
+    actions: PropTypes.node,
+    submitText: PropTypes.string,
+    fullWidth: PropTypes.bool,
+    noHeader: PropTypes.bool,
+    noFooter: PropTypes.bool,
+    modal: PropTypes.bool,
+    onDismiss: PropTypes.func,
+    onSubmit: PropTypes.func,
+    theme: PropTypes.object
+  };
+}

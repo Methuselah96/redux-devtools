@@ -5,8 +5,10 @@ import { getTheme, ThemeData } from '../utils/theme';
 import { MainContainerWrapper, ContainerWrapper } from './styles';
 
 interface Props {
-  themeData: ThemeData;
-  className: string;
+  children?: React.ReactNode;
+  themeData?: ThemeData;
+  theme?: unknown;
+  className?: string;
 }
 
 const Container: React.FunctionComponent<Props> = ({

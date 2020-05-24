@@ -79,7 +79,7 @@ export default class ContextMenu extends Component<Props> {
   updateItems(items: Item[]) {
     this.items = items.map(item => {
       const value = item.value || item.name;
-      if (item.type === 'button') return item;
+      if ((item as HTMLButtonElement).type === 'button') return item;
       return (
         <button
           key={value}

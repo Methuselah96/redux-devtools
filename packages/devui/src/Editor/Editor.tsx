@@ -8,6 +8,18 @@ const EditorContainer = styled.div('', ({ theme }) =>
   theme.scheme === 'default' && theme.light ? defaultStyle : themedStyle(theme)
 );
 
+interface Props {
+  value: string;
+  mode: string;
+  lineNumbers: boolean;
+  lineWrapping: boolean;
+  readOnly: boolean;
+  theme: unknown;
+  foldGutter: boolean;
+  autofocus: boolean;
+  onChange?: unknown;
+}
+
 export default class Editor extends Component {
   componentDidMount() {
     this.cm = CodeMirror(this.node, {
@@ -63,26 +75,26 @@ export default class Editor extends Component {
   render() {
     return <EditorContainer innerRef={this.getRef} theme={this.props.theme} />;
   }
+
+  static propTypes = {
+    value: PropTypes.string,
+    mode: PropTypes.string,
+    lineNumbers: PropTypes.bool,
+    lineWrapping: PropTypes.bool,
+    readOnly: PropTypes.bool,
+    theme: PropTypes.object,
+    foldGutter: PropTypes.bool,
+    autofocus: PropTypes.bool,
+    onChange: PropTypes.func
+  };
+
+  static defaultProps = {
+    value: '',
+    mode: 'javascript',
+    lineNumbers: true,
+    lineWrapping: false,
+    readOnly: false,
+    foldGutter: true,
+    autofocus: false
+  };
 }
-
-Editor.propTypes = {
-  value: PropTypes.string,
-  mode: PropTypes.string,
-  lineNumbers: PropTypes.bool,
-  lineWrapping: PropTypes.bool,
-  readOnly: PropTypes.bool,
-  theme: PropTypes.object,
-  foldGutter: PropTypes.bool,
-  autofocus: PropTypes.bool,
-  onChange: PropTypes.func
-};
-
-Editor.defaultProps = {
-  value: '',
-  mode: 'javascript',
-  lineNumbers: true,
-  lineWrapping: false,
-  readOnly: false,
-  foldGutter: true,
-  autofocus: false
-};
