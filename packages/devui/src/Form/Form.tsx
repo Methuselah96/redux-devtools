@@ -5,6 +5,7 @@ import createStyledComponent from '../utils/createStyledComponent';
 import styles from './styles';
 import Button from '../Button';
 import customWidgets from './widgets';
+import { Theme } from '../utils/theme';
 
 const FormContainer = createStyledComponent(styles, JSONSchemaForm);
 
@@ -17,6 +18,7 @@ interface Props {
   uiSchema?: unknown;
   formData?: unknown;
   widgets?: unknown;
+  theme: Theme;
 }
 
 export default class Form extends (PureComponent || Component)<Props> {

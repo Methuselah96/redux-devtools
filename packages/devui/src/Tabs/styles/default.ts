@@ -1,17 +1,26 @@
 import { css } from 'styled-components';
+import { Theme } from '../../utils/theme';
 
-export const style = ({ theme, main }) => css`
+export interface StyleProps {
+  theme: Theme;
+  main: boolean | undefined;
+}
+
+export const style = ({ theme, main }: StyleProps) => css`
   display: flex;
   flex: 0 0 1;
   padding-left: 1px;
   background-color: ${theme.base01};
   width: 100%;
   overflow: hidden;
-  ${!main &&
-    `
+  ${
+    !main
+      ? `
   border-top: 1px solid ${theme.base01};
   border-bottom: 1px solid ${theme.base02};
-  `}
+  `
+      : ''
+  }
 
   > div {
     display: flex;

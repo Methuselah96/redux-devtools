@@ -1,7 +1,13 @@
 import { css } from 'styled-components';
 import color from '../../utils/color';
+import { Theme } from '../../utils/theme';
 
-export default ({ theme, disabled }) => css`
+interface StyleProps {
+  theme: Theme;
+  disabled: boolean | undefined;
+}
+
+export default ({ theme, disabled }: StyleProps) => css`
   display: flex;
   flex-shrink: 0;
 

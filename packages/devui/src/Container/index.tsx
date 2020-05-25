@@ -1,13 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { ThemeProvider } from 'styled-components';
-import { getTheme, ThemeData } from '../utils/theme';
+import { getTheme, Theme, ThemeData } from '../utils/theme';
 import { MainContainerWrapper, ContainerWrapper } from './styles';
 
 interface Props {
   children?: React.ReactNode;
   themeData?: ThemeData;
-  theme?: unknown;
+  theme: Theme;
   className?: string;
 }
 
@@ -36,8 +36,8 @@ const Container: React.FunctionComponent<Props> = ({
 
 Container.propTypes = {
   children: PropTypes.node,
-  themeData: PropTypes.object,
-  theme: PropTypes.object,
+  themeData: PropTypes.any,
+  theme: PropTypes.any,
   className: PropTypes.string
 };
 

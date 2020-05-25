@@ -25,6 +25,8 @@ import {
 } from '../../';
 import { options } from '../../Select/stories/options';
 import { simple10Tabs } from '../../Tabs/stories/data';
+import { TooltipPosition } from '../../Button/Button';
+import { BorderPosition } from '../styles/Toolbar';
 
 export const Container = styled.div`
   display: flex;
@@ -43,19 +45,29 @@ storiesOf('Toolbar', module)
   .addDecorator(withKnobs)
   .add('default', () => (
     <Container>
-      <Toolbar borderPosition={select('borderPosition', ['top', 'bottom'])}>
+      <Toolbar
+        borderPosition={select<BorderPosition>(
+          'borderPosition',
+          ['top', 'bottom'],
+          'top'
+        )}
+      >
         <Button
           title={text('Title', 'Hello Tooltip')}
-          tooltipPosition={select('tooltipPosition', [
-            'top',
-            'bottom',
-            'left',
-            'right',
-            'bottom-left',
-            'bottom-right',
-            'top-left',
-            'top-right'
-          ])}
+          tooltipPosition={select<TooltipPosition>(
+            'tooltipPosition',
+            [
+              'top',
+              'bottom',
+              'left',
+              'right',
+              'bottom-left',
+              'bottom-right',
+              'top-left',
+              'top-right'
+            ],
+            'top'
+          )}
           disabled={boolean('Disabled', false)}
           onClick={action('button clicked')}
         >
@@ -64,16 +76,20 @@ storiesOf('Toolbar', module)
         <Divider />
         <Button
           title={text('Title', 'Hello Tooltip')}
-          tooltipPosition={select('tooltipPosition', [
-            'top',
-            'bottom',
-            'left',
-            'right',
-            'bottom-left',
-            'bottom-right',
-            'top-left',
-            'top-right'
-          ])}
+          tooltipPosition={select<TooltipPosition>(
+            'tooltipPosition',
+            [
+              'top',
+              'bottom',
+              'left',
+              'right',
+              'bottom-left',
+              'bottom-right',
+              'top-left',
+              'top-right'
+            ],
+            'top'
+          )}
           disabled={boolean('Disabled', false)}
           onClick={action('button clicked')}
         >
@@ -90,16 +106,20 @@ storiesOf('Toolbar', module)
       <Toolbar>
         <Button
           title={text('Title', 'Hello Tooltip')}
-          tooltipPosition={select('tooltipPosition', [
-            'top',
-            'bottom',
-            'left',
-            'right',
-            'bottom-left',
-            'bottom-right',
-            'top-left',
-            'top-right'
-          ])}
+          tooltipPosition={select<TooltipPosition>(
+            'tooltipPosition',
+            [
+              'top',
+              'bottom',
+              'left',
+              'right',
+              'bottom-left',
+              'bottom-right',
+              'top-left',
+              'top-right'
+            ],
+            'top'
+          )}
           disabled={boolean('Disabled', false)}
           onClick={action('button clicked')}
         >
@@ -115,16 +135,20 @@ storiesOf('Toolbar', module)
         />
         <Button
           title={text('Title', 'Hello Tooltip')}
-          tooltipPosition={select('tooltipPosition', [
-            'top',
-            'bottom',
-            'left',
-            'right',
-            'bottom-left',
-            'bottom-right',
-            'top-left',
-            'top-right'
-          ])}
+          tooltipPosition={select<TooltipPosition>(
+            'tooltipPosition',
+            [
+              'top',
+              'bottom',
+              'left',
+              'right',
+              'bottom-left',
+              'bottom-right',
+              'top-left',
+              'top-right'
+            ],
+            'top'
+          )}
           disabled={boolean('Disabled', false)}
           onClick={action('button clicked')}
         >
@@ -139,16 +163,20 @@ storiesOf('Toolbar', module)
         <Toolbar noBorder fullHeight compact>
           <Button
             title={text('play title', 'Play')}
-            tooltipPosition={select('tooltipPosition', [
-              'top',
-              'bottom',
-              'left',
-              'right',
-              'bottom-left',
-              'bottom-right',
-              'top-left',
-              'top-right'
-            ])}
+            tooltipPosition={select<TooltipPosition>(
+              'tooltipPosition',
+              [
+                'top',
+                'bottom',
+                'left',
+                'right',
+                'bottom-left',
+                'bottom-right',
+                'top-left',
+                'top-right'
+              ],
+              'top'
+            )}
             onClick={action('button clicked')}
           >
             <PlayIcon />
@@ -163,16 +191,20 @@ storiesOf('Toolbar', module)
           />
           <Button
             title="Previous state"
-            tooltipPosition={select('tooltipPosition', [
-              'top',
-              'bottom',
-              'left',
-              'right',
-              'bottom-left',
-              'bottom-right',
-              'top-left',
-              'top-right'
-            ])}
+            tooltipPosition={select<TooltipPosition>(
+              'tooltipPosition',
+              [
+                'top',
+                'bottom',
+                'left',
+                'right',
+                'bottom-left',
+                'bottom-right',
+                'top-left',
+                'top-right'
+              ],
+              'top'
+            )}
             disabled
             onClick={action('previous state clicked')}
           >
@@ -180,16 +212,20 @@ storiesOf('Toolbar', module)
           </Button>
           <Button
             title="Next state"
-            tooltipPosition={select('tooltipPosition', [
-              'top',
-              'bottom',
-              'left',
-              'right',
-              'bottom-left',
-              'bottom-right',
-              'top-left',
-              'top-right'
-            ])}
+            tooltipPosition={select<TooltipPosition>(
+              'tooltipPosition',
+              [
+                'top',
+                'bottom',
+                'left',
+                'right',
+                'bottom-left',
+                'bottom-right',
+                'top-left',
+                'top-right'
+              ],
+              'top'
+            )}
             onClick={action('next state clicked')}
           >
             <RightIcon />

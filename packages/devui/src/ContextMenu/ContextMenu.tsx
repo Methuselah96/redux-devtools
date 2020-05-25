@@ -44,11 +44,11 @@ export default class ContextMenu extends Component<Props> {
   }
 
   onMouseUp: React.MouseEventHandler<HTMLButtonElement> = e => {
-    e.target.blur();
+    e.currentTarget.blur();
   };
 
   onClick: React.MouseEventHandler<HTMLButtonElement> = e => {
-    this.props.onClick(e.target.value);
+    this.props.onClick(e.currentTarget.value);
   };
 
   amendPosition() {

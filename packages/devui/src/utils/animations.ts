@@ -1,9 +1,10 @@
 import { keyframes } from 'styled-components';
+import { Theme } from './theme';
 
 export const spin = keyframes`
   to { transform: rotate(1turn); }
 `;
-export const spinner = theme => `
+export const spinner = (theme: Theme) => `
   animation: ${spin} 400ms infinite linear;
   width: ${theme.spinnerSize}px;
   height: ${theme.spinnerSize}px;
@@ -21,7 +22,7 @@ export const fadeIn = keyframes`
 `;
 
 // Based on https://github.com/mladenplavsic/css-ripple-effect
-export const ripple = theme => `
+export const ripple = (theme: Theme) => `
   & {
     position: relative;
     overflow: hidden;
@@ -36,9 +37,7 @@ export const ripple = theme => `
     top: 0;
     left: 0;
     pointer-events: none;
-    background-image: radial-gradient(circle, ${
-      theme.base07
-    } 11%, transparent 11%);
+    background-image: radial-gradient(circle, ${theme.base07} 11%, transparent 11%);
     background-repeat: no-repeat;
     background-position: 50%;
     transform: scale(10, 10);

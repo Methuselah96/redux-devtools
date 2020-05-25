@@ -1,6 +1,17 @@
 import styled from 'styled-components';
+import { Theme } from '../../utils/theme';
 
-const Toolbar = styled.div`
+export type BorderPosition = 'top' | 'bottom';
+
+interface Props {
+  theme: Theme;
+  fullHeight?: boolean;
+  compact?: boolean;
+  borderPosition?: BorderPosition;
+  noBorder?: boolean;
+}
+
+const Toolbar = styled.div<Props>`
   display: flex;
   flex-shrink: 0;
   box-sizing: border-box;
@@ -8,13 +19,15 @@ const Toolbar = styled.div`
   font-family: ${props => props.theme.fontFamily || 'monospace'};
   font-size: 12px;
   line-height: 16px;
-  ${props => props.fullHeight && 'height: 100%;'}
+  ${props => (props.fullHeight ? 'height: 100%;' : '')}
   padding: ${props => (props.compact ? '0' : '5px')} 5px;
   background-color: ${props => props.theme.base01};
   text-align: center;
   position: relative;
   ${({ borderPosition, theme }) =>
-    borderPosition && `border-${borderPosition}: 1px solid ${theme.base02};`}
+    borderPosition
+      ? `border-${borderPosition}: 1px solid ${theme.base02};`
+      : ''}
   
   & > div {
     margin: auto ${props => (props.noBorder ? '0' : '1px;')};
@@ -22,7 +35,7 @@ const Toolbar = styled.div`
   
   & button {
     border-radius: 0;
-    ${props => props.noBorder && 'border-color: transparent;'}
+    ${props => (props.noBorder ? 'border-color: transparent;' : '')}
     white-space: nowrap;
     box-shadow: none !important;
   }

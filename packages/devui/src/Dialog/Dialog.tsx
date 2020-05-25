@@ -4,6 +4,7 @@ import createStyledComponent from '../utils/createStyledComponent';
 import * as styles from './styles';
 import Button from '../Button';
 import Form from '../Form';
+import { Theme } from '../utils/theme';
 
 const DialogWrapper = createStyledComponent(styles);
 
@@ -19,7 +20,7 @@ interface Props {
   modal?: boolean;
   onDismiss: (e: React.MouseEvent<HTMLButtonElement> | false) => void;
   onSubmit: () => void;
-  theme: unknown;
+  theme: Theme;
 }
 
 export default class Dialog extends (PureComponent || Component)<Props> {
@@ -64,7 +65,7 @@ export default class Dialog extends (PureComponent || Component)<Props> {
         onKeyDown={this.onKeyDown}
         theme={rest.theme}
       >
-        <div onClick={!modal && onDismiss} />
+        <div onClick={!modal ? onDismiss : undefined} />
         <div>
           {!noHeader && (
             <div className="mc-dialog--header">

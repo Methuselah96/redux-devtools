@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import CodeMirror from 'codemirror';
 import { defaultStyle, themedStyle } from './styles';
+import { Theme } from '../utils/theme';
 
-const EditorContainer = styled.div('', ({ theme }) =>
+const EditorContainer = styled.div('', ({ theme }: { theme: Theme }) =>
   theme.scheme === 'default' && theme.light ? defaultStyle : themedStyle(theme)
 );
 
@@ -14,7 +15,7 @@ interface Props {
   lineNumbers: boolean;
   lineWrapping: boolean;
   readOnly: boolean;
-  theme: unknown;
+  theme: Theme;
   foldGutter: boolean;
   autofocus: boolean;
   onChange?: (value: string, change: CodeMirror.EditorChangeLinkedList) => void;

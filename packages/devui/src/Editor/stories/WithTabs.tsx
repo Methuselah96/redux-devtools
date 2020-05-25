@@ -11,8 +11,12 @@ const value2 = `
   const func2 = () => {}
 `;
 
+interface Props {
+  lineNumbers: boolean;
+}
+
 /* eslint-disable react/prop-types */
-export default class WithTabs extends Component {
+export default class WithTabs extends Component<Props> {
   state = {
     selected: 'Function 1'
   };

@@ -49,6 +49,7 @@
     "@storybook/addon-options": "^4.1.18",
     "@storybook/react": "^4.1.18",
     "@types/codemirror": "^0.0.95",
+    "@types/color": "^2.0.1",
     "@types/react-icons": "^2.2.7",
     "@types/react-jsonschema-form": "^1.7.3",
     "@types/react-select": "^1.3.4",

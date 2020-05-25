@@ -1,7 +1,14 @@
 import { css } from 'styled-components';
 import { fadeIn, spinner } from '../../utils/animations';
+import { Theme } from '../../utils/theme';
 
-export default ({ theme, openOuterUp, menuMaxHeight }) => css`
+interface StyleProps {
+  theme: Theme;
+  openOuterUp: boolean | undefined;
+  menuMaxHeight: number;
+}
+
+export default ({ theme, openOuterUp, menuMaxHeight }: StyleProps) => css`
   &.Select {
     position: relative;
 

@@ -6,14 +6,17 @@ import ErrorIcon from 'react-icons/lib/md/error';
 import SuccessIcon from 'react-icons/lib/md/check-circle';
 import createStyledComponent from '../utils/createStyledComponent';
 import styles from './styles';
+import { Theme } from '../utils/theme';
 
 const NotificationWrapper = createStyledComponent(styles);
 
+export type Type = 'info' | 'success' | 'warning' | 'error';
+
 interface Props {
   children?: React.ReactNode[];
-  type: 'info' | 'success' | 'warning' | 'error';
+  type: Type;
   onClose?: React.MouseEventHandler<HTMLButtonElement>;
-  theme: unknown;
+  theme: Theme;
 }
 
 export default class Notification extends Component<Props> {

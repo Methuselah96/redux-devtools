@@ -8,8 +8,21 @@ Based on:
 
 import { css } from 'styled-components';
 import { prefixSelectors } from '../../utils/autoPrefix';
+import { Theme } from '../../utils/theme';
 
-export const style = ({ theme, percent, disabled, withLabel }) => css`
+export interface StyleProps {
+  theme: Theme;
+  percent: number;
+  disabled: boolean;
+  withLabel: boolean;
+}
+
+export const style = ({
+  theme,
+  percent,
+  disabled,
+  withLabel
+}: StyleProps) => css`
   display: block;
   width: 100%;
   position: relative;
@@ -56,9 +69,7 @@ export const style = ({ theme, percent, disabled, withLabel }) => css`
     height: 0.8em;
     border-radius: 0.5em;
     box-shadow: 0 0 .125em ${theme.base04};
-    background: linear-gradient(${theme.base01}, ${theme.base02} 40%, ${
-      theme.base01
-    })
+    background: linear-gradient(${theme.base01}, ${theme.base02} 40%, ${theme.base01})
       no-repeat ${theme.base00};
     background-size: ${percent}% 100%;
   }`

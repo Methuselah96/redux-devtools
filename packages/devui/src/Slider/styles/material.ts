@@ -2,8 +2,14 @@ import { css } from 'styled-components';
 import { prefixSelectors } from '../../utils/autoPrefix';
 import color from '../../utils/color';
 import { animationCurve } from '../../utils/animations';
+import { StyleProps } from './default';
 
-export const style = ({ theme, percent, disabled, withLabel }) => css`
+export const style = ({
+  theme,
+  percent,
+  disabled,
+  withLabel
+}: StyleProps) => css`
   display: block;
   width: 100%;
   position: relative;

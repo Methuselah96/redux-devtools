@@ -1,6 +1,13 @@
 import { css } from 'styled-components';
+import { Theme } from '../../utils/theme';
 
-export const style = ({ theme, open, fullWidth }) => css`
+export interface StyleProps {
+  theme: Theme;
+  open: boolean | undefined;
+  fullWidth: boolean | undefined;
+}
+
+export const style = ({ theme, open, fullWidth }: StyleProps) => css`
   position: fixed;
   top: 0px;
   right: 0px;

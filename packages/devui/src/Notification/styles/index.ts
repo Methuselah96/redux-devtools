@@ -1,6 +1,8 @@
 import { css } from 'styled-components';
+import { Theme } from '../../utils/theme';
+import { Type } from '../Notification';
 
-const getBackground = (theme, type) => {
+const getBackground = (theme: Theme, type: Type) => {
   switch (type) {
     case 'success':
       return `background-color: ${theme.base0B};`;
@@ -13,7 +15,12 @@ const getBackground = (theme, type) => {
   }
 };
 
-export default ({ theme, type }) => css`
+interface StyleProps {
+  theme: Theme;
+  type: Type;
+}
+
+export default ({ theme, type }: StyleProps) => css`
   display: flex;
   align-items: flex-start;
   flex-shrink: 0;
