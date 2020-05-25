@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import createStyledComponent from '../utils/createStyledComponent';
 import * as styles from './styles';
 import Button from '../Button';
-import Form from '../Form';
+import Form, { Props as FormProps } from '../Form';
 import { Theme } from '../utils/theme';
 
 const DialogWrapper = createStyledComponent(styles);
@@ -23,7 +23,15 @@ interface Props {
   theme?: Theme;
 }
 
-export default class Dialog extends (PureComponent || Component)<Props> {
+function isForm(
+  props: Props | (Props & FormProps)
+): props is Props & FormProps {
+  return props.schema !== undefined;
+}
+
+export default class Dialog extends (PureComponent || Component)<
+  Props | (Props & FormProps)
+> {
   submitButton?: HTMLInputElement | null;
 
   onSubmit = () => {
@@ -75,7 +83,7 @@ export default class Dialog extends (PureComponent || Component)<Props> {
           )}
           <div className="mc-dialog--body">
             {children}
-            {schema && (
+            {isForm(rest) && (
               <Form {...rest}>
                 {!noFooter && (
                   <input

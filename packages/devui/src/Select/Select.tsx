@@ -1,22 +1,13 @@
 import React, { PureComponent, Component } from 'react';
 import PropTypes from 'prop-types';
-import ReactSelect from 'react-select';
+import ReactSelect, { ReactSelectProps } from 'react-select';
 import createStyledComponent from '../utils/createStyledComponent';
 import styles from './styles';
 
 const SelectContainer = createStyledComponent(styles, ReactSelect);
 
-interface Props {
-  autosize: boolean;
-  clearable: boolean;
-  disabled?: boolean;
-  isLoading?: boolean;
+interface Props extends ReactSelectProps {
   menuMaxHeight: number;
-  multi?: boolean;
-  searchable?: boolean;
-  simpleValue: boolean;
-  value?: unknown;
-  valueKey?: string;
   openOuterUp?: boolean;
 }
 

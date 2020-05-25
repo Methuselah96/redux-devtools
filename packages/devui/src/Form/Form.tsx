@@ -9,7 +9,7 @@ import { Theme } from '../utils/theme';
 
 const FormContainer = createStyledComponent(styles, JSONSchemaForm);
 
-interface Props {
+export interface Props {
   children?: React.ReactNode;
   submitText?: string;
   primaryButton?: boolean;

@@ -27,6 +27,7 @@ import { options } from '../../Select/stories/options';
 import { simple10Tabs } from '../../Tabs/stories/data';
 import { TooltipPosition } from '../../Button/Button';
 import { BorderPosition } from '../styles/Toolbar';
+import { Position } from '../../Tabs/Tabs';
 
 export const Container = styled.div`
   display: flex;
@@ -131,7 +132,11 @@ storiesOf('Toolbar', module)
           main={boolean('main', true)}
           onClick={action('tab selected')}
           collapsible={boolean('collapsible', true)}
-          position={select('position', ['left', 'right', 'center'], 'center')}
+          position={select<Position>(
+            'position',
+            ['left', 'right', 'center'],
+            'center'
+          )}
         />
         <Button
           title={text('Title', 'Hello Tooltip')}

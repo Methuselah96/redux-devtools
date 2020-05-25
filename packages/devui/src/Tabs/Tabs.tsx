@@ -10,13 +10,15 @@ export interface Tab {
   selector?: (tab: this) => unknown;
 }
 
+export type Position = 'left' | 'right' | 'center';
+
 interface Props {
   tabs: Tab[];
   selected?: string;
   main?: boolean;
   onClick: (value: string) => void;
   collapsible?: boolean;
-  position: 'left' | 'right' | 'center';
+  position: Position;
 }
 
 export default class Tabs extends Component<Props> {

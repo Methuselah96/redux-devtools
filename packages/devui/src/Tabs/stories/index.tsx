@@ -5,6 +5,7 @@ import { withKnobs, text, boolean, select } from '@storybook/addon-knobs';
 import styled from 'styled-components';
 import Tabs from '../';
 import { tabs, simple10Tabs } from './data';
+import { Position } from '../Tabs';
 
 const Container = styled.div`
   display: flex;
@@ -24,7 +25,11 @@ storiesOf('Tabs', module)
         main={boolean('main', true)}
         onClick={action('tab selected')}
         collapsible={boolean('collapsible', true)}
-        position={select('position', ['left', 'right', 'center'], 'left')}
+        position={select<Position>(
+          'position',
+          ['left', 'right', 'center'],
+          'left'
+        )}
       />
     </Container>
   ))
@@ -35,6 +40,10 @@ storiesOf('Tabs', module)
       main={boolean('main', false)}
       onClick={action('tab selected')}
       collapsible={boolean('collapsible', false)}
-      position={select('position', ['left', 'right', 'center'], 'left')}
+      position={select<Position>(
+        'position',
+        ['left', 'right', 'center'],
+        'left'
+      )}
     />
   ));

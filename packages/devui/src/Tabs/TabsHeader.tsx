@@ -20,10 +20,10 @@ interface Props {
 }
 
 interface State {
-  visibleTabs: unknown[];
-  hiddenTabs: unknown[];
+  visibleTabs: JSX.Element[];
+  hiddenTabs: JSX.Element[];
   subMenuOpened: boolean;
-  contextMenu: unknown | undefined;
+  contextMenu: { top: number; left: number } | undefined;
 }
 
 export default class TabsHeader extends Component<Props, State> {
@@ -137,7 +137,7 @@ export default class TabsHeader extends Component<Props, State> {
             tabsWrapperRef!.getBoundingClientRect().width
         ) {
           hiddenTab = hiddenTabs.shift();
-          visibleTabs.splice(Number(hiddenTab.key), 0, hiddenTab);
+          visibleTabs.splice(Number(hiddenTab!.key), 0, hiddenTab!);
           i++;
         }
       } else {
@@ -166,7 +166,7 @@ export default class TabsHeader extends Component<Props, State> {
           tabsWrapperRight - this.iconWidth
       ) {
         hiddenTab = hiddenTabs.shift();
-        visibleTabs.splice(Number(hiddenTab.key), 0, hiddenTab);
+        visibleTabs.splice(Number(hiddenTab!.key), 0, hiddenTab!);
         this.hiddenTabsWidth.shift();
         i++;
       }
@@ -200,11 +200,7 @@ export default class TabsHeader extends Component<Props, State> {
   render() {
     const { visibleTabs, hiddenTabs, contextMenu } = this.state;
     return (
-      <TabsWrapper
-        innerRef={this.getTabsWrapperRef}
-        main={this.props.main}
-        position={this.props.position}
-      >
+      <TabsWrapper innerRef={this.getTabsWrapperRef} main={this.props.main}>
         <div ref={this.getTabsRef}>
           {visibleTabs}
           {this.props.collapsible &&

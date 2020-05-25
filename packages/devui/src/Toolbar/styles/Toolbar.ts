@@ -1,10 +1,8 @@
 import styled from 'styled-components';
-import { Theme } from '../../utils/theme';
 
 export type BorderPosition = 'top' | 'bottom';
 
 interface Props {
-  theme: Theme;
   fullHeight?: boolean;
   compact?: boolean;
   borderPosition?: BorderPosition;

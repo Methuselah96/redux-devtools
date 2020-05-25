@@ -1,6 +1,11 @@
 import styled from 'styled-components';
+import { Position } from '../Tabs';
 
-export const TabsContainer = styled.div`
+interface StyleProps {
+  position: Position;
+}
+
+export const TabsContainer = styled.div<StyleProps>`
   position: relative;
   display: flex;
   flex-direction: column;
@@ -12,15 +17,17 @@ export const TabsContainer = styled.div`
 
   > div > div:first-child {
     ${props =>
-      props.position !== 'left' &&
-      `
+      props.position !== 'left'
+        ? `
       margin-left: auto !important;
-    `}
+    `
+        : ''}
     ${props =>
-      props.position === 'center' &&
-      `
+      props.position === 'center'
+        ? `
       margin-right: auto !important;
-    `}
+    `
+        : ''}
   }
 
   > div:nth-child(2) {

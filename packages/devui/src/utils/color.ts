@@ -7,7 +7,11 @@ import Color from 'color';
     effect('#000000', 'alpha', 0.5);
 */
 
-export default (color: string, effect: 'fade', val: number) =>
+export default (
+  color: string,
+  effect: 'fade' | 'lighten' | 'alpha',
+  val: number
+) =>
   Color(color)
     [effect](val)
     .hsl()
