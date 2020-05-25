@@ -15,10 +15,10 @@ interface Props {
   lineNumbers: boolean;
   lineWrapping: boolean;
   readOnly: boolean;
-  theme: Theme;
+  theme?: Theme;
   foldGutter: boolean;
   autofocus: boolean;
-  onChange?: (value: string, change: CodeMirror.EditorChangeLinkedList) => void;
+  onChange: (value: string, change: CodeMirror.EditorChangeLinkedList) => void;
 }
 
 export default class Editor extends Component<Props> {

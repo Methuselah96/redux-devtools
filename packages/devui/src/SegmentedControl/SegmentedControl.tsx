@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import createStyledComponent from '../utils/createStyledComponent';
 import styles from './styles';
+import { Theme } from '../utils/theme';
 
 const SegmentedWrapper = createStyledComponent(styles);
 
@@ -10,7 +11,7 @@ interface Props {
   selected?: string;
   onClick: (value: string) => void;
   disabled?: boolean;
-  theme: unknown;
+  theme?: Theme;
 }
 
 export default class SegmentedControl extends Component<Props> {

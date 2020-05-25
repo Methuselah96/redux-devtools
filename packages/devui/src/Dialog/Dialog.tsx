@@ -11,7 +11,7 @@ const DialogWrapper = createStyledComponent(styles);
 interface Props {
   open?: boolean;
   title?: string;
-  children?: React.ReactNode[];
+  children?: React.ReactNode;
   actions?: React.ReactNode[];
   submitText?: string;
   fullWidth?: boolean;
@@ -20,7 +20,7 @@ interface Props {
   modal?: boolean;
   onDismiss: (e: React.MouseEvent<HTMLButtonElement> | false) => void;
   onSubmit: () => void;
-  theme: Theme;
+  theme?: Theme;
 }
 
 export default class Dialog extends (PureComponent || Component)<Props> {

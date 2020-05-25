@@ -41,7 +41,7 @@ interface Props {
   primary?: boolean;
   size?: Size;
   mark?: Mark | false;
-  theme: Theme;
+  theme?: Theme;
 }
 
 export default class Button extends Component<Props> {

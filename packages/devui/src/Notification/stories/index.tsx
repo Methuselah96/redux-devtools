@@ -4,6 +4,7 @@ import { action } from '@storybook/addon-actions';
 import styled from 'styled-components';
 import { withKnobs, text, select } from '@storybook/addon-knobs';
 import Notification from '../';
+import { Type } from '../Notification';
 
 export const Container = styled.div`
   display: flex;
@@ -18,7 +19,7 @@ storiesOf('Notification', module)
   .add('default', () => (
     <Container>
       <Notification
-        type={select(
+        type={select<Type>(
           'type',
           ['info', 'success', 'warning', 'error'],
           'warning'

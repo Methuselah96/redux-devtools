@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import createStyledComponent from '../utils/createStyledComponent';
 import * as styles from './styles';
 import { containerStyle } from './styles/common';
+import { Theme } from '../utils/theme';
 
 const SliderWrapper = createStyledComponent(styles);
 const ContainerWithValue = createStyledComponent(containerStyle);
@@ -16,7 +17,7 @@ interface Props {
   withValue?: boolean;
   disabled?: boolean;
   onChange: (value: number) => void;
-  theme: unknown;
+  theme?: Theme;
 }
 
 export default class Slider extends Component<Props> {

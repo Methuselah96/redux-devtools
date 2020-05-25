@@ -13,10 +13,10 @@ const NotificationWrapper = createStyledComponent(styles);
 export type Type = 'info' | 'success' | 'warning' | 'error';
 
 interface Props {
-  children?: React.ReactNode[];
+  children?: React.ReactNode;
   type: Type;
   onClose?: React.MouseEventHandler<HTMLButtonElement>;
-  theme: Theme;
+  theme?: Theme;
 }
 
 export default class Notification extends Component<Props> {

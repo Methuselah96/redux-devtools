@@ -18,7 +18,7 @@ interface Props {
   uiSchema?: unknown;
   formData?: unknown;
   widgets?: unknown;
-  theme: Theme;
+  theme?: Theme;
 }
 
 export default class Form extends (PureComponent || Component)<Props> {

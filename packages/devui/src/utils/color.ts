@@ -1,5 +1,4 @@
 import Color from 'color';
-import convert from 'color-convert';
 
 /*
   Apply color effects like
