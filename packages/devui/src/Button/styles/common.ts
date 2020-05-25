@@ -1,8 +1,10 @@
 import { css } from 'styled-components';
 import { fadeIn } from '../../utils/animations';
 import colorEffect from '../../utils/color';
+import { Mark, Size, TooltipPosition } from '../Button';
+import { Theme } from '../../utils/theme';
 
-const both = tooltipPosition => {
+const both = (tooltipPosition: TooltipPosition) => {
   switch (tooltipPosition) {
     case 'bottom':
       return `
@@ -46,7 +48,7 @@ const both = tooltipPosition => {
   }
 };
 
-const before = tooltipPosition => {
+const before = (tooltipPosition: TooltipPosition) => {
   switch (tooltipPosition) {
     case 'bottom-left':
       return `
@@ -69,7 +71,7 @@ const before = tooltipPosition => {
   }
 };
 
-const after = (tooltipPosition, color) => {
+const after = (tooltipPosition: TooltipPosition, color: string) => {
   switch (tooltipPosition) {
     case 'bottom':
       return `
@@ -110,13 +112,13 @@ const after = (tooltipPosition, color) => {
   }
 };
 
-const getDirection = tooltipPosition => {
+const getDirection = (tooltipPosition: TooltipPosition) => {
   return tooltipPosition.indexOf('-') > 0
     ? tooltipPosition.substring(0, tooltipPosition.indexOf('-'))
     : tooltipPosition;
 };
 
-const getSize = size => {
+const getSize = (size: Size | undefined) => {
   switch (size) {
     case 'big':
       return 'min-height: 34px; padding: 2px 12px;';
@@ -127,7 +129,13 @@ const getSize = size => {
   }
 };
 
-export const commonStyle = ({ theme, mark, size }) => css`
+interface CommonStyleProps {
+  theme: Theme;
+  size: Size | undefined;
+  mark: Mark | undefined;
+}
+
+export const commonStyle = ({ theme, mark, size }: CommonStyleProps) => css`
   display: inline-block;
   position: relative;
   flex-shrink: 0;
@@ -145,8 +153,8 @@ export const commonStyle = ({ theme, mark, size }) => css`
       pointer-events: none;
     }
 
-    ${mark &&
-      `
+    ${mark
+      ? `
     background-color: ${colorEffect(
       theme[mark],
       'fade',
@@ -160,9 +168,18 @@ export const commonStyle = ({ theme, mark, size }) => css`
       stroke-opacity: 0.2;
       user-select: none;
     }
-  `}
+  `
+      : ''}
   }
 `;
+
+interface TooltipStyleProps {
+  theme: Theme;
+  tooltipTitle: string | undefined;
+  tooltipPosition: TooltipPosition;
+  size: Size | undefined;
+  mark: Mark | undefined;
+}
 
 export const tooltipStyle = ({
   theme,
@@ -170,11 +187,11 @@ export const tooltipStyle = ({
   tooltipPosition,
   mark,
   size
-}) => css`
+}: TooltipStyleProps) => css`
   ${commonStyle({ theme, mark, size })}
 
   &:before {
-    content: "${tooltipTitle}";
+    content: "${tooltipTitle ?? ''}";
     white-space: pre;
     color: ${theme.base06};
     line-height: 16px;
@@ -208,8 +225,9 @@ export const tooltipStyle = ({
     ${theme.type === 'material' ? `animation: ${fadeIn} 500ms;` : ''}
   }
 
-  ${theme.type !== 'material' &&
-    `
+  ${
+    theme.type !== 'material'
+      ? `
   &:after {
     content: "";
     border-style: solid;
@@ -218,7 +236,9 @@ export const tooltipStyle = ({
     ${after(tooltipPosition, theme.base02)}
     ${getDirection(tooltipPosition)}: 7px;
   }
-  `}
+  `
+      : ''
+  }
 
   &:hover:after,
   &:hover:before {

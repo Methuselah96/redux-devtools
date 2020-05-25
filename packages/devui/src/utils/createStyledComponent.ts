@@ -1,5 +1,6 @@
 import styled, { InterpolationValue } from 'styled-components';
 import getDefaultTheme from '../themes/default';
+import { Base16Theme } from 'base16';
 
 type StylingFunction<Props> = (props: Props) => InterpolationValue[];
 
@@ -13,8 +14,10 @@ const getStyle = <P>(
   type: string
 ) => (typeof styles === 'object' ? styles[type] || styles.default : styles);
 
+function hasType();
+
 function createStyledComponent<
-  P extends { theme: { type?: string } },
+  P extends { theme: { type?: string } | Base16Theme },
   TTag extends keyof JSX.IntrinsicElements
 >(
   styles:

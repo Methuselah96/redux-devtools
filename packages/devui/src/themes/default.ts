@@ -1,4 +1,19 @@
 import { Base16Theme } from 'base16';
+import { FontFamilyProperty } from 'csstype';
+
+export interface ThemeDefinition extends Base16Theme {
+  fontFamily: FontFamilyProperty;
+  codeFontFamily: FontFamilyProperty;
+  inputHeight: number;
+  inputBorderWidth: number;
+  inputBorderRadius: number;
+  spinnerSize: number;
+  inputPadding: number;
+  selectArrowWidth: number;
+  inputInternalHeight: number;
+  inputBorderColor: string;
+  inputFocusedStyle: string;
+}
 
 export default (colors: Base16Theme) => ({
   ...colors,

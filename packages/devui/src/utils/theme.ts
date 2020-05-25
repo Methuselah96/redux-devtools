@@ -4,6 +4,7 @@ import * as baseSchemes from 'base16';
 import * as additionalSchemes from '../colorSchemes';
 import invertColors from '../utils/invertColors';
 import { Base16Theme } from 'base16';
+import { ThemeDefinition } from '../themes/default';
 
 export const schemes = { ...baseSchemes, ...additionalSchemes };
 export const listSchemes = () =>
@@ -18,7 +19,12 @@ export interface ThemeData {
   light: boolean;
 }
 
-export const getTheme = ({ theme: type, scheme, light }: ThemeData) => {
+export interface Theme extends ThemeDefinition {
+  type: keyof typeof themes;
+  light: boolean;
+}
+
+export const getTheme = ({ theme: type, scheme, light }: ThemeData): Theme => {
   let colors: Base16Theme;
   if (scheme === 'default') {
     colors = light ? schemes.default : defaultDarkScheme;
