@@ -29,8 +29,7 @@ export type Mark =
   | 'base0C'
   | 'base0D'
   | 'base0E'
-  | 'base0F'
-  | false;
+  | 'base0F';
 
 interface Props {
   children: unknown;
@@ -41,7 +40,7 @@ interface Props {
   disabled?: boolean;
   primary?: boolean;
   size?: Size;
-  mark?: Mark;
+  mark?: Mark | false;
   theme: Theme;
 }
 

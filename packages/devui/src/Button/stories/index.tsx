@@ -5,6 +5,7 @@ import { action } from '@storybook/addon-actions';
 import { withKnobs, text, boolean, select } from '@storybook/addon-knobs';
 import MdFiberManualRecord from 'react-icons/lib/md/fiber-manual-record';
 import Button from '../';
+import { Mark, Size, TooltipPosition } from '../Button';
 
 export const Container = styled.div`
   display: flex;
@@ -20,18 +21,22 @@ storiesOf('Button', module)
     <Container>
       <Button
         title={text('Title', 'Hello Tooltip! \\a And from new line hello!')}
-        tooltipPosition={select('tooltipPosition', [
-          'top',
-          'bottom',
-          'left',
-          'right',
-          'bottom-left',
-          'bottom-right',
-          'top-left',
-          'top-right'
-        ])}
+        tooltipPosition={select<TooltipPosition>(
+          'tooltipPosition',
+          [
+            'top',
+            'bottom',
+            'left',
+            'right',
+            'bottom-left',
+            'bottom-right',
+            'top-left',
+            'top-right'
+          ],
+          'top'
+        )}
         primary={boolean('primary', true)}
-        size={select('size', ['big', 'normal', 'small'], 'normal')}
+        size={select<Size>('size', ['big', 'normal', 'small'], 'normal')}
         disabled={boolean('Disabled', false)}
         onClick={action('button clicked')}
       >
@@ -42,7 +47,7 @@ storiesOf('Button', module)
   .add('mark', () => (
     <Container>
       <Button
-        mark={select(
+        mark={select<Mark>(
           'mark',
           [
             'base08',
@@ -57,17 +62,21 @@ storiesOf('Button', module)
           'base08'
         )}
         title={text('Title', 'Hello Tooltip')}
-        tooltipPosition={select('tooltipPosition', [
-          'top',
-          'bottom',
-          'left',
-          'right',
-          'bottom-left',
-          'bottom-right',
-          'top-left',
-          'top-right'
-        ])}
-        size={select('size', ['big', 'normal', 'small'], 'normal')}
+        tooltipPosition={select<TooltipPosition>(
+          'tooltipPosition',
+          [
+            'top',
+            'bottom',
+            'left',
+            'right',
+            'bottom-left',
+            'bottom-right',
+            'top-left',
+            'top-right'
+          ],
+          'top'
+        )}
+        size={select<Size>('size', ['big', 'normal', 'small'], 'normal')}
         disabled={boolean('Disabled', false)}
         onClick={action('button clicked')}
       >

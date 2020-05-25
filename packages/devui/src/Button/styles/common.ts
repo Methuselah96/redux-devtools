@@ -132,7 +132,7 @@ const getSize = (size: Size | undefined) => {
 interface CommonStyleProps {
   theme: Theme;
   size: Size | undefined;
-  mark: Mark | undefined;
+  mark: Mark | false | undefined;
 }
 
 export const commonStyle = ({ theme, mark, size }: CommonStyleProps) => css`
@@ -178,7 +178,7 @@ interface TooltipStyleProps {
   tooltipTitle: string | undefined;
   tooltipPosition: TooltipPosition;
   size: Size | undefined;
-  mark: Mark | undefined;
+  mark: Mark | false | undefined;
 }
 
 export const tooltipStyle = ({
