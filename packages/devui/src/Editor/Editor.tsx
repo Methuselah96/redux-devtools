@@ -17,12 +17,15 @@ interface Props {
   theme: unknown;
   foldGutter: boolean;
   autofocus: boolean;
-  onChange?: unknown;
+  onChange?: (value: string, change: CodeMirror.EditorChangeLinkedList) => void;
 }
 
-export default class Editor extends Component {
+export default class Editor extends Component<Props> {
+  cm?: CodeMirror.Editor | null;
+  node?: HTMLDivElement | null;
+
   componentDidMount() {
-    this.cm = CodeMirror(this.node, {
+    this.cm = CodeMirror(this.node!, {
       value: this.props.value,
       mode: this.props.mode,
       lineNumbers: this.props.lineNumbers,
@@ -40,21 +43,21 @@ export default class Editor extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.value !== this.cm.getValue()) {
-      this.cm.setValue(nextProps.value);
+  componentWillReceiveProps(nextProps: Props) {
+    if (nextProps.value !== this.cm!.getValue()) {
+      this.cm!.setValue(nextProps.value);
     }
     if (nextProps.readOnly !== this.props.readOnly) {
-      this.cm.setOption('readOnly', nextProps.readOnly);
+      this.cm!.setOption('readOnly', nextProps.readOnly);
     }
     if (nextProps.lineNumbers !== this.props.lineNumbers) {
-      this.cm.setOption('lineNumbers', nextProps.lineNumbers);
+      this.cm!.setOption('lineNumbers', nextProps.lineNumbers);
     }
     if (nextProps.lineWrapping !== this.props.lineWrapping) {
-      this.cm.setOption('lineWrapping', nextProps.lineWrapping);
+      this.cm!.setOption('lineWrapping', nextProps.lineWrapping);
     }
     if (nextProps.foldGutter !== this.props.foldGutter) {
-      this.cm.setOption('foldGutter', nextProps.foldGutter);
+      this.cm!.setOption('foldGutter', nextProps.foldGutter);
     }
   }
 
@@ -63,12 +66,12 @@ export default class Editor extends Component {
   }
 
   componentWillUnmount() {
-    const node = this.node;
+    const node = this.node!;
     node.removeChild(node.children[0]);
     this.cm = null;
   }
 
-  getRef = node => {
+  getRef: React.RefCallback<HTMLDivElement> = node => {
     this.node = node;
   };
 

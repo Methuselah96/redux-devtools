@@ -7,8 +7,20 @@ import { containerStyle } from './styles/common';
 const SliderWrapper = createStyledComponent(styles);
 const ContainerWithValue = createStyledComponent(containerStyle);
 
-export default class Slider extends Component {
-  shouldComponentUpdate(nextProps) {
+interface Props {
+  value: number;
+  min: number;
+  max: number;
+  label?: string;
+  sublabel?: string;
+  withValue?: boolean;
+  disabled?: boolean;
+  onChange: (value: number) => void;
+  theme: unknown;
+}
+
+export default class Slider extends Component<Props> {
+  shouldComponentUpdate(nextProps: Props) {
     return (
       nextProps.label !== this.props.label ||
       nextProps.value !== this.props.value ||
@@ -19,7 +31,7 @@ export default class Slider extends Component {
     );
   }
 
-  onChange = e => {
+  onChange: React.ChangeEventHandler<HTMLInputElement> = e => {
     this.props.onChange(parseFloat(e.target.value));
   };
 
@@ -53,18 +65,18 @@ export default class Slider extends Component {
       </SliderWrapper>
     );
   }
+
+  static propTypes = {
+    value: PropTypes.number,
+    min: PropTypes.number,
+    max: PropTypes.number,
+    label: PropTypes.string,
+    sublabel: PropTypes.string,
+    withValue: PropTypes.bool,
+    disabled: PropTypes.bool,
+    onChange: PropTypes.func,
+    theme: PropTypes.object
+  };
+
+  static defaultProps = { value: 0, min: 0, max: 100 };
 }
-
-Slider.propTypes = {
-  value: PropTypes.number,
-  min: PropTypes.number,
-  max: PropTypes.number,
-  label: PropTypes.string,
-  sublabel: PropTypes.string,
-  withValue: PropTypes.bool,
-  disabled: PropTypes.bool,
-  onChange: PropTypes.func,
-  theme: PropTypes.object
-};
-
-Slider.defaultProps = { value: 0, min: 0, max: 100 };

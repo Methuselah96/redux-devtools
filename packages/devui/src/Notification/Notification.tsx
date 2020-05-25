@@ -9,8 +9,15 @@ import styles from './styles';
 
 const NotificationWrapper = createStyledComponent(styles);
 
-export default class Notification extends Component {
-  shouldComponentUpdate(nextProps) {
+interface Props {
+  children?: React.ReactNode[];
+  type: 'info' | 'success' | 'warning' | 'error';
+  onClose?: React.MouseEventHandler<HTMLButtonElement>;
+  theme: unknown;
+}
+
+export default class Notification extends Component<Props> {
+  shouldComponentUpdate(nextProps: Props) {
     return (
       nextProps.children !== this.props.children ||
       nextProps.type !== this.props.type
@@ -43,15 +50,15 @@ export default class Notification extends Component {
       </NotificationWrapper>
     );
   }
+
+  static propTypes = {
+    children: PropTypes.any.isRequired,
+    type: PropTypes.oneOf(['info', 'success', 'warning', 'error']),
+    onClose: PropTypes.func,
+    theme: PropTypes.object
+  };
+
+  static defaultProps = {
+    type: 'info'
+  };
 }
-
-Notification.propTypes = {
-  children: PropTypes.any.isRequired,
-  type: PropTypes.oneOf(['info', 'success', 'warning', 'error']),
-  onClose: PropTypes.func,
-  theme: PropTypes.object
-};
-
-Notification.defaultProps = {
-  type: 'info'
-};

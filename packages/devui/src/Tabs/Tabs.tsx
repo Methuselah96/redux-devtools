@@ -3,27 +3,47 @@ import PropTypes from 'prop-types';
 import TabsHeader from './TabsHeader';
 import { TabsContainer } from './styles/common';
 
-export default class Tabs extends Component {
-  constructor(props) {
+export interface Tab {
+  name: string;
+  value?: string;
+  component?: React.ComponentType;
+  selector?: (tab: this) => unknown;
+}
+
+interface Props {
+  tabs: Tab[];
+  selected?: string;
+  main?: boolean;
+  onClick: (value: string) => void;
+  collapsible?: boolean;
+  position: 'left' | 'right' | 'center';
+}
+
+export default class Tabs extends Component<Props> {
+  constructor(props: Props) {
     super(props);
     this.updateTabs(props);
   }
 
-  componentWillReceiveProps(nextProps) {
+  tabsHeader?: JSX.Element[];
+  SelectedComponent?: React.ComponentType;
+  selector?: () => unknown;
+
+  componentWillReceiveProps(nextProps: Props) {
     if (nextProps.selected !== this.props.selected) {
       this.updateTabs(nextProps);
     }
   }
 
-  onMouseUp = e => {
-    e.target.blur();
+  onMouseUp: React.MouseEventHandler<HTMLButtonElement> = e => {
+    e.currentTarget.blur();
   };
 
-  onClick = e => {
-    this.props.onClick(e.target.value);
+  onClick: React.MouseEventHandler<HTMLButtonElement> = e => {
+    this.props.onClick(e.currentTarget.value);
   };
 
-  updateTabs(props) {
+  updateTabs(props: Props) {
     const tabs = props.tabs;
     const selected = props.selected;
 
@@ -54,7 +74,7 @@ export default class Tabs extends Component {
   render() {
     const tabsHeader = (
       <TabsHeader
-        tabs={this.tabsHeader}
+        tabs={this.tabsHeader!}
         items={this.props.tabs}
         main={this.props.main}
         collapsible={this.props.collapsible}
@@ -76,20 +96,20 @@ export default class Tabs extends Component {
       <TabsContainer position={this.props.position}>
         {tabsHeader}
         <div>
-          <this.SelectedComponent {...this.selector && this.selector()} />
+          <this.SelectedComponent {...(this.selector && this.selector())} />
         </div>
       </TabsContainer>
     );
   }
+
+  static propTypes = {
+    tabs: PropTypes.array.isRequired,
+    selected: PropTypes.string,
+    main: PropTypes.bool,
+    onClick: PropTypes.func.isRequired,
+    collapsible: PropTypes.bool,
+    position: PropTypes.oneOf(['left', 'right', 'center'])
+  };
+
+  static defaultProps = { position: 'left' };
 }
-
-Tabs.propTypes = {
-  tabs: PropTypes.array.isRequired,
-  selected: PropTypes.string,
-  main: PropTypes.bool,
-  onClick: PropTypes.func.isRequired,
-  collapsible: PropTypes.bool,
-  position: PropTypes.oneOf(['left', 'right', 'center'])
-};
-
-Tabs.defaultProps = { position: 'left' };

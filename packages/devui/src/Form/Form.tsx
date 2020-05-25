@@ -8,7 +8,18 @@ import customWidgets from './widgets';
 
 const FormContainer = createStyledComponent(styles, JSONSchemaForm);
 
-export default class Form extends (PureComponent || Component) {
+interface Props {
+  children?: React.ReactNode[];
+  submitText?: string;
+  primaryButton?: boolean;
+  noSubmit?: boolean;
+  schema: unknown;
+  uiSchema?: unknown;
+  formData?: unknown;
+  widgets?: unknown;
+}
+
+export default class Form extends (PureComponent || Component)<Props> {
   render() {
     const {
       widgets,
@@ -37,17 +48,17 @@ export default class Form extends (PureComponent || Component) {
       </FormContainer>
     );
   }
-}
 
-Form.propTypes = {
-  children: PropTypes.any,
-  submitText: PropTypes.string,
-  primaryButton: PropTypes.bool,
-  noSubmit: PropTypes.bool,
-  schema: PropTypes.object.isRequired,
-  uiSchema: PropTypes.object,
-  formData: PropTypes.any,
-  widgets: PropTypes.objectOf(
-    PropTypes.oneOfType([PropTypes.func, PropTypes.object])
-  )
-};
+  static propTypes = {
+    children: PropTypes.any,
+    submitText: PropTypes.string,
+    primaryButton: PropTypes.bool,
+    noSubmit: PropTypes.bool,
+    schema: PropTypes.object.isRequired,
+    uiSchema: PropTypes.object,
+    formData: PropTypes.any,
+    widgets: PropTypes.objectOf(
+      PropTypes.oneOfType([PropTypes.func, PropTypes.object])
+    )
+  };
+}

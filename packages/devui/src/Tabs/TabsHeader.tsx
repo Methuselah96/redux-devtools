@@ -5,11 +5,29 @@ import CollapseIcon from 'react-icons/lib/fa/angle-double-right';
 import ContextMenu from '../ContextMenu';
 import createStyledComponent from '../utils/createStyledComponent';
 import * as styles from './styles';
+import { Tab } from './Tabs';
 
 const TabsWrapper = createStyledComponent(styles);
 
-export default class TabsHeader extends Component {
-  constructor(props) {
+interface Props {
+  tabs: JSX.Element[];
+  items: Tab[];
+  main: boolean | undefined;
+  onClick: (value: string) => void;
+  position: 'left' | 'right' | 'center';
+  collapsible: boolean | undefined;
+  selected: string | undefined;
+}
+
+interface State {
+  visibleTabs: unknown[];
+  hiddenTabs: unknown[];
+  subMenuOpened: boolean;
+  contextMenu: unknown | undefined;
+}
+
+export default class TabsHeader extends Component<Props, State> {
+  constructor(props: Props) {
     super(props);
     this.state = {
       visibleTabs: props.tabs.slice(),
@@ -21,7 +39,13 @@ export default class TabsHeader extends Component {
     this.hiddenTabsWidth = [];
   }
 
-  componentWillReceiveProps(nextProps) {
+  iconWidth: number;
+  hiddenTabsWidth: number[];
+  tabsWrapperRef?: HTMLDivElement | null;
+  tabsRef?: HTMLDivElement | null;
+  resizeDetector?: HTMLIFrameElement;
+
+  componentWillReceiveProps(nextProps: Props) {
     if (
       nextProps.tabs !== this.props.tabs ||
       nextProps.selected !== this.props.selected ||
@@ -38,7 +62,7 @@ export default class TabsHeader extends Component {
     }
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: Props) {
     const { collapsible } = this.props;
     if (!collapsible) {
       if (prevProps.collapsible !== collapsible) this.disableResizeEvents();
@@ -47,8 +71,10 @@ export default class TabsHeader extends Component {
 
     let shouldCollapse = false;
     if (this.iconWidth === 0) {
-      const tabButtons = this.tabsRef.children;
-      if (this.tabsRef.children[tabButtons.length - 1].value === 'expandIcon') {
+      const tabButtons = this.tabsRef!.children;
+      if (
+        this.tabsRef!.children[tabButtons.length - 1].value === 'expandIcon'
+      ) {
         this.iconWidth = tabButtons[
           tabButtons.length - 1
         ].getBoundingClientRect().width;
@@ -73,12 +99,12 @@ export default class TabsHeader extends Component {
   }
 
   enableResizeEvents() {
-    this.resizeDetector = observeResize(this.tabsWrapperRef, this.collapse);
+    this.resizeDetector = observeResize(this.tabsWrapperRef!, this.collapse);
     window.addEventListener('mousedown', this.hideSubmenu);
   }
 
   disableResizeEvents() {
-    this.resizeDetector.remove();
+    this.resizeDetector!.remove();
     window.removeEventListener('mousedown', this.hideSubmenu);
   }
 
@@ -88,13 +114,13 @@ export default class TabsHeader extends Component {
     const { selected, tabs } = this.props;
     const tabsWrapperRef = this.tabsWrapperRef;
     const tabsRef = this.tabsRef;
-    const tabButtons = this.tabsRef.children;
+    const tabButtons = this.tabsRef!.children;
     const visibleTabs = this.state.visibleTabs;
     const hiddenTabs = this.state.hiddenTabs;
-    let tabsWrapperRight = tabsWrapperRef.getBoundingClientRect().right;
+    let tabsWrapperRight = tabsWrapperRef!.getBoundingClientRect().right;
     if (!tabsWrapperRight) return; // tabs are hidden
 
-    const tabsRefRight = tabsRef.getBoundingClientRect().right;
+    const tabsRefRight = tabsRef!.getBoundingClientRect().right;
     let i = visibleTabs.length - 1;
     let hiddenTab;
 
@@ -102,13 +128,13 @@ export default class TabsHeader extends Component {
       if (
         this.props.position === 'right' &&
         hiddenTabs.length > 0 &&
-        tabsRef.getBoundingClientRect().width + this.hiddenTabsWidth[0] <
-          tabsWrapperRef.getBoundingClientRect().width
+        tabsRef!.getBoundingClientRect().width + this.hiddenTabsWidth[0] <
+          tabsWrapperRef!.getBoundingClientRect().width
       ) {
         while (
           i < tabs.length - 1 &&
-          tabsRef.getBoundingClientRect().width + this.hiddenTabsWidth[0] <
-            tabsWrapperRef.getBoundingClientRect().width
+          tabsRef!.getBoundingClientRect().width + this.hiddenTabsWidth[0] <
+            tabsWrapperRef!.getBoundingClientRect().width
         ) {
           hiddenTab = hiddenTabs.shift();
           visibleTabs.splice(Number(hiddenTab.key), 0, hiddenTab);
@@ -152,15 +178,15 @@ export default class TabsHeader extends Component {
     this.setState({ subMenuOpened: false, contextMenu: undefined });
   };
 
-  getTabsWrapperRef = node => {
+  getTabsWrapperRef: React.RefCallback<HTMLDivElement> = node => {
     this.tabsWrapperRef = node;
   };
 
-  getTabsRef = node => {
+  getTabsRef: React.RefCallback<HTMLDivElement> = node => {
     this.tabsRef = node;
   };
 
-  expandMenu = e => {
+  expandMenu: React.MouseEventHandler<HTMLButtonElement> = e => {
     const rect = e.currentTarget.children[0].getBoundingClientRect();
     this.setState({
       contextMenu: {
@@ -200,14 +226,14 @@ export default class TabsHeader extends Component {
       </TabsWrapper>
     );
   }
-}
 
-TabsHeader.propTypes = {
-  tabs: PropTypes.array.isRequired,
-  items: PropTypes.array.isRequired,
-  main: PropTypes.bool,
-  onClick: PropTypes.func,
-  position: PropTypes.string,
-  collapsible: PropTypes.bool,
-  selected: PropTypes.string
-};
+  static propTypes = {
+    tabs: PropTypes.array.isRequired,
+    items: PropTypes.array.isRequired,
+    main: PropTypes.bool,
+    onClick: PropTypes.func,
+    position: PropTypes.string,
+    collapsible: PropTypes.bool,
+    selected: PropTypes.string
+  };
+}
