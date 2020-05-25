@@ -1,7 +1,8 @@
 import { css } from 'styled-components';
 import { ripple } from '../../utils/animations';
+import { StyleProps } from './default';
 
-export const style = ({ theme, primary, disabled }) => css`
+export const style = ({ theme, primary, disabled }: StyleProps) => css`
   box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
   outline: none;

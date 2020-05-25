@@ -1,6 +1,13 @@
 import { css } from 'styled-components';
+import { Theme } from '../../utils/theme';
 
-export const style = ({ theme, primary, disabled }) => css`
+export interface StyleProps {
+  theme: Theme;
+  primary: boolean | undefined;
+  disabled: boolean | undefined;
+}
+
+export const style = ({ theme, primary, disabled }: StyleProps) => css`
   box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
   outline: none;
@@ -33,14 +40,17 @@ export const style = ({ theme, primary, disabled }) => css`
   `
   }
 
-  ${!disabled &&
-    `
+  ${
+    !disabled
+      ? `
   &:hover,
   &:focus {
     background-color: ${primary ? theme.base07 : theme.base02};
     box-shadow: 1px 1px 2px ${theme.base03};
   }
- `}
+ `
+      : ''
+  }
   &:focus {
     border: 1px solid ${theme.base0D};
   }
