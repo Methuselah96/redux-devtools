@@ -24,14 +24,14 @@ interface Props {
   theme?: Theme;
 }
 
-function isForm(
-  props: Props | (Props & FormProps)
-): props is Props & FormProps {
-  return props.schema !== undefined;
+function isForm<P>(
+  props: Props | (Props & FormProps<P>)
+): props is Props & FormProps<P> {
+  return (props as FormProps<P>).schema !== undefined;
 }
 
-export default class Dialog extends (PureComponent || Component)<
-  Props | (Props & FormProps)
+export default class Dialog<P> extends (PureComponent || Component)<
+  Props | (Props & FormProps<P>)
 > {
   submitButton?: HTMLInputElement | null;
 
@@ -65,7 +65,7 @@ export default class Dialog extends (PureComponent || Component)<
       onDismiss,
       ...rest
     } = this.props;
-    const schema = rest.schema;
+    const schema = (rest as Props & FormProps<P>).schema;
 
     return (
       <DialogWrapper
