@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import createStyledComponent from '../utils/createStyledComponent';
 import * as styles from './styles';
 import Button from '../Button';
-import Form, { Props as FormProps } from '../Form';
+import Form from '../Form';
+import { Props as FormProps } from '../Form/Form';
 import { Theme } from '../utils/theme';
 
 const DialogWrapper = createStyledComponent(styles);
