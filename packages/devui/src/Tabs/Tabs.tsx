@@ -3,17 +3,22 @@ import PropTypes from 'prop-types';
 import TabsHeader from './TabsHeader';
 import { TabsContainer } from './styles/common';
 
-export interface Tab {
+export type ReactButtonElement = React.ReactElement<
+  JSX.IntrinsicElements['button'],
+  'button'
+>;
+
+export interface Tab<P> {
   name: string;
   value?: string;
-  component?: React.ComponentType;
-  selector?: (tab: this) => unknown;
+  component?: React.ComponentType<P>;
+  selector?: (tab: this) => P;
 }
 
 export type Position = 'left' | 'right' | 'center';
 
-interface Props {
-  tabs: Tab[];
+interface Props<P> {
+  tabs: Tab<P>[];
   selected?: string;
   main?: boolean;
   onClick: (value: string) => void;
@@ -21,17 +26,17 @@ interface Props {
   position: Position;
 }
 
-export default class Tabs extends Component<Props> {
-  constructor(props: Props) {
+export default class Tabs<P> extends Component<Props<P>> {
+  constructor(props: Props<P>) {
     super(props);
     this.updateTabs(props);
   }
 
-  tabsHeader?: JSX.Element[];
-  SelectedComponent?: React.ComponentType;
-  selector?: () => unknown;
+  tabsHeader?: ReactButtonElement[];
+  SelectedComponent?: React.ComponentType<P>;
+  selector?: () => P;
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentWillReceiveProps(nextProps: Props<P>) {
     if (nextProps.selected !== this.props.selected) {
       this.updateTabs(nextProps);
     }
@@ -45,7 +50,7 @@ export default class Tabs extends Component<Props> {
     this.props.onClick(e.currentTarget.value);
   };
 
-  updateTabs(props: Props) {
+  updateTabs(props: Props<P>) {
     const tabs = props.tabs;
     const selected = props.selected;
 
@@ -56,7 +61,7 @@ export default class Tabs extends Component<Props> {
         isSelected = true;
         if (tab.component) {
           this.SelectedComponent = tab.component;
-          if (tab.selector) this.selector = () => tab.selector(tab);
+          if (tab.selector) this.selector = () => tab.selector!(tab);
         }
       }
       return (
@@ -98,7 +103,7 @@ export default class Tabs extends Component<Props> {
       <TabsContainer position={this.props.position}>
         {tabsHeader}
         <div>
-          <this.SelectedComponent {...(this.selector && this.selector())} />
+          <this.SelectedComponent {...(this.selector! && this.selector!())} />
         </div>
       </TabsContainer>
     );

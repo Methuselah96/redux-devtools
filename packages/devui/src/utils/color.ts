@@ -11,10 +11,6 @@ export default (
   color: string,
   effect: 'fade' | 'lighten' | 'alpha',
   val: number
-) =>
-  Color(color)
-    [effect](val)
-    .hsl()
-    .string();
+) => (Color(color)[effect](val) as Color).hsl().string();
 
 // TODO: memoize it

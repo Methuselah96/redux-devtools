@@ -1,6 +1,6 @@
 import React, { PureComponent, Component } from 'react';
 import PropTypes from 'prop-types';
-import JSONSchemaForm from 'react-jsonschema-form';
+import JSONSchemaForm, { FormProps } from 'react-jsonschema-form';
 import createStyledComponent from '../utils/createStyledComponent';
 import styles from './styles';
 import Button from '../Button';
@@ -9,19 +9,15 @@ import { Theme } from '../utils/theme';
 
 const FormContainer = createStyledComponent(styles, JSONSchemaForm);
 
-export interface Props {
+export interface Props<T> extends FormProps<T> {
   children?: React.ReactNode;
   submitText?: string;
   primaryButton?: boolean;
   noSubmit?: boolean;
-  schema: unknown;
-  uiSchema?: unknown;
-  formData?: unknown;
-  widgets?: unknown;
   theme?: Theme;
 }
 
-export default class Form extends (PureComponent || Component)<Props> {
+export default class Form<T> extends (PureComponent || Component)<Props<T>> {
   render() {
     const {
       widgets,

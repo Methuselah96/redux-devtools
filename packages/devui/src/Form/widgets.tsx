@@ -1,9 +1,10 @@
 import React from 'react';
 import Select from '../Select';
 import Slider from '../Slider';
+import { WidgetProps } from 'react-jsonschema-form';
 
 /* eslint-disable react/prop-types */
-const SelectWidget = ({ options, multi, ...rest }) => (
+const SelectWidget = ({ options, multi, ...rest }: WidgetProps) => (
   <Select options={options.enumOptions} multiple={multi} {...rest} />
 );
 
@@ -16,7 +17,7 @@ const RangeWidget = ({
   formContext, // eslint-disable-line
   registry, // eslint-disable-line
   ...rest
-}) => (
+}: WidgetProps) => (
   <Slider
     {...rest}
     autoFocus={autofocus}

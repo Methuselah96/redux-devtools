@@ -1,4 +1,6 @@
-export const schema = {
+import { JSONSchema6 } from 'json-schema';
+
+export const schema: JSONSchema6 = {
   title: 'Example form',
   description: 'A simple form example.',
   type: 'object',

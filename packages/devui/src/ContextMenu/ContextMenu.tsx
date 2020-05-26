@@ -2,10 +2,15 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import createStyledComponent from '../utils/createStyledComponent';
 import styles from './styles/index';
+import { ReactButtonElement } from '../Tabs/Tabs';
 
 const ContextMenuWrapper = createStyledComponent(styles);
 
-type Item = { name: string; value?: string } | HTMLButtonElement;
+type Item = { name: string; value?: string } | ReactButtonElement;
+
+function isReactButtonElement(item: Item): item is ReactButtonElement {
+  return (item as ReactButtonElement).type === 'button';
+}
 
 interface Props {
   items: Item[];
@@ -78,8 +83,8 @@ export default class ContextMenu extends Component<Props> {
 
   updateItems(items: Item[]) {
     this.items = items.map(item => {
+      if (isReactButtonElement(item)) return item;
       const value = item.value || item.name;
-      if ((item as HTMLButtonElement).type === 'button') return item;
       return (
         <button
           key={value}

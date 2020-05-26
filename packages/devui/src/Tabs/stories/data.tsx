@@ -17,7 +17,7 @@ const Component = ({ selected }: { selected: string }) => (
 );
 /* eslint-enable react/prop-types */
 
-const selector = (tab: { name: string; value: string }) => ({
+const selector = (tab: { name: string; value?: string }) => ({
   selected: tab.name
 });
 

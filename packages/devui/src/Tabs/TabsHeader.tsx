@@ -5,13 +5,13 @@ import CollapseIcon from 'react-icons/lib/fa/angle-double-right';
 import ContextMenu from '../ContextMenu';
 import createStyledComponent from '../utils/createStyledComponent';
 import * as styles from './styles';
-import { Tab } from './Tabs';
+import { ReactButtonElement, Tab } from './Tabs';
 
 const TabsWrapper = createStyledComponent(styles);
 
-interface Props {
-  tabs: JSX.Element[];
-  items: Tab[];
+interface Props<P> {
+  tabs: ReactButtonElement[];
+  items: Tab<P>[];
   main: boolean | undefined;
   onClick: (value: string) => void;
   position: 'left' | 'right' | 'center';
@@ -20,14 +20,14 @@ interface Props {
 }
 
 interface State {
-  visibleTabs: JSX.Element[];
-  hiddenTabs: JSX.Element[];
+  visibleTabs: ReactButtonElement[];
+  hiddenTabs: ReactButtonElement[];
   subMenuOpened: boolean;
   contextMenu: { top: number; left: number } | undefined;
 }
 
-export default class TabsHeader extends Component<Props, State> {
-  constructor(props: Props) {
+export default class TabsHeader<P> extends Component<Props<P>, State> {
+  constructor(props: Props<P>) {
     super(props);
     this.state = {
       visibleTabs: props.tabs.slice(),
@@ -45,7 +45,7 @@ export default class TabsHeader extends Component<Props, State> {
   tabsRef?: HTMLDivElement | null;
   resizeDetector?: HTMLIFrameElement;
 
-  componentWillReceiveProps(nextProps: Props) {
+  componentWillReceiveProps(nextProps: Props<P>) {
     if (
       nextProps.tabs !== this.props.tabs ||
       nextProps.selected !== this.props.selected ||
@@ -62,7 +62,7 @@ export default class TabsHeader extends Component<Props, State> {
     }
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps: Props<P>) {
     const { collapsible } = this.props;
     if (!collapsible) {
       if (prevProps.collapsible !== collapsible) this.disableResizeEvents();
@@ -73,7 +73,8 @@ export default class TabsHeader extends Component<Props, State> {
     if (this.iconWidth === 0) {
       const tabButtons = this.tabsRef!.children;
       if (
-        this.tabsRef!.children[tabButtons.length - 1].value === 'expandIcon'
+        (this.tabsRef!.children[tabButtons.length - 1] as HTMLButtonElement)
+          .value === 'expandIcon'
       ) {
         this.iconWidth = tabButtons[
           tabButtons.length - 1
@@ -147,7 +148,7 @@ export default class TabsHeader extends Component<Props, State> {
           tabButtons[i].getBoundingClientRect().right >=
             tabsWrapperRight - this.iconWidth
         ) {
-          if (tabButtons[i].value !== selected) {
+          if ((tabButtons[i] as HTMLButtonElement).value !== selected) {
             hiddenTabs.unshift(...visibleTabs.splice(i, 1));
             this.hiddenTabsWidth.unshift(
               tabButtons[i].getBoundingClientRect().width
