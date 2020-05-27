@@ -12,6 +12,8 @@
   },
   "author": "Mihail Diordiev <zalmoxisus@gmail.com> (https://github.com/zalmoxisus)",
   "license": "MIT",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
     "type-check": "tsc --noEmit",
     "type-check:watch": "npm run type-check -- --watch",
@@ -91,6 +93,5 @@
   },
   "jest": {
     "setupTestFrameworkScriptFile": "<rootDir>/tests/setup.js"
-  },
-  "main": "lib/index.js"
+  }
 }

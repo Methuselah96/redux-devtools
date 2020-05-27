@@ -19,15 +19,15 @@ interface Props {
   noHeader?: boolean;
   noFooter?: boolean;
   modal?: boolean;
-  onDismiss: (e: React.MouseEvent<HTMLButtonElement> | false) => void;
+  onDismiss: (
+    e: React.MouseEvent<HTMLButtonElement | HTMLDivElement> | false
+  ) => void;
   onSubmit: () => void;
   theme?: Theme;
 }
 
-function isForm<P>(
-  props: Props | (Props & FormProps<P>)
-): props is Props & FormProps<P> {
-  return (props as FormProps<P>).schema !== undefined;
+function isForm<P>(rest?: FormProps<P>): rest is FormProps<P> {
+  return (rest as FormProps<P>).schema !== undefined;
 }
 
 export default class Dialog<P> extends (PureComponent || Component)<

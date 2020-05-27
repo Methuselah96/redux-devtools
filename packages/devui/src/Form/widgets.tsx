@@ -1,11 +1,12 @@
 import React from 'react';
 import Select from '../Select';
 import Slider from '../Slider';
-import { WidgetProps } from 'react-jsonschema-form';
+import { FieldProps, WidgetProps } from 'react-jsonschema-form';
+import { Options } from 'react-select';
 
 /* eslint-disable react/prop-types */
-const SelectWidget = ({ options, multi, ...rest }: WidgetProps) => (
-  <Select options={options.enumOptions} multiple={multi} {...rest} />
+const SelectWidget = ({ options, onFocus, onBlur, ...rest }: WidgetProps) => (
+  <Select options={options.enumOptions as Options} {...rest} />
 );
 
 const RangeWidget = ({
@@ -17,16 +18,8 @@ const RangeWidget = ({
   formContext, // eslint-disable-line
   registry, // eslint-disable-line
   ...rest
-}: WidgetProps) => (
-  <Slider
-    {...rest}
-    autoFocus={autofocus}
-    readOnly={readonly}
-    min={schema.minimum}
-    max={schema.maximum}
-    step={schema.multipleOf}
-    withValue
-  />
+}: WidgetProps & { registry: FieldProps['registry'] }) => (
+  <Slider {...rest} min={schema.minimum} max={schema.maximum} withValue />
 );
 
 export default { SelectWidget, RangeWidget };
