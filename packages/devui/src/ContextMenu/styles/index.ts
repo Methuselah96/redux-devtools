@@ -1,14 +1,18 @@
-import { css } from 'styled-components';
-import { Theme } from '../../utils/theme';
+import { css, ThemedStyledProps } from 'styled-components';
+import { Theme } from '../../themes/default';
 
 interface StyleProps {
-  theme: Theme;
   left: number;
   top: number;
   visible: boolean | undefined;
 }
 
-export default ({ theme, left, top, visible }: StyleProps) => css`
+export default ({
+  theme,
+  left,
+  top,
+  visible
+}: ThemedStyledProps<StyleProps, Theme>) => css`
   ${visible
     ? `
     visibility: visible;

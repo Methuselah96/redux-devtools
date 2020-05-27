@@ -1,11 +1,7 @@
-import { css } from 'styled-components';
-import { Theme } from '../../utils/theme';
+import { css, ThemedStyledProps } from 'styled-components';
+import { Theme } from '../../themes/default';
 
-interface StyleProps {
-  theme: Theme;
-}
-
-export default ({ theme }: StyleProps) => css`
+export default ({ theme }: ThemedStyledProps<{}, Theme>) => css`
   padding: 10px;
   line-height: 1.846;
   font-size: 14px;

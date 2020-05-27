@@ -6,12 +6,11 @@ Based on:
  http://codepen.io/thebabydino/pen/YPOPxr
 */
 
-import { css } from 'styled-components';
+import { css, ThemedStyledProps } from 'styled-components';
 import { prefixSelectors } from '../../utils/autoPrefix';
-import { Theme } from '../../utils/theme';
+import { Theme } from '../../themes/default';
 
 export interface StyleProps {
-  theme: Theme;
   percent: number;
   disabled: boolean;
   withLabel: boolean;
@@ -22,7 +21,7 @@ export const style = ({
   percent,
   disabled,
   withLabel
-}: StyleProps) => css`
+}: ThemedStyledProps<StyleProps, Theme>) => css`
   display: block;
   width: 100%;
   position: relative;

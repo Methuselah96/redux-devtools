@@ -1,13 +1,15 @@
-import { css } from 'styled-components';
+import { css, ThemedStyledProps } from 'styled-components';
 import color from '../../utils/color';
-import { Theme } from '../../utils/theme';
+import { Theme } from '../../themes/default';
 
 interface StyleProps {
-  theme: Theme;
   disabled: boolean | undefined;
 }
 
-export default ({ theme, disabled }: StyleProps) => css`
+export default ({
+  theme,
+  disabled
+}: ThemedStyledProps<StyleProps, Theme>) => css`
   display: flex;
   flex-shrink: 0;
 

@@ -1,8 +1,12 @@
-import { css } from 'styled-components';
+import { css, ThemedStyledProps } from 'styled-components';
 import { ripple } from '../../utils/animations';
 import { StyleProps } from './default';
+import { Theme } from '../../themes/default';
 
-export const style = ({ theme, main }: StyleProps) => css`
+export const style = ({
+  theme,
+  main
+}: ThemedStyledProps<StyleProps, Theme>) => css`
   display: flex;
   flex: 0 0 1;
   padding-left: 1px;

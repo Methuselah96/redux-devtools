@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import createStyledComponent from '../utils/createStyledComponent';
 import * as styles from './styles';
 import { containerStyle } from './styles/common';
-import { Theme } from '../utils/theme';
+import { Theme } from '../themes/default';
 
 const SliderWrapper = createStyledComponent(styles);
 const ContainerWithValue = createStyledComponent(containerStyle);

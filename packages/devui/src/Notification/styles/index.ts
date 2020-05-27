@@ -1,5 +1,5 @@
-import { css } from 'styled-components';
-import { Theme } from '../../utils/theme';
+import { css, ThemedStyledProps } from 'styled-components';
+import { Theme } from '../../themes/default';
 import { Type } from '../Notification';
 
 const getBackground = (theme: Theme, type: Type) => {
@@ -16,11 +16,10 @@ const getBackground = (theme: Theme, type: Type) => {
 };
 
 interface StyleProps {
-  theme: Theme;
   type: Type;
 }
 
-export default ({ theme, type }: StyleProps) => css`
+export default ({ theme, type }: ThemedStyledProps<StyleProps, Theme>) => css`
   display: flex;
   align-items: flex-start;
   flex-shrink: 0;

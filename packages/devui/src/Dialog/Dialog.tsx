@@ -5,7 +5,7 @@ import * as styles from './styles';
 import Button from '../Button';
 import Form from '../Form';
 import { Props as FormProps } from '../Form/Form';
-import { Theme } from '../utils/theme';
+import { Theme } from '../themes/default';
 
 const DialogWrapper = createStyledComponent(styles);
 

@@ -6,7 +6,7 @@ import ErrorIcon from 'react-icons/lib/md/error';
 import SuccessIcon from 'react-icons/lib/md/check-circle';
 import createStyledComponent from '../utils/createStyledComponent';
 import styles from './styles';
-import { Theme } from '../utils/theme';
+import { Theme } from '../themes/default';
 
 const NotificationWrapper = createStyledComponent(styles);
 

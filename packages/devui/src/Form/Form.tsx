@@ -5,7 +5,7 @@ import createStyledComponent from '../utils/createStyledComponent';
 import styles from './styles';
 import Button from '../Button';
 import customWidgets from './widgets';
-import { Theme } from '../utils/theme';
+import { Theme } from '../themes/default';
 
 const FormContainer = createStyledComponent(styles, JSONSchemaForm);
 

@@ -1,13 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { ThemeProvider } from 'styled-components';
-import { getTheme, Theme, ThemeData } from '../utils/theme';
+import { Theme } from '../themes/default';
+import { getTheme, ThemeData } from '../utils/theme';
 import { MainContainerWrapper, ContainerWrapper } from './styles';
 
 interface Props {
   children?: React.ReactNode;
   themeData?: ThemeData;
-  theme: Theme;
+  theme?: Theme;
   className?: string;
 }
 

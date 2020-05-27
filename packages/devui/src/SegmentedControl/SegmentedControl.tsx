@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import createStyledComponent from '../utils/createStyledComponent';
 import styles from './styles';
-import { Theme } from '../utils/theme';
+import { Theme } from '../themes/default';
 
 const SegmentedWrapper = createStyledComponent(styles);
 

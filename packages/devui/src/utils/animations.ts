@@ -1,5 +1,5 @@
 import { keyframes } from 'styled-components';
-import { Theme } from './theme';
+import { Theme } from '../themes/default';
 
 export const spin = keyframes`
   to { transform: rotate(1turn); }

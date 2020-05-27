@@ -1,7 +1,8 @@
 import { Base16Theme } from 'base16';
 import { FontFamilyProperty } from 'csstype';
+import * as themes from './index';
 
-export interface ThemeDefinition extends Base16Theme {
+export interface Theme extends Base16Theme {
   fontFamily: FontFamilyProperty;
   codeFontFamily: FontFamilyProperty;
   inputHeight: number;
@@ -13,6 +14,8 @@ export interface ThemeDefinition extends Base16Theme {
   inputInternalHeight: number;
   inputBorderColor: string;
   inputFocusedStyle: string;
+  type?: keyof typeof themes;
+  light?: boolean;
 }
 
 export default (colors: Base16Theme) => ({

@@ -1,13 +1,16 @@
-import { css } from 'styled-components';
-import { Theme } from '../../utils/theme';
+import { css, ThemedStyledProps } from 'styled-components';
+import { Theme } from '../../themes/default';
 
 export interface StyleProps {
-  theme: Theme;
   primary: boolean | undefined;
   disabled: boolean | undefined;
 }
 
-export const style = ({ theme, primary, disabled }: StyleProps) => css`
+export const style = ({
+  theme,
+  primary,
+  disabled
+}: ThemedStyledProps<StyleProps, Theme>) => css`
   box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
   outline: none;

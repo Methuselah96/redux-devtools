@@ -1,5 +1,5 @@
 import { css } from 'styled-components';
-import { Theme } from '../../utils/theme';
+import { Theme } from '../../themes/default';
 
 export const defaultStyle = `
   height: 100%;

@@ -1,23 +1,45 @@
-import styled, { InterpolationValue } from 'styled-components';
+import styled, {
+  Interpolation,
+  InterpolationFunction,
+  InterpolationValue,
+  StyledComponentClass,
+  ThemedStyledFunction,
+  ThemedStyledProps
+} from 'styled-components';
 import getDefaultTheme from '../themes/default';
 import { Base16Theme } from 'base16';
-import { Theme } from './theme';
+import { Theme } from '../themes/default';
 import * as React from 'react';
+import { ThemeFromProvider } from './theme';
 
-type StylingFunction<Props> = (props: Props) => InterpolationValue[];
+function isObject<P>(
+  styles:
+    | {
+        [type: string]: Interpolation<ThemedStyledProps<P, Theme>>;
+        default: Interpolation<ThemedStyledProps<P, Theme>>;
+      }
+    | Interpolation<ThemedStyledProps<P, Theme>>
+): styles is {
+  [type: string]: InterpolationFunction<ThemedStyledProps<P, Theme>>;
+  default: InterpolationFunction<ThemedStyledProps<P, Theme>>;
+} {
+  return typeof styles === 'object';
+}
 
 const getStyle = <P>(
   styles:
     | {
-        [type: string]: StylingFunction<P>;
-        default: StylingFunction<P>;
+        [type: string]: InterpolationFunction<ThemedStyledProps<P, Theme>>;
+        default: InterpolationFunction<ThemedStyledProps<P, Theme>>;
       }
-    | StylingFunction<P>,
+    | InterpolationFunction<ThemedStyledProps<P, Theme>>,
   type: string
-) => (typeof styles === 'object' ? styles[type] || styles.default : styles);
+) => (isObject(styles) ? styles[type] || styles.default : styles);
 
-function isTheme(theme: Theme | Base16Theme): theme is Theme {
-  return (theme as Theme).type !== undefined;
+function isThemeFromProvider(
+  theme: Theme | Base16Theme
+): theme is ThemeFromProvider {
+  return (theme as ThemeFromProvider).type !== undefined;
 }
 
 // function createStyledComponent<P extends { theme: Theme | Base16Theme }>(
@@ -40,24 +62,45 @@ function isTheme(theme: Theme | Base16Theme): theme is Theme {
 //     | StylingFunction<P>,
 //   component: React.ComponentClass<P>
 // );
-function createStyledComponent<
-  P extends { theme: Theme | Base16Theme },
-  TTag extends keyof JSX.IntrinsicElements
->(
+function createStyledComponent<P, TTag extends keyof JSX.IntrinsicElements>(
   styles:
-    | { [type: string]: StylingFunction<P>; default: StylingFunction<P> }
-    | StylingFunction<P>,
+    | {
+        [type: string]: InterpolationFunction<ThemedStyledProps<P, Theme>>;
+        default: InterpolationFunction<ThemedStyledProps<P, Theme>>;
+      }
+    | InterpolationFunction<ThemedStyledProps<P, Theme>>,
+  component?: TTag
+): StyledComponentClass<P, Theme, P & JSX.IntrinsicElements[TTag]>;
+function createStyledComponent<P, TTag extends keyof JSX.IntrinsicElements>(
+  styles:
+    | {
+        [type: string]: InterpolationFunction<ThemedStyledProps<P, Theme>>;
+        default: InterpolationFunction<ThemedStyledProps<P, Theme>>;
+      }
+    | InterpolationFunction<ThemedStyledProps<P, Theme>>,
+  component?: React.ComponentClass<P>
+): StyledComponentClass<P, Theme>;
+function createStyledComponent<P, TTag extends keyof JSX.IntrinsicElements>(
+  styles:
+    | {
+        [type: string]: InterpolationFunction<ThemedStyledProps<P, Theme>>;
+        default: InterpolationFunction<ThemedStyledProps<P, Theme>>;
+      }
+    | InterpolationFunction<ThemedStyledProps<P, Theme>>,
   component?: TTag | React.ComponentClass<P>
-) {
-  return styled((component as TTag) || 'div')`
-    ${(props: P) =>
-      (isTheme(props.theme)
+): StyledComponentClass<P, Theme> {
+  return (styled(component) as ThemedStyledFunction<P, Theme>)`
+    ${(props: ThemedStyledProps<P, Theme>) =>
+      isThemeFromProvider(props.theme)
         ? getStyle(styles, props.theme.type)
         : // used outside of container (theme provider)
-          getStyle(styles, 'default'))({
-        ...props,
-        theme: getDefaultTheme(props.theme)
-      })}
+          getStyle(
+            styles,
+            'default'
+          )({
+            ...props,
+            theme: getDefaultTheme(props.theme)
+          })}
   `;
 }
 

@@ -1,8 +1,8 @@
-import { css } from 'styled-components';
+import { css, ThemedStyledProps } from 'styled-components';
 import { fadeIn } from '../../utils/animations';
 import colorEffect from '../../utils/color';
 import { Mark, Size, TooltipPosition } from '../Button';
-import { Theme } from '../../utils/theme';
+import { Theme } from '../../themes/default';
 
 const both = (tooltipPosition: TooltipPosition) => {
   switch (tooltipPosition) {
@@ -130,12 +130,15 @@ const getSize = (size: Size | undefined) => {
 };
 
 interface CommonStyleProps {
-  theme: Theme;
   size: Size | undefined;
   mark: Mark | false | undefined;
 }
 
-export const commonStyle = ({ theme, mark, size }: CommonStyleProps) => css`
+export const commonStyle = ({
+  theme,
+  mark,
+  size
+}: ThemedStyledProps<CommonStyleProps, Theme>) => css`
   display: inline-block;
   position: relative;
   flex-shrink: 0;
@@ -174,7 +177,6 @@ export const commonStyle = ({ theme, mark, size }: CommonStyleProps) => css`
 `;
 
 interface TooltipStyleProps {
-  theme: Theme;
   tooltipTitle: string | undefined;
   tooltipPosition: TooltipPosition;
   size: Size | undefined;
@@ -187,7 +189,7 @@ export const tooltipStyle = ({
   tooltipPosition,
   mark,
   size
-}: TooltipStyleProps) => css`
+}: ThemedStyledProps<TooltipStyleProps, Theme>) => css`
   ${commonStyle({ theme, mark, size })}
 
   &:before {

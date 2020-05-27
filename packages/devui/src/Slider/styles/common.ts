@@ -1,11 +1,7 @@
-import { css } from 'styled-components';
-import { Theme } from '../../utils/theme';
+import { css, ThemedStyledProps } from 'styled-components';
+import { Theme } from '../../themes/default';
 
-interface CommonStyleProps {
-  theme: Theme;
-}
-
-export const containerStyle = ({ theme }: CommonStyleProps) => css`
+export const containerStyle = ({ theme }: ThemedStyledProps<{}, Theme>) => css`
   display: flex;
   align-items: center;
 
