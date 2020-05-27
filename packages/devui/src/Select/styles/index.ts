@@ -3,7 +3,7 @@ import { fadeIn, spinner } from '../../utils/animations';
 import { Theme } from '../../themes/default';
 
 interface StyleProps {
-  openOuterUp: boolean | undefined;
+  openOuterUp?: boolean;
   menuMaxHeight: number;
 }
 

@@ -1,5 +1,4 @@
-import React, { Component } from 'react';
-import { select } from '@storybook/addon-knobs';
+import React, { Component, ComponentType } from 'react';
 import Editor from '../';
 import Tabs from '../../Tabs';
 
@@ -15,6 +14,11 @@ interface Props {
   lineNumbers: boolean;
 }
 
+interface TabProps {
+  value: string;
+  lineNumbers: boolean;
+}
+
 /* eslint-disable react/prop-types */
 export default class WithTabs extends Component<Props> {
   state = {
@@ -24,16 +28,16 @@ export default class WithTabs extends Component<Props> {
   render() {
     const { lineNumbers } = this.props;
     return (
-      <Tabs
+      <Tabs<TabProps>
         tabs={[
           {
             name: 'Function 1',
-            component: Editor,
+            component: (Editor as unknown) as ComponentType<TabProps>,
             selector: () => ({ value: value1, lineNumbers })
           },
           {
             name: 'Function 2',
-            component: Editor,
+            component: (Editor as unknown) as ComponentType<TabProps>,
             selector: () => ({ value: value2, lineNumbers })
           }
         ]}
@@ -41,7 +45,6 @@ export default class WithTabs extends Component<Props> {
         onClick={selected => {
           this.setState({ selected });
         }}
-        align={select('align', ['left', 'right', 'center'], 'left')}
       />
     );
   }

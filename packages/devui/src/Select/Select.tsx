@@ -4,9 +4,12 @@ import ReactSelect, { ReactSelectProps } from 'react-select';
 import createStyledComponent from '../utils/createStyledComponent';
 import styles from './styles';
 
-const SelectContainer = createStyledComponent(styles, ReactSelect);
+const SelectContainer = createStyledComponent<Props>(
+  styles,
+  (ReactSelect as unknown) as React.ComponentClass<Props>
+);
 
-interface Props extends ReactSelectProps {
+interface Props extends Omit<ReactSelectProps, 'ref'> {
   menuMaxHeight: number;
   openOuterUp?: boolean;
 }

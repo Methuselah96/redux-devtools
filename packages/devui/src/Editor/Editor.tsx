@@ -5,8 +5,12 @@ import CodeMirror from 'codemirror';
 import { defaultStyle, themedStyle } from './styles';
 import { Theme } from '../themes/default';
 
-const EditorContainer = styled.div('', ({ theme }: { theme: Theme }) =>
-  theme.scheme === 'default' && theme.light ? defaultStyle : themedStyle(theme)
+const EditorContainer = styled.div(
+  ('' as unknown) as TemplateStringsArray,
+  ({ theme }: { theme: Theme }) =>
+    theme.scheme === 'default' && theme.light
+      ? defaultStyle
+      : themedStyle(theme)
 );
 
 interface Props {

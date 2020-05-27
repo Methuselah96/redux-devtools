@@ -26,6 +26,19 @@ interface Props {
   theme?: Theme;
 }
 
+type Rest<P> = Omit<
+  Props & FormProps<P>,
+  | 'modal'
+  | 'open'
+  | 'fullWidth'
+  | 'title'
+  | 'children'
+  | 'actions'
+  | 'noHeader'
+  | 'noFooter'
+  | 'submitText'
+  | 'onDismiss'
+>;
 function isForm<P>(rest?: FormProps<P>): rest is FormProps<P> {
   return (rest as FormProps<P>).schema !== undefined;
 }
@@ -84,8 +97,8 @@ export default class Dialog<P> extends (PureComponent || Component)<
           )}
           <div className="mc-dialog--body">
             {children}
-            {isForm(rest) && (
-              <Form {...rest}>
+            {isForm(rest as FormProps<P>) && (
+              <Form {...(rest as FormProps<P>)}>
                 {!noFooter && (
                   <input
                     type="submit"

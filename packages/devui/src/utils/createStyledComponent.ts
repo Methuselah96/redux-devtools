@@ -71,7 +71,7 @@ function createStyledComponent<P, TTag extends keyof JSX.IntrinsicElements>(
     | InterpolationFunction<ThemedStyledProps<P, Theme>>,
   component?: TTag
 ): StyledComponentClass<P, Theme, P & JSX.IntrinsicElements[TTag]>;
-function createStyledComponent<P, TTag extends keyof JSX.IntrinsicElements>(
+function createStyledComponent<P>(
   styles:
     | {
         [type: string]: InterpolationFunction<ThemedStyledProps<P, Theme>>;
@@ -89,7 +89,7 @@ function createStyledComponent<P, TTag extends keyof JSX.IntrinsicElements>(
     | InterpolationFunction<ThemedStyledProps<P, Theme>>,
   component?: TTag | React.ComponentClass<P>
 ): StyledComponentClass<P, Theme> {
-  return (styled(component) as ThemedStyledFunction<P, Theme>)`
+  return (styled(component as TTag) as ThemedStyledFunction<P, Theme>)`
     ${(props: ThemedStyledProps<P, Theme>) =>
       isThemeFromProvider(props.theme)
         ? getStyle(styles, props.theme.type)

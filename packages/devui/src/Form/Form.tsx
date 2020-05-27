@@ -28,7 +28,10 @@ export default class Form<T> extends (PureComponent || Component)<Props<T>> {
       ...rest
     } = this.props;
     return (
-      <FormContainer {...rest} widgets={{ ...customWidgets, ...widgets }}>
+      <FormContainer
+        {...(rest as Props<unknown>)}
+        widgets={{ ...customWidgets, ...widgets }}
+      >
         {noSubmit ? (
           <noscript />
         ) : (
