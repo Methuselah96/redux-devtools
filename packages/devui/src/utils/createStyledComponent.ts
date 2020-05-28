@@ -42,26 +42,6 @@ function isThemeFromProvider(
   return (theme as ThemeFromProvider).type !== undefined;
 }
 
-// function createStyledComponent<P extends { theme: Theme | Base16Theme }>(
-//   styles:
-//     | { [type: string]: StylingFunction<P>; default: StylingFunction<P> }
-//     | StylingFunction<P>
-// ): StyledComponentClass<P, T, O>;
-// function createStyledComponent<
-//   P extends { theme: Theme | Base16Theme },
-//   TTag extends keyof JSX.IntrinsicElements
-// >(
-//   styles:
-//     | { [type: string]: StylingFunction<P>; default: StylingFunction<P> }
-//     | StylingFunction<P>,
-//   component: TTag
-// );
-// function createStyledComponent<P extends { theme: Theme | Base16Theme }>(
-//   styles:
-//     | { [type: string]: StylingFunction<P>; default: StylingFunction<P> }
-//     | StylingFunction<P>,
-//   component: React.ComponentClass<P>
-// );
 function createStyledComponent<P, TTag extends keyof JSX.IntrinsicElements>(
   styles:
     | {
@@ -89,7 +69,10 @@ function createStyledComponent<P, TTag extends keyof JSX.IntrinsicElements>(
     | InterpolationFunction<ThemedStyledProps<P, Theme>>,
   component?: TTag | React.ComponentClass<P>
 ): StyledComponentClass<P, Theme> {
-  return (styled(component as TTag) as ThemedStyledFunction<P, Theme>)`
+  return (styled((component || 'div') as TTag) as ThemedStyledFunction<
+    P,
+    Theme
+  >)`
     ${(props: ThemedStyledProps<P, Theme>) =>
       isThemeFromProvider(props.theme)
         ? getStyle(styles, props.theme.type)
