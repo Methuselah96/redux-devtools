@@ -3,7 +3,7 @@ import { withOptions } from '@storybook/addon-options';
 import { withInfo } from '@storybook/addon-info';
 import { withKnobs } from '@storybook/addon-knobs';
 import { withTheme } from './themeAddon/theme';
-import '../src/presets';
+import '../src/presets.js';
 
 addDecorator(
   withOptions({
