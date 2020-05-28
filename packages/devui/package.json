@@ -27,7 +27,7 @@
     "lint:css": "stylelint './src/**/styles/*.js'",
     "test:update": "npm run jest -- -u",
     "test": "jest --no-cache",
-    "storybook": "start-storybook -p 9001 -c .storybook -s ./fonts",
+    "storybook": "npm run build && start-storybook -p 9001 -c .storybook -s ./fonts",
     "publish-storybook": "bash .scripts/publish_storybook.sh",
     "prepare": "npm run build",
     "prepublishOnly": "npm run test && npm run build"
