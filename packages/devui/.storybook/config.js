@@ -1,9 +1,9 @@
-import { configure, setAddon, addDecorator } from '@storybook/react';
+import { configure, addDecorator } from '@storybook/react';
 import { withOptions } from '@storybook/addon-options';
 import { withInfo } from '@storybook/addon-info';
 import { withKnobs } from '@storybook/addon-knobs';
 import { withTheme } from './themeAddon/theme';
-import '../src/presets.js';
+import '../src/presets';
 
 addDecorator(
   withOptions({
