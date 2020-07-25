@@ -1,7 +1,7 @@
 import React, { Component, PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import * as themes from 'redux-devtools-themes';
-import { ActionCreators } from 'redux-devtools';
+import { ActionCreators, LiftedAction, LiftedState } from 'redux-devtools';
 import { Toolbar, Divider } from 'devui/lib/Toolbar';
 import Slider from 'devui/lib/Slider';
 import Button from 'devui/lib/Button';
@@ -9,6 +9,10 @@ import SegmentedControl from 'devui/lib/SegmentedControl';
 
 import reducer from './reducers';
 import SliderButton from './SliderButton';
+import { Action, Dispatch } from 'redux';
+import { LogMonitorState } from 'redux-devtools-log-monitor/lib/reducers';
+import { LogMonitorAction } from 'redux-devtools-log-monitor/lib/actions';
+import { Base16Theme } from 'base16';
 
 const { reset, jumpToState } = ActionCreators;
 
