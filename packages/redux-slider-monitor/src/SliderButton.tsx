@@ -1,8 +1,16 @@
 import React, { Component, PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import Button from 'devui/lib/Button';
+import { Base16Theme } from 'base16';
 
-export default class SliderButton extends (PureComponent || Component) {
+interface Props {
+  theme: Base16Theme;
+  type: 'play' | 'pause' | 'stepLeft' | 'stepRight';
+  disabled?: boolean;
+  onClick: React.MouseEventHandler<HTMLButtonElement> | undefined;
+}
+
+export default class SliderButton extends (PureComponent || Component)<Props> {
   static propTypes = {
     theme: PropTypes.object,
     type: PropTypes.string,
@@ -61,7 +69,7 @@ export default class SliderButton extends (PureComponent || Component) {
     </Button>
   );
 
-  renderStepButton = direction => {
+  renderStepButton = (direction: 'left' | 'right') => {
     const isLeft = direction === 'left';
     const d = isLeft
       ? 'M15.41 16.09l-4.58-4.59 4.58-4.59-1.41-1.41-6 6 6 6z'

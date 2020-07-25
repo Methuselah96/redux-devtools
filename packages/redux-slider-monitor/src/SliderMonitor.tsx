@@ -1,4 +1,4 @@
-import React, { Component, PureComponent } from 'react';
+import React, { ChangeEventHandler, Component, PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import * as themes from 'redux-devtools-themes';
 import { ActionCreators, LiftedAction, LiftedState } from 'redux-devtools';
@@ -10,13 +10,29 @@ import SegmentedControl from 'devui/lib/SegmentedControl';
 import reducer from './reducers';
 import SliderButton from './SliderButton';
 import { Action, Dispatch } from 'redux';
-import { LogMonitorState } from 'redux-devtools-log-monitor/lib/reducers';
-import { LogMonitorAction } from 'redux-devtools-log-monitor/lib/actions';
 import { Base16Theme } from 'base16';
 
 const { reset, jumpToState } = ActionCreators;
 
-export default class SliderMonitor extends (PureComponent || Component) {
+interface Props<S, A extends Action<unknown>> extends LiftedState<S, A, {}> {
+  dispatch: Dispatch<LiftedAction<S, A, {}, never>>;
+
+  preserveScrollTop: boolean;
+  select: (state: S) => unknown;
+  hideResetButton?: boolean;
+  theme: keyof typeof themes | Base16Theme;
+  keyboardEnabled: boolean;
+}
+
+interface State {
+  timer: number | undefined;
+  replaySpeed: string;
+}
+
+export default class SliderMonitor<
+  S,
+  A extends Action<unknown>
+> extends (PureComponent || Component)<Props<S, A>, State> {
   static update = reducer;
 
   static propTypes = {
@@ -37,13 +53,13 @@ export default class SliderMonitor extends (PureComponent || Component) {
   };
 
   static defaultProps = {
-    select: state => state,
+    select: (state: unknown) => state,
     theme: 'nicinabox',
     preserveScrollTop: true,
     keyboardEnabled: true
   };
 
-  state = {
+  state: State = {
     timer: undefined,
     replaySpeed: '1x'
   };
@@ -80,7 +96,7 @@ export default class SliderMonitor extends (PureComponent || Component) {
     this.props.dispatch(reset());
   };
 
-  handleKeyPress = event => {
+  handleKeyPress = (event: KeyboardEvent) => {
     if (!this.props.keyboardEnabled) {
       return null;
     }
@@ -109,7 +125,7 @@ export default class SliderMonitor extends (PureComponent || Component) {
     return null;
   };
 
-  handleSliderChange = value => {
+  handleSliderChange = (value: number) => {
     if (this.state.timer) {
       this.pauseReplay();
     }
@@ -138,7 +154,7 @@ export default class SliderMonitor extends (PureComponent || Component) {
     }
 
     let counter = stateIndex;
-    const timer = setInterval(() => {
+    const timer = window.setInterval(() => {
       if (counter + 1 <= computedStates.length - 1) {
         dispatch(jumpToState(counter + 1));
       }
@@ -169,7 +185,7 @@ export default class SliderMonitor extends (PureComponent || Component) {
     }
   };
 
-  loop = index => {
+  loop = (index: number) => {
     let currentTimestamp = Date.now();
     let timestampDiff = this.getLatestTimestampDiff(index);
 
@@ -208,16 +224,16 @@ export default class SliderMonitor extends (PureComponent || Component) {
     }
   };
 
-  getLatestTimestampDiff = index =>
+  getLatestTimestampDiff = (index: number) =>
     this.getTimestampOfStateIndex(index + 1) -
     this.getTimestampOfStateIndex(index);
 
-  getTimestampOfStateIndex = stateIndex => {
+  getTimestampOfStateIndex = (stateIndex: number) => {
     const id = this.props.stagedActionIds[stateIndex];
     return this.props.actionsById[id].timestamp;
   };
 
-  pauseReplay = cb => {
+  pauseReplay = (cb?: (() => void) | unknown) => {
     if (this.state.timer) {
       cancelAnimationFrame(this.state.timer);
       clearInterval(this.state.timer);
@@ -250,7 +266,7 @@ export default class SliderMonitor extends (PureComponent || Component) {
     }
   };
 
-  changeReplaySpeed = replaySpeed => {
+  changeReplaySpeed = (replaySpeed: string) => {
     this.setState({ replaySpeed });
 
     if (this.state.timer) {
@@ -280,7 +296,7 @@ export default class SliderMonitor extends (PureComponent || Component) {
     let actionType = actionsById[actionId].action.type;
     if (actionType === undefined) actionType = '<UNDEFINED>';
     else if (actionType === null) actionType = '<NULL>';
-    else actionType = actionType.toString() || '<EMPTY>';
+    else actionType = (actionType as string).toString() || '<EMPTY>';
 
     const onPlayClick =
       replaySpeed === 'Live' ? this.startRealtimeReplay : this.startReplay;
