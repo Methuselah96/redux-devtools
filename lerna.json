@@ -8,5 +8,6 @@
       "allowBranch": "master"
     }
   },
-  "ignoreChanges": ["**/test/**", "**/examples/**", "**/*.md"]
+  "ignoreChanges": ["**/test/**", "**/examples/**", "**/*.md"],
+  "packages": ["packages/*"]
 }
