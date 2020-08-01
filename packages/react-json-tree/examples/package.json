@@ -1,5 +1,6 @@
 {
   "name": "react-json-tree-example",
+  "private": true,
   "version": "1.0.0",
   "description": "React-Json-Tree example",
   "scripts": {
